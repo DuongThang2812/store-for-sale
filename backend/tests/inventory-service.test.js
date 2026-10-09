@@ -1,0 +1,20 @@
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import {buildInventoryService} from '../services/inventory-service/app.js';
+import {createSessionSecurity} from '../shared/session.js';
+const env={SESSION_SECRET:'inventory-test-session-key-at-least-32-characters'};
+const id='f9400000-0000-4000-8000-000000000001';
+test('Inventory validates intent, ignores no forged balances, and uses verified actor',async t=>{
+    const calls=[];const repository={receive:async(...args)=>{calls.push(args);return {total_cost:60000};},balances:async()=>[]};
+    const app=await buildInventoryService({env,identity:{verify:async()=>({id})},repository,logger:false});t.after(()=>app.close());
+    const security=createSessionSecurity({secret:env.SESSION_SECRET});
+    const csrf=security.csrf({cookies:{}},{setCookie:()=>{}});
+    const cookie=security.seal({accessToken:'a',refreshToken:'r',expiresAt:2000000000});
+    const headers={cookie:`bin-session=${cookie}; bin-csrf=${csrf}`,'x-csrf-token':csrf};
+    const payload={shopId:id,requestId:id,items:[{productId:id,unitKey:'base',quantity:10,unitCost:6000}]};
+    assert.equal((await app.inject({method:'POST',url:'/api/v1/inventory/imports',headers,payload:{...payload,stockBase:999999}})).statusCode,400);
+    assert.equal(calls.length,0);
+    assert.equal((await app.inject({method:'POST',url:'/api/v1/inventory/imports',headers,payload})).statusCode,200);
+    assert.equal(calls[0][0],id);assert.equal(calls[0][1].requestId,id);
+    const spec=(await app.inject('/openapi.json')).json();assert.ok(spec.paths['/api/v1/inventory/counts']);
+});

@@ -1,0 +1,20 @@
+@import "tailwindcss";
+@import "./styles/tokens.css";
+@import "./styles/base.css";
+@import "./styles/shell.css";
+@import "./styles/dashboard.css";
+@import "./styles/controls.css";
+@import "./styles/sales.css";
+@import "./styles/stock.css";
+@import "./styles/debt.css";
+@import "./styles/dialogs.css";
+@import "./styles/login.css";
+@import "./styles/reports.css";
+@import "./styles/pricing.css";
+@import "./styles/account.css";
+@import "./styles/responsive.css";
+@import "./styles/polish.css";
+@import "./motion.css";
+@import "./styles/feedback.css";
+@import "./styles/admin.css";
+.cloud-catalog-auth { display: grid; gap: 16px; max-width: 540px; margin: 16px 0; }

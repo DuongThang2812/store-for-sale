@@ -1,0 +1,249 @@
+/* ============================================================
+   BIN PREMIUM CONTROLS — Buttons, Search, Filters
+   ============================================================ */
+
+/* ─── Button System ───────────────────────────────────────── */
+.button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  border: 1px solid transparent;
+  border-radius: var(--radius-md);
+  padding: 11px 22px;
+  min-height: 48px;
+  font-size: 15px;
+  font-weight: 700;
+  line-height: 1.3;
+  text-align: center;
+  transition:
+    background var(--motion-fast) var(--motion-ease),
+    border-color var(--motion-fast) var(--motion-ease),
+    box-shadow var(--motion-fast) var(--motion-ease),
+    transform var(--motion-fast) var(--motion-ease);
+  user-select: none;
+  white-space: nowrap;
+  letter-spacing: 0.01em;
+}
+
+.button:active:not(:disabled) { transform: scale(0.97) translateY(1px); }
+
+/* Primary — brand green */
+.primary {
+  color: #ffffff;
+  background: var(--green);
+  border-color: var(--green-dark);
+  box-shadow: 0 1px 2px rgba(18, 72, 55, 0.15), 0 4px 12px -4px rgba(18, 72, 55, 0.3);
+}
+
+.primary:hover:not(:disabled) {
+  background: var(--green-dark);
+  box-shadow: 0 2px 6px rgba(18, 72, 55, 0.18), 0 8px 20px -6px rgba(18, 72, 55, 0.4);
+  transform: translateY(-1px);
+}
+
+/* Secondary */
+.secondary {
+  background: var(--surface);
+  border-color: var(--border);
+  color: var(--ink-secondary);
+  box-shadow: var(--shadow-xs);
+}
+
+.secondary:hover:not(:disabled) {
+  background: var(--canvas);
+  border-color: var(--green-border);
+  color: var(--ink);
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-sm);
+}
+
+/* Danger */
+.danger {
+  background: var(--danger);
+  color: #ffffff;
+  border-color: var(--danger-hover);
+  box-shadow: 0 1px 2px rgba(168, 53, 49, 0.15), 0 4px 12px -4px rgba(168, 53, 49, 0.28);
+}
+
+.danger:hover:not(:disabled) {
+  background: var(--danger-hover);
+  box-shadow: 0 2px 6px rgba(168, 53, 49, 0.2), 0 8px 20px -6px rgba(168, 53, 49, 0.35);
+  transform: translateY(-1px);
+}
+
+.full { width: 100%; }
+
+/* Small button variant */
+.button.sm {
+  min-height: 36px;
+  padding: 7px 14px;
+  font-size: 13px;
+  border-radius: var(--radius-sm);
+}
+
+/* ─── Back Link ───────────────────────────────────────────── */
+.back-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--muted);
+  font-size: 14px;
+  font-weight: 600;
+  margin-bottom: 14px;
+  min-height: 32px;
+  transition: color var(--motion-fast) var(--motion-ease), gap var(--motion-fast) var(--motion-ease);
+}
+
+.back-link:hover { color: var(--ink); gap: 4px; }
+
+/* ─── Icon Button ─────────────────────────────────────────── */
+.icon-button {
+  width: 42px;
+  min-width: 42px;
+  height: 42px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 0;
+  background: transparent;
+  color: var(--muted);
+  border-radius: var(--radius-md);
+  transition:
+    background var(--motion-fast) var(--motion-ease),
+    color var(--motion-fast) var(--motion-ease),
+    transform var(--motion-fast) var(--motion-ease);
+}
+
+.icon-button:hover {
+  background: var(--canvas);
+  color: var(--ink);
+}
+
+.icon-button:active:not(:disabled) { transform: scale(0.95); }
+
+/* ─── Search Box ──────────────────────────────────────────── */
+.search-box {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-height: 50px;
+  background: var(--surface);
+  border: 1.5px solid var(--border);
+  border-radius: var(--radius-md);
+  padding: 0 14px;
+  color: var(--muted);
+  box-shadow: var(--shadow-xs);
+  transition: border-color var(--motion-fast) var(--motion-ease), box-shadow var(--motion-fast) var(--motion-ease);
+}
+
+.search-box:focus-within {
+  border-color: var(--green);
+  box-shadow: 0 0 0 3px rgba(26, 99, 72, 0.1), var(--shadow-xs);
+}
+
+.search-box input {
+  width: 100%;
+  border: 0;
+  outline: none;
+  min-width: 0;
+  background: transparent;
+  color: var(--ink);
+  height: 48px;
+  font-size: 15px;
+}
+
+.search-box input::placeholder { color: #8ba898; }
+
+.search-box .icon-button {
+  height: 36px;
+  width: 36px;
+  min-width: 36px;
+  margin-right: -6px;
+}
+
+/* ─── Filter Tabs / Pills ─────────────────────────────────── */
+.filter-tabs {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin: 16px 0;
+  padding-block: 2px;
+}
+
+.filter-tabs button {
+  min-height: 40px;
+  background: var(--surface);
+  color: var(--muted);
+  border: 1.5px solid var(--border);
+  border-radius: var(--radius-md);
+  padding: 8px 16px;
+  font-size: 14px;
+  font-weight: 600;
+  white-space: nowrap;
+  box-shadow: var(--shadow-xs);
+  transition:
+    background var(--motion-fast) var(--motion-ease),
+    border-color var(--motion-fast) var(--motion-ease),
+    color var(--motion-fast) var(--motion-ease),
+    box-shadow var(--motion-fast) var(--motion-ease);
+}
+
+.filter-tabs button:hover {
+  background: var(--canvas);
+  color: var(--ink);
+  border-color: var(--green-border);
+}
+
+.filter-tabs button.selected {
+  background: var(--green-light);
+  color: var(--green-dark);
+  border-color: var(--green-border);
+  font-weight: 700;
+  box-shadow: none;
+}
+
+.filter-tabs button > span {
+  display: inline-block;
+  font-size: 11px;
+  background: rgba(0, 0, 0, 0.07);
+  border-radius: 999px;
+  margin-left: 6px;
+  padding: 1px 7px;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+
+.filter-tabs button.selected > span {
+  background: rgba(26, 99, 72, 0.15);
+  color: var(--green-dark);
+}
+
+/* ─── List Caption ────────────────────────────────────────── */
+.list-caption {
+  display: flex;
+  justify-content: space-between;
+  font-size: 13.5px;
+  color: var(--ink-secondary);
+  margin: 0 0 14px;
+  font-weight: 600;
+}
+
+.list-caption span { color: var(--muted); font-size: 13px; font-weight: 500; }
+
+/* ─── Text Link ───────────────────────────────────────────── */
+.text-link {
+  font-size: 14px;
+  color: var(--green);
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-weight: 700;
+  border: 0;
+  background: transparent;
+  min-height: 32px;
+  transition: color var(--motion-fast) var(--motion-ease), gap var(--motion-fast) var(--motion-ease);
+}
+
+.text-link:hover { color: var(--green-dark); gap: 7px; }

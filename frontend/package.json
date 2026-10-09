@@ -1,0 +1,40 @@
+{
+  "name": "bin-frontend",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "lint": "oxlint",
+    "test": "node --test tests/active-shop-store.test.js tests/dashboard-report.test.js tests/snack-units.test.js tests/application-errors.test.js tests/account-and-cancellation.test.js tests/admin-api-validation.test.js tests/auth-session.test.js tests/calculator.test.js tests/catalog-workbook.test.js tests/fruit-shop.test.js tests/seed-weight.test.js tests/legacy-migration.test.js tests/performance-storage.test.js tests/supabase-foundation.test.js tests/cloud-review.test.js",
+    "test:backend": "node --test tests/supabase-foundation.test.js",
+    "test:integration": "node --env-file-if-exists=.env.local scripts/smoke-shop-api.mjs",
+    "backend:check": "node --env-file-if-exists=.env.local scripts/check-supabase.mjs",
+    "bench:ui": "node scripts/benchmark-ui.mjs",
+    "audit:ui": "node scripts/audit-ui.mjs",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "@supabase/supabase-js": "^2.117.1",
+    "clsx": "^2.1.1",
+    "lucide-react": "^1.47.0",
+    "motion": "^14.0.0",
+    "react": "^19.2.8",
+    "react-dom": "^19.2.8",
+    "react-router-dom": "^7.18.4",
+    "read-excel-file": "^9.3.10",
+    "recharts": "^3.10.1",
+    "tailwind-merge": "^3.7.0",
+    "zustand": "^5.0.15"
+  },
+  "devDependencies": {
+    "@tailwindcss/vite": "^4.3.3",
+    "@vitejs/plugin-react": "^6.1.1",
+    "autoprefixer": "^10.6.1",
+    "oxlint": "^1.81.0",
+    "postcss": "^8.5.28",
+    "tailwindcss": "^4.3.3",
+    "vite": "^8.3.0"
+  }
+}

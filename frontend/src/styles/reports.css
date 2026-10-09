@@ -1,0 +1,324 @@
+/* ============================================================
+   BIN PREMIUM REPORTS & CHARTS — Fintech Visual Precision
+   ============================================================ */
+
+/* ─── Debt Order Banner ───────────────────────────────────── */
+.debt-order-banner {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  background: linear-gradient(160deg, #fefbf5 0%, #fdf4e4 100%);
+  border: 1px solid rgba(184, 115, 23, 0.25);
+  border-radius: var(--radius-lg);
+  padding: 18px 22px;
+  margin-bottom: 24px;
+  color: #7a4e12;
+  box-shadow: var(--shadow-xs);
+}
+
+.debt-order-banner strong { font-size: 16.5px; font-weight: 800; color: #8c4e0b; }
+.debt-order-banner p { font-size: 14px; margin-top: 4px; line-height: 1.55; }
+
+/* ─── CSV Import ──────────────────────────────────────────── */
+.csv-import-shortcut { margin-top: 22px; }
+
+.csv-intro-grid {
+  display: grid;
+  grid-template-columns: 1.2fr 1fr;
+  gap: 24px;
+  margin-bottom: 24px;
+}
+
+.csv-upload {
+  padding: 40px 32px;
+  text-align: center;
+  display: flex;
+  align-items: center;
+  flex-direction: column;
+  gap: 16px;
+  position: relative;
+  border: 2px dashed var(--green-border);
+  background: linear-gradient(160deg, #fafcf9 0%, #f4faf6 100%);
+  border-radius: var(--radius-lg);
+  transition: border-color var(--motion-fast) var(--motion-ease), background var(--motion-fast) var(--motion-ease);
+}
+
+.csv-upload:hover { border-color: var(--green); background: var(--green-lighter); }
+.csv-upload .choice-icon { margin-bottom: 0; }
+.csv-upload p { font-size: 14px; color: var(--muted); line-height: 1.55; }
+.csv-upload .button { cursor: pointer; }
+
+.csv-file-input {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+.csv-file-input:focus-visible + label {
+  outline: 2.5px solid var(--accent);
+  outline-offset: 4px;
+}
+
+.csv-upload .disabled { opacity: 0.5; pointer-events: none; }
+
+.file-name {
+  font-size: 14px;
+  color: var(--green-dark);
+  font-weight: 700;
+  overflow-wrap: anywhere;
+  max-width: 100%;
+}
+
+.csv-guide { padding: 28px 30px; }
+
+.csv-guide ol {
+  padding-left: 22px;
+  color: var(--muted);
+  margin: 18px 0;
+  line-height: 1.85;
+}
+
+.csv-guide li + li { margin-top: 10px; }
+.csv-rules p { margin-top: 7px; font-size: 15px; }
+
+.csv-preview .panel-heading p {
+  color: var(--muted);
+  font-size: 14px;
+  margin-top: 4px;
+}
+
+.table-scroll { max-width: 100%; overflow-x: auto; }
+
+/* ─── Data Table ──────────────────────────────────────────── */
+.data-table {
+  border-collapse: collapse;
+  width: 100%;
+  font-size: 14px;
+}
+
+.data-table th {
+  background: #f4f7f5;
+  color: var(--muted);
+  font-size: 11px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  padding: 12px 18px;
+  text-align: left;
+  border-bottom: 1px solid var(--border);
+}
+
+.data-table td {
+  padding: 14px 18px;
+  border-bottom: 1px solid var(--border-subtle);
+  color: var(--ink);
+  font-variant-numeric: tabular-nums;
+}
+
+.data-table tr:hover td { background: #f8faf8; }
+
+/* ─── Report Toolbar ──────────────────────────────────────── */
+.report-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+.report-toolbar .filter-tabs { margin: 0; }
+.report-toolbar > span { font-size: 13.5px; color: var(--muted); font-weight: 600; }
+
+/* ─── Report Cards Hierarchy ──────────────────────────────── */
+.report-cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 18px;
+  margin-bottom: 28px;
+}
+
+.report-card {
+  padding: 24px;
+  border-radius: var(--radius-lg);
+  background: var(--surface);
+  border: 1px solid var(--border);
+  box-shadow: var(--shadow-sm);
+  transition:
+    transform var(--motion-fast) var(--motion-ease),
+    box-shadow var(--motion-fast) var(--motion-ease);
+}
+
+.report-card:hover { transform: translateY(-2px); box-shadow: var(--shadow-md); }
+
+.report-card .quick-icon { width: 44px; height: 44px; margin-bottom: 16px; border-radius: var(--radius-md); }
+.report-card p { font-size: 13px; color: var(--muted); font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; }
+
+.report-card > strong {
+  display: block;
+  font-size: 28px;
+  letter-spacing: -0.04em;
+  color: var(--ink);
+  margin: 6px 0 8px;
+  overflow-wrap: anywhere;
+  font-variant-numeric: tabular-nums;
+  font-weight: 900;
+}
+
+.report-card > strong span {
+  font-size: 15px;
+  font-weight: 500;
+  color: var(--muted);
+}
+
+.report-card small { font-size: 12px; color: var(--muted); line-height: 1.45; }
+
+/* ─── Revenue Chart ───────────────────────────────────────── */
+.revenue-chart {
+  padding-bottom: 24px;
+  margin-bottom: 24px;
+}
+
+.revenue-chart .panel-heading { align-items: flex-start; }
+.revenue-chart .panel-heading p { font-size: 14px; color: var(--muted); margin-top: 5px; }
+
+.chart-metric {
+  font-size: 13px;
+  color: var(--muted);
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.chart-metric select {
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  min-height: 40px;
+  background: var(--surface);
+  color: var(--ink);
+  padding: 8px 12px;
+  font-size: 13.5px;
+  font-weight: 600;
+  box-shadow: var(--shadow-xs);
+  transition: border-color var(--motion-fast) var(--motion-ease);
+}
+
+.chart-metric select:focus { border-color: var(--green); outline: none; box-shadow: 0 0 0 3px var(--green-glow); }
+
+.chart-detail {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  flex-wrap: wrap;
+  background: linear-gradient(135deg, #f7faf8 0%, #eef6f1 100%);
+  margin: 0 24px 20px;
+  padding: 14px 20px;
+  border-radius: var(--radius-md);
+  font-size: 14px;
+  color: var(--muted);
+  border: 1px solid rgba(17, 82, 59, 0.12);
+}
+
+.chart-detail strong { color: var(--green-dark); font-size: 16.5px; font-weight: 900; font-variant-numeric: tabular-nums; }
+.chart-detail span:last-child { margin-left: auto; }
+
+.chart-frame { display: flex; gap: 8px; padding: 12px 24px 0; }
+
+.chart-axis {
+  width: 72px;
+  flex-shrink: 0;
+  height: 240px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  align-items: flex-end;
+  font-size: 11px;
+  color: var(--muted);
+  padding-right: 8px;
+  opacity: 0.8;
+  font-variant-numeric: tabular-nums;
+}
+
+.chart-scroll { overflow-x: auto; width: 100%; padding-bottom: 8px; }
+
+.chart-plot {
+  height: 278px;
+  display: flex;
+  gap: 0;
+  background: repeating-linear-gradient(
+    to bottom,
+    transparent 0,
+    transparent 58px,
+    rgba(17, 82, 59, 0.05) 58px,
+    rgba(17, 82, 59, 0.05) 59px
+  );
+  background-size: 100% 240px;
+  background-repeat: no-repeat;
+}
+
+.chart-column {
+  min-width: 44px;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  border: 0;
+  border-radius: var(--radius-sm);
+  padding: 0 5px;
+  background: transparent;
+  color: var(--muted);
+  cursor: pointer;
+  position: relative;
+  transition: background var(--motion-fast) var(--motion-ease);
+}
+
+.chart-column:hover, .chart-column.selected {
+  background: rgba(17, 82, 59, 0.06);
+  border-radius: var(--radius-md);
+}
+
+.chart-bar-area {
+  height: 240px;
+  width: 100%;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  position: relative;
+}
+
+.chart-bar {
+  display: block;
+  width: 60%;
+  max-width: 48px;
+  background: linear-gradient(180deg, #2eb872 0%, #11523b 100%);
+  border-radius: 6px 6px 2px 2px;
+  transition: height var(--motion-base) var(--motion-ease);
+  box-shadow: 0 4px 12px rgba(17, 82, 59, 0.2);
+}
+
+.chart-bar.received {
+  background: linear-gradient(180deg, #4d9fc0 0%, #175d7e 100%);
+  box-shadow: 0 4px 12px rgba(23, 93, 126, 0.2);
+}
+
+.chart-column.selected .chart-bar {
+  background: linear-gradient(180deg, #1c7c4f 0%, #093725 100%);
+}
+
+.chart-column.selected .chart-day {
+  font-weight: 800;
+  color: var(--ink);
+}
+
+.chart-day {
+  font-size: 11px;
+  margin-top: 14px;
+  align-self: center;
+  white-space: nowrap;
+  color: var(--muted);
+  font-weight: 600;
+}
+
+.report-explanation { font-size: 14.5px; }
+.report-explanation p { margin-top: 7px; line-height: 1.65; }

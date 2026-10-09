@@ -1,0 +1,94 @@
+/* ============================================================
+   BIN PREMIUM MODALS & DIALOGS
+   ============================================================ */
+
+/* ─── Native Dialog / Modal ───────────────────────────────── */
+.modal {
+  border: 1.5px solid var(--border);
+  border-radius: var(--radius-xl);
+  width: calc(100% - 32px);
+  max-width: 500px;
+  max-height: 90dvh;
+  margin: auto;
+  padding: 32px;
+  box-shadow: var(--shadow-xl);
+  color: var(--ink);
+  background: var(--surface);
+  overflow: auto;
+}
+
+.modal::backdrop {
+  background: rgba(12, 26, 18, 0.58);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+}
+
+/* ─── Modal Head ──────────────────────────────────────────── */
+.modal-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 15px;
+  margin-bottom: 18px;
+}
+
+.modal-head h2 { font-size: 21px; font-weight: 800; }
+.modal-head .icon-button { margin-right: -8px; }
+
+/* Button stacking in modal */
+.modal > .button + .button { margin-top: 12px; }
+
+/* ─── Confirm Symbol ──────────────────────────────────────── */
+.confirm-symbol {
+  display: grid;
+  place-items: center;
+  width: 64px;
+  height: 64px;
+  background: var(--green-light);
+  color: var(--green);
+  border-radius: 50%;
+  margin: 22px auto 20px;
+  box-shadow: 0 0 0 8px rgba(26, 99, 72, 0.07);
+}
+
+/* ─── Confirm Body ────────────────────────────────────────── */
+.confirm-body {
+  text-align: center;
+  font-size: 16.5px;
+  line-height: 1.7;
+  margin-bottom: 24px;
+}
+
+.confirm-body p + p {
+  font-size: 15px;
+  margin-top: 8px;
+  color: var(--muted);
+}
+
+/* ─── Modal Actions ───────────────────────────────────────── */
+.modal-actions {
+  display: flex;
+  gap: 12px;
+  margin-top: 26px;
+}
+
+.modal-actions .button {
+  flex: 1;
+  padding-inline: 12px;
+}
+
+/* ─── Help Steps ──────────────────────────────────────────── */
+.help-steps { margin: 24px 0; }
+
+.help-steps p {
+  font-size: 15.5px;
+  margin-bottom: 16px;
+  color: var(--ink);
+  line-height: 1.7;
+  padding: 14px 16px;
+  background: var(--canvas);
+  border-radius: var(--radius-md);
+  border-left: 3px solid var(--green-border);
+}
+
+.help-steps p b { color: var(--green-dark); }

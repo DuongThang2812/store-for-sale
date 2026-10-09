@@ -1,0 +1,142 @@
+/* ============================================================
+   BIN PREMIUM MOTION SYSTEM
+   Composited only. No layout-triggering animations.
+   ============================================================ */
+
+html { scrollbar-gutter: stable; }
+
+/* ─── Page Transitions ────────────────────────────────────── */
+.route-content {
+  animation: page-reveal 220ms var(--motion-ease) both;
+}
+
+@keyframes page-reveal {
+  from { opacity: 0.3; transform: translateY(6px); }
+  to   { opacity: 1;   transform: translateY(0); }
+}
+
+@keyframes dialog-reveal {
+  from { opacity: 0; transform: translateY(10px) scale(0.97); }
+  to   { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+@keyframes fade-in {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+@keyframes slide-up {
+  from { opacity: 0; transform: translateY(16px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* ─── Interactive Elements ────────────────────────────────── */
+.button, .icon-button, .nav-item, .filter-tabs button, .stepper button,
+.selection-list button, .payment-options button {
+  transition:
+    background var(--motion-fast) var(--motion-ease),
+    border-color var(--motion-fast) var(--motion-ease),
+    color var(--motion-fast) var(--motion-ease),
+    box-shadow var(--motion-fast) var(--motion-ease),
+    transform var(--motion-fast) var(--motion-ease);
+}
+
+/* Tactile press feedback */
+.button:active:not(:disabled),
+.icon-button:active:not(:disabled),
+.stepper button:active:not(:disabled) {
+  transform: scale(0.97) translateY(1px);
+}
+
+/* ─── Focus Visible ───────────────────────────────────────── */
+:is(button, a, input, select, textarea, summary):focus-visible {
+  outline: 2.5px solid var(--accent);
+  outline-offset: 3px;
+  border-radius: 4px;
+}
+
+/* ─── Modal / Dialog ──────────────────────────────────────── */
+.modal[open] {
+  animation: dialog-reveal var(--motion-dialog) var(--motion-ease);
+  overscroll-behavior: contain;
+}
+
+.modal::backdrop {
+  background: rgba(12, 28, 20, 0.55);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  animation: fade-in 200ms var(--motion-ease);
+}
+
+/* ─── Number / Metric Formatting ──────────────────────────── */
+.stepper input, .cart-total strong, .mobile-cart strong,
+.stat-value, .stock-pill, .metric-value,
+.report-card > strong, .debt-overview h2,
+.customer-bottom strong, .inventory-row > b {
+  font-variant-numeric: tabular-nums;
+}
+
+/* ─── Scroll containers ───────────────────────────────────── */
+.selection-list, .mini-cart-items, .calculator-history-list {
+  overscroll-behavior-y: contain;
+  scrollbar-gutter: stable;
+}
+
+/* ─── Chart bar animation ─────────────────────────────────── */
+.chart-bar {
+  transition: height var(--motion-base) var(--motion-ease),
+              opacity var(--motion-fast) var(--motion-ease);
+}
+
+/* ─── Content Visibility (performance) ───────────────────── */
+@supports (content-visibility: auto) {
+  .product-card, .inventory-row, .activity-row, .customer-card,
+  .selection-list > button, .calculator-history-list > li {
+    content-visibility: auto;
+  }
+  .product-card         { contain-intrinsic-block-size: auto 290px; }
+  .inventory-row        { contain-intrinsic-block-size: auto 90px; }
+  .activity-row         { contain-intrinsic-block-size: auto 110px; }
+  .customer-card        { contain-intrinsic-block-size: auto 170px; }
+  .selection-list > button { contain-intrinsic-block-size: auto 82px; }
+  .calculator-history-list > li { contain-intrinsic-block-size: auto 144px; }
+}
+
+/* ─── Touch device overrides ──────────────────────────────── */
+@media (hover: none) {
+  .product-card:hover, .quick-card:hover, .customer-card:hover,
+  .import-group-card:hover, .nav-item:hover, .stat-card:hover,
+  .button:hover:not(:active), .calculator-key:hover:not(:active) {
+    transform: none;
+  }
+  .product-card, .quick-card, .customer-card, .import-group-card,
+  .product-card:hover, .quick-card:hover, .customer-card:hover,
+  .import-group-card:hover { box-shadow: var(--shadow-xs); }
+}
+
+/* ─── Mobile ──────────────────────────────────────────────── */
+@media (max-width: 760px) {
+  .topbar, .bottom-nav, .mobile-cart {
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+    background: #fff;
+  }
+  .bottom-nav a { min-width: 0; }
+}
+
+/* ─── Print ───────────────────────────────────────────────── */
+@media print {
+  .product-card, .inventory-row, .activity-row, .customer-card,
+  .selection-list > button, .calculator-history-list > li {
+    content-visibility: visible;
+  }
+}
+
+/* ─── Reduced Motion ──────────────────────────────────────── */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation: none !important;
+    transition: none !important;
+    scroll-behavior: auto !important;
+  }
+}

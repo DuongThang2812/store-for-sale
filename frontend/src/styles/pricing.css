@@ -1,0 +1,251 @@
+/* Product groups & Multi-units */
+.import-group-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 20px;
+}
+
+.import-group-card {
+  padding: 28px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  transition: transform var(--motion-fast) var(--motion-ease), opacity var(--motion-fast) var(--motion-ease);
+  border-radius: 16px;
+}
+
+.import-group-card:hover {
+  border-color: #9cb593;
+  transform: translateY(-3px);
+  box-shadow: var(--shadow-md);
+}
+
+.import-group-card .choice-icon {
+  width: 65px;
+  height: 65px;
+  margin-bottom: 18px;
+}
+
+.import-group-card h2 {
+  font-size: 22px;
+  margin-bottom: 8px;
+}
+
+.import-group-card p {
+  font-size: 15px;
+  color: #637668;
+  min-height: 48px;
+  margin-bottom: 16px;
+  line-height: 1.6;
+}
+
+.import-group-card .text-link {
+  margin-top: auto;
+  min-height: 40px;
+}
+
+.import-extra-links {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+  margin-top: 24px;
+  flex-wrap: wrap;
+}
+
+.pricing-section {
+  border-top: 1px solid var(--border);
+  padding-top: 22px;
+  margin-top: 24px;
+}
+
+.pricing-section > h3 {
+  font-size: 18px;
+  color: #173f2b;
+}
+
+.pricing-section > p {
+  font-size: 14px;
+  color: #637668;
+  margin-top: 12px;
+}
+
+.pricing-conversion {
+  background: #f5f8f0;
+  border: 1px solid #e1ecdc;
+  border-radius: 12px;
+  padding: 0 18px;
+  margin: 20px 0;
+}
+
+.conversion-hint {
+  font-size: 14px;
+  color: #556d5c;
+  background: #f5f8f0;
+  border-radius: 10px;
+  padding: 13px 16px;
+  line-height: 1.65;
+  margin: 16px 0;
+  border: 1px solid #e1ecdc;
+}
+
+.pricing-summary {
+  padding: 26px;
+  margin-bottom: 22px;
+  border-radius: 16px;
+}
+
+.pricing-summary > h2 {
+  margin-bottom: 8px;
+}
+
+.pricing-summary > h3 {
+  margin: 22px 0 8px;
+  color: #556d5c;
+  font-size: 16px;
+}
+
+.pricing-summary > .muted {
+  font-size: 14px;
+}
+
+.price-summary-row {
+  display: flex;
+  justify-content: space-between;
+  gap: 15px;
+  padding: 14px 0;
+  border-bottom: 1px solid #edf1e8;
+  font-size: 16px;
+}
+
+.price-summary-row small {
+  display: block;
+  color: #65796b;
+  margin-top: 4px;
+  font-size: 13px;
+}
+
+.price-summary-row b {
+  white-space: nowrap;
+  color: #19583a;
+}
+
+.stock-side > .stock-text {
+  font-size: 26px;
+  line-height: 1.5;
+}
+
+.sale-unit-selector {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  font-size: 13px;
+  color: #556b5b;
+  margin: 10px 0;
+}
+
+.sale-unit-selector select {
+  border: 1px solid #d5e0d0;
+  background: #f8faf5;
+  color: #1a3d2b;
+  border-radius: 8px;
+  min-height: 40px;
+  padding: 6px 10px;
+  font-size: 14px;
+  max-width: 72%;
+  min-width: 0;
+}
+
+.sale-unit-tabs {
+  display: flex;
+  gap: 4px;
+  margin: 10px 0 12px;
+  background: #edf4eb;
+  padding: 3px;
+  border-radius: 10px;
+}
+
+.sale-unit-tab {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  padding: 6px 10px;
+  min-height: 38px;
+  border-radius: 8px;
+  border: 0;
+  background: transparent;
+  color: #556b5b;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: transform var(--motion-fast) var(--motion-ease), opacity var(--motion-fast) var(--motion-ease);
+}
+
+.sale-unit-tab:hover {
+  color: #1a3d2b;
+}
+
+.sale-unit-tab.active {
+  background: #ffffff;
+  color: #175c45;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+  font-weight: 700;
+}
+
+.sale-unit-tab small {
+  font-size: 11px;
+  opacity: 0.85;
+}
+
+.unit-cart-note {
+  font-size: 12px;
+  color: #627567;
+  text-align: center;
+  margin-top: 10px;
+}
+
+.inventory-row > .inventory-prices {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 6px;
+  font-size: 14px;
+  color: #1e5a3c;
+}
+
+.inventory-prices > span {
+  white-space: nowrap;
+}
+
+.inventory-row .inventory-prices small {
+  display: inline;
+  font-size: 12px;
+  color: #697c6e;
+}
+
+.inventory-stock {
+  white-space: normal;
+  line-height: 1.6;
+}
+
+.confirm-cart-lines {
+  padding: 12px 0;
+  border-top: 1px solid #edf1e8;
+  margin-top: 16px;
+}
+
+.confirm-cart-lines p {
+  font-size: 14px;
+  margin: 8px 0;
+  text-align: left;
+  color: #244131;
+}
+
+.activity-purchase {
+  display: block;
+  font-size: 12px;
+  color: #8c5d26;
+  margin-top: 6px;
+}

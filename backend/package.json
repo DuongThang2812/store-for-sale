@@ -1,0 +1,35 @@
+{
+  "name": "little_store_be",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Supabase Auth and PostgreSQL backend for Tap hoa BIN",
+  "scripts": {
+    "db:start": "supabase start",
+    "db:stop": "supabase stop",
+    "db:status": "supabase status",
+    "db:migrate": "supabase migration up --local",
+    "db:reset": "supabase db reset --local",
+    "db:test": "supabase test db --local",
+    "test": "node --test tests/*-service.test.js tests/gateway.test.js",
+    "api:setup": "node scripts/setup-local-api.mjs",
+    "api:auth": "node --env-file=.env.microservices services/auth-service/server.js",
+    "api:catalog": "node --env-file=.env.microservices services/catalog-service/server.js",
+    "api:gateway": "node --env-file=.env.microservices gateway/server.js",
+    "test:edge": "node scripts/smoke-admin-edge.mjs",
+    "db:test:isolated": "node scripts/validate-postgres-isolated.mjs"
+  },
+  "devDependencies": {
+    "supabase": "2.117.0"
+  },
+  "dependencies": {
+    "@fastify/cookie": "^11.1.2",
+    "@fastify/cors": "^11.3.0",
+    "@fastify/rate-limit": "^11.2.0",
+    "@fastify/swagger": "^9.9.1",
+    "@fastify/swagger-ui": "^6.1.1",
+    "@supabase/supabase-js": "^2.117.3",
+    "fastify": "^5.12.5",
+    "pg": "^8.23.1"
+  }
+}

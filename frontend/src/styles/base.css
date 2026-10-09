@@ -1,0 +1,84 @@
+/* ============================================================
+   BIN PREMIUM BASE — Typography, Scrollbars & Focus
+   ============================================================ */
+
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: rgba(17, 82, 59, 0.16); border-radius: 999px; }
+::-webkit-scrollbar-thumb:hover { background: rgba(17, 82, 59, 0.32); }
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  min-width: 320px;
+  background:
+    radial-gradient(1200px circle at 50% -80px, rgba(17, 82, 59, 0.04) 0%, transparent 70%),
+    var(--canvas);
+  background-attachment: fixed;
+  color: var(--ink);
+  line-height: 1.6;
+  font-feature-settings: "cv02", "cv03", "cv04", "cv11";
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+button, input, select, textarea { font: inherit; }
+button, a, input, select { -webkit-tap-highlight-color: transparent; }
+button, a { touch-action: manipulation; }
+button { cursor: pointer; }
+
+button:disabled { cursor: not-allowed; opacity: 0.44; }
+
+button:focus-visible, a:focus-visible, summary:focus-visible {
+  outline: 2px solid var(--green);
+  outline-offset: 2px;
+  border-radius: var(--radius-xs);
+}
+
+input:focus, select:focus, textarea:focus {
+  outline: none;
+  border-color: var(--green);
+  box-shadow: 0 0 0 3.5px var(--green-glow);
+}
+
+h1, h2, h3, h4, p { margin: 0; }
+
+h1 {
+  font-size: clamp(28px, 2.6vw, 36px);
+  line-height: 1.18;
+  letter-spacing: -0.04em;
+  font-weight: 900;
+  color: var(--ink);
+  text-wrap: balance;
+}
+
+h2 {
+  font-size: clamp(18px, 1.8vw, 22px);
+  line-height: 1.3;
+  font-weight: 800;
+  letter-spacing: -0.025em;
+  color: var(--ink);
+}
+
+h3 {
+  font-size: 16px;
+  font-weight: 700;
+  line-height: 1.45;
+  color: var(--ink-secondary);
+}
+
+p { line-height: 1.65; }
+
+svg { flex-shrink: 0; }
+strong, b { font-weight: 700; }
+
+::selection { background: #b8e2cf; color: var(--ink); }
+
+input::placeholder, textarea::placeholder { color: #8ba898; opacity: 1; }
+
+.tabular-nums, .num { font-variant-numeric: tabular-nums; }
+.muted { color: var(--muted); }
+.text-green { color: var(--green); }
+.text-amber { color: var(--accent); }
+.text-red { color: var(--danger); }

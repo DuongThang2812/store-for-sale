@@ -1,0 +1,126 @@
+/* ============================================================
+   BIN PREMIUM ACCOUNT & BACKUPS — High-Trust Profile
+   ============================================================ */
+
+/* ─── Master Data & Categories ────────────────────────────── */
+.master-data-editor, .master-data-list, .category-editor, .category-list { padding: 24px; margin-bottom: 20px; }
+.master-data-editor h2, .master-data-list h2, .category-editor h2, .category-list h2 { display: flex; align-items: center; gap: 10px; margin-bottom: 20px; }
+.master-data-editor form, .category-editor form { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; }
+.master-data-editor form .button, .category-editor form .button { justify-self: start; align-self: end; }
+.master-data-list ul, .category-list ul { list-style: none; padding: 0; margin: 0; display: grid; gap: 8px; }
+.master-data-list li, .category-list li { display: flex; gap: 12px; align-items: baseline; padding: 14px 16px; background: var(--canvas); border-radius: var(--radius-md); border: 1px solid var(--border-subtle); }
+.master-data-list li small, .category-list li small { color: var(--muted); }
+.master-data-list li span { margin-left: auto; font-variant-numeric: tabular-nums; font-weight: 700; }
+
+@media (max-width: 700px) {
+  .master-data-editor form, .category-editor form { grid-template-columns: 1fr; }
+  .master-data-list li { flex-wrap: wrap; }
+}
+
+/* ─── Account Profile ─────────────────────────────────────── */
+.account-profile {
+  padding: 32px;
+  display: flex;
+  align-items: center;
+  gap: 22px;
+  margin-bottom: 24px;
+  border-radius: var(--radius-xl);
+  background: linear-gradient(135deg, #ffffff 0%, #f6faf8 100%);
+  border: 1px solid rgba(17, 82, 59, 0.12);
+  box-shadow: var(--shadow-sm);
+}
+
+.account-profile .choice-icon {
+  width: 68px;
+  height: 68px;
+  margin: 0;
+  border-radius: var(--radius-lg);
+}
+
+.account-profile > div { flex: 1; min-width: 0; }
+
+.account-profile h2 {
+  font-size: 22px;
+  font-weight: 900;
+  color: var(--ink);
+  letter-spacing: -0.03em;
+}
+
+.account-profile p {
+  color: var(--muted);
+  overflow-wrap: anywhere;
+  margin: 4px 0 10px;
+  font-size: 14.5px;
+}
+
+/* ─── Account Status (Cloud / DB notice) ──────────────────── */
+.account-status {
+  display: flex;
+  align-items: flex-start;
+  gap: 16px;
+  font-size: 14.5px;
+  padding: 22px 24px;
+  background: linear-gradient(160deg, #f7fbf8 0%, #edf7f0 100%);
+  border: 1px solid rgba(17, 82, 59, 0.14);
+  border-radius: var(--radius-lg);
+  margin-bottom: 24px;
+}
+
+.account-status p { margin-top: 6px; color: var(--muted); line-height: 1.6; }
+
+/* ─── Backup Grid ─────────────────────────────────────────── */
+.backup-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 24px;
+  margin-top: 24px;
+}
+
+.backup-card {
+  padding: 28px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 16px;
+  border-radius: var(--radius-lg);
+  background: var(--surface);
+  border: 1px solid var(--border);
+  box-shadow: var(--shadow-sm);
+}
+
+.backup-card .choice-icon { width: 60px; height: 60px; margin: 0; }
+.backup-card > p { font-size: 15px; color: var(--muted); line-height: 1.6; }
+.backup-card > small { font-size: 13px; color: var(--muted); line-height: 1.65; }
+.backup-card > .button { margin-top: auto; }
+
+.backup-counts {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  color: var(--green-dark);
+  font-size: 13px;
+}
+
+.backup-counts span {
+  background: var(--green-light);
+  padding: 6px 12px;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--green-border);
+  font-weight: 700;
+}
+
+.backup-card input[type=file] {
+  border: 2px dashed var(--green-border);
+  border-radius: var(--radius-md);
+  padding: 14px;
+  max-width: 100%;
+  width: 100%;
+  font-size: 14px;
+  white-space: normal;
+  background: var(--green-lighter);
+}
+
+@media (max-width: 768px) {
+  .backup-grid { grid-template-columns: 1fr; }
+  .account-profile { flex-direction: column; align-items: flex-start; }
+}

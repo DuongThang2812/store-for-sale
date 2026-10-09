@@ -1,0 +1,145 @@
+@theme {
+  --color-primary: #11523b;
+  --color-primary-dark: #0a3828;
+  --color-danger: #b8332e;
+  --color-danger-dark: #962622;
+  --color-warning: #b87317;
+  --color-warning-dark: #91570d;
+  --color-gray-bg: #f6f8f6;
+}
+
+:root {
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 20px;
+  --space-6: 24px;
+  --space-7: 28px;
+  --space-8: 32px;
+  --space-10: 40px;
+  --space-12: 48px;
+  --space-14: 56px;
+  --space-16: 64px;
+
+  --radius-xs: 4px;
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 16px;
+  --radius-xl: 22px;
+  --radius-2xl: 30px;
+  --radius-full: 9999px;
+
+  /* Brand Signature Green Palette */
+  --green: #11523b;
+  --green-mid: #16684b;
+  --green-dark: #0a3828;
+  --green-deep: #06261b;
+  --green-light: #e8f5ee;
+  --green-lighter: #f1f9f4;
+  --green-border: #b1dcc6;
+  --green-glow: rgba(17, 82, 59, 0.18);
+
+  /* Warm Amber Accent (Finances, attention, debt) */
+  --accent: #b87317;
+  --accent-dark: #8f540b;
+  --accent-light: #fef7ed;
+  --accent-border: #f6dcaf;
+
+  /* Ink & Typography Scale */
+  --ink: #0e221a;
+  --ink-secondary: #223e32;
+  --canvas: #f6f8f6;
+  --canvas-deep: #edf2ee;
+  --canvas-subtle: #f0f4f1;
+
+  /* Surface Hierarchy System */
+  --surface-0: #f6f8f6;
+  --surface-1: #ffffff;
+  --surface-2: #ffffff;
+  --surface-3: #ffffff;
+
+  --muted: #4e6a5e;
+  --muted-light: #678477;
+
+  /* Micro borders */
+  --border: rgba(14, 46, 33, 0.09);
+  --border-light: rgba(14, 46, 33, 0.06);
+  --border-subtle: rgba(14, 46, 33, 0.04);
+  --border-strong: rgba(14, 46, 33, 0.16);
+
+  --primary: var(--green);
+  --primary-hover: var(--green-dark);
+  --primary-light: var(--green-light);
+  --primary-border: var(--green-border);
+  --danger: #b8332e;
+  --danger-hover: #962622;
+  --danger-light: #fdf3f2;
+  --warning: #b87317;
+  --warning-light: #fef7ed;
+  --success: #11523b;
+  --success-light: #e8f5ee;
+  --info: #13557e;
+  --info-light: #e8f3fa;
+
+  --text-primary: var(--ink);
+  --text-secondary: var(--muted);
+  --text-muted: #678477;
+  --text-disabled: #9ab4a8;
+
+  --surface: var(--surface-1);
+  --surface-hover: #f9fcf9;
+  --surface-elevated: var(--surface-2);
+  --focus-ring: #11523b;
+
+  --z-base: 1;
+  --z-sticky: 20;
+  --z-drawer: 40;
+  --z-header: 50;
+  --z-dropdown: 60;
+  --z-modal: 100;
+  --z-toast: 110;
+
+  /* Multi-layer ambient + directional shadows (Apple / Stripe style) */
+  --shadow-xs: 0 1px 2px rgba(12, 34, 24, 0.03), 0 1px 3px rgba(12, 34, 24, 0.02);
+  --shadow-sm: 0 1px 3px rgba(12, 34, 24, 0.04), 0 3px 10px -2px rgba(12, 34, 24, 0.06);
+  --shadow-md: 0 2px 6px rgba(12, 34, 24, 0.03), 0 10px 24px -5px rgba(12, 34, 24, 0.08);
+  --shadow-lg: 0 4px 12px rgba(12, 34, 24, 0.04), 0 20px 42px -8px rgba(12, 34, 24, 0.12);
+  --shadow-xl: 0 8px 24px rgba(12, 34, 24, 0.06), 0 36px 72px -12px rgba(12, 34, 24, 0.18);
+  --shadow-card: inset 0 1px 0 rgba(255, 255, 255, 0.9), 0 1px 3px rgba(12, 34, 24, 0.04), 0 4px 14px -3px rgba(12, 34, 24, 0.06);
+  --shadow-inset: inset 0 1px 0 rgba(255, 255, 255, 0.08), inset 0 -1px 0 rgba(0, 0, 0, 0.04);
+
+  --motion-fast: 150ms;
+  --motion-base: 200ms;
+  --motion-smooth: 300ms;
+  --motion-dialog: 260ms;
+  --motion-ease: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-spring: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-out: cubic-bezier(0, 0, 0.2, 1);
+  --transition-fast: 0.15s var(--ease-spring);
+  --transition-base: 0.2s var(--ease-spring);
+  --transition-smooth: 0.3s var(--ease-spring);
+
+  font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+  font-synthesis: none;
+  font-weight: 400;
+  font-size: 16px;
+  color: var(--ink);
+  background: var(--canvas);
+
+  /* Curated Signature Gradients */
+  --grad-brand: linear-gradient(135deg, #0b3022 0%, #11523b 50%, #1c7253 100%);
+  --grad-brand-subtle: linear-gradient(135deg, #11523b 0%, #1e7555 100%);
+  --grad-surface: linear-gradient(180deg, #ffffff 0%, #fbfdfb 100%);
+  --grad-hero: linear-gradient(135deg, #08291c 0%, #0e4431 38%, #145e43 75%, #1d7957 100%);
+  --grad-gold: linear-gradient(135deg, #965a10 0%, #b87317 55%, #d18d2d 100%);
+  --grad-amber: linear-gradient(135deg, #b87317 0%, #d48b26 100%);
+}
+
+.green { --tone: #145e43; --tint: #eaf6f0; }
+.blue  { --tone: #1d5f8a; --tint: #edf4fb; }
+.orange { --tone: #a86211; --tint: #fcf4e8; }
+.purple { --tone: #684a92; --tint: #f4effa; }

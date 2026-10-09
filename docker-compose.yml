@@ -1,0 +1,47 @@
+name: bin-api
+# Reuse the user's existing Supabase instance; do not create/reset its DB volume.
+# No automatic restart. Only Gateway exposes production ingress; individual
+# loopback ports are for local development Swagger.
+x-runtime: &runtime
+  restart: "no"
+  init: true
+  healthcheck:
+    test: ["CMD", "node", "-e", "fetch('http://127.0.0.1:'+process.env.PORT+'/health').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))"]
+    interval: 15s
+    timeout: 5s
+    retries: 3
+services:
+  auth-service:
+    <<: *runtime
+    build: {context: ., dockerfile: backend/services/auth-service/Dockerfile}
+    ports: ["127.0.0.1:8081:8081"]
+    environment:
+      NODE_ENV: development
+      SESSION_SECRET: ${SESSION_SECRET:?run backend api:setup and use its env file}
+      SUPABASE_URL: http://host.docker.internal:54321
+      SUPABASE_ANON_KEY: ${SUPABASE_ANON_KEY:?backend Auth provider key required}
+      AUTH_DATABASE_URL: ${AUTH_DATABASE_URL_DOCKER:?Auth database capability URL required}
+      ALLOWED_ORIGINS: ${ALLOWED_ORIGINS}
+  catalog-service:
+    <<: *runtime
+    build: {context: ., dockerfile: backend/services/catalog-service/Dockerfile}
+    ports: ["127.0.0.1:8082:8082"]
+    environment:
+      NODE_ENV: development
+      SESSION_SECRET: ${SESSION_SECRET:?backend session key required}
+      SUPABASE_URL: http://host.docker.internal:54321
+      SUPABASE_ANON_KEY: ${SUPABASE_ANON_KEY:?backend Auth provider key required}
+      CATALOG_DATABASE_URL: ${CATALOG_DATABASE_URL_DOCKER:?Catalog database capability URL required}
+      ALLOWED_ORIGINS: ${ALLOWED_ORIGINS}
+  gateway:
+    <<: *runtime
+    build: {context: ., dockerfile: backend/gateway/Dockerfile}
+    ports: ["127.0.0.1:8080:8080"]
+    environment:
+      NODE_ENV: development
+      AUTH_SERVICE_URL: http://auth-service:8081
+      CATALOG_SERVICE_URL: http://catalog-service:8082
+      ALLOWED_ORIGINS: ${ALLOWED_ORIGINS}
+    depends_on:
+      auth-service: {condition: service_healthy}
+      catalog-service: {condition: service_healthy}

@@ -1,0 +1,10 @@
+import {documented,object,uuid,shopQuery} from '../../shared/contracts.js';
+export function registerDebtRoutes(app,repository){
+    const schema=options=>documented({tags:['Debt'],...options});
+    const customer={shopId:uuid,name:{type:'string',minLength:1,maxLength:120},phone:{type:'string',maxLength:30},note:{type:'string',maxLength:500}};
+    app.get('/api/v1/customers',{schema:schema({summary:'Customers and DB debt balances',description:'Requires explicit debt permission; pagination/search occurs on server.',querystring:{...shopQuery,properties:{...shopQuery.properties,debtOnly:{type:'boolean'}}}})},r=>repository.customers(r.identity.id,r.query));
+    app.get('/api/v1/customers/:id',{schema:schema({summary:'Customer debt summary',description:'DB current balance, not reconstructed by browser.',params:object({id:uuid}),querystring:object({shopId:uuid})})},r=>repository.customer(r.identity.id,r.query.shopId,r.params.id));
+    app.post('/api/v1/customers',{schema:schema({summary:'Add debt-book customer',description:'Idempotent creation; frontend supplies identity details, never initial/final debt balance.',body:object({...customer,requestId:uuid},['shopId','requestId','name'])})},r=>repository.create(r.identity.id,r.body));
+    app.put('/api/v1/customers/:id',{schema:schema({summary:'Edit customer metadata',description:'No debt/balance fields accepted.',params:object({id:uuid}),body:object(customer,['shopId','name'])})},r=>repository.save(r.identity.id,r.params.id,r.body));
+    app.post('/api/v1/debts/customers/:id/payments',{schema:schema({summary:'Nhận trả nợ',description:'Server locks customer and allocates oldest debt first atomically. Payment never increases sales revenue. Retry uses same requestId.',params:object({id:uuid}),body:object({shopId:uuid,requestId:uuid,amount:{type:'integer',minimum:1,maximum:9007199254740991},paymentMethod:{type:'string',enum:['cash','bank','other']},note:{type:'string',maxLength:500}},['shopId','requestId','amount'])})},r=>repository.pay(r.identity.id,r.params.id,r.body));
+}
