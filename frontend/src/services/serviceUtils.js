@@ -21,7 +21,7 @@ export function requireUuid(value, label = 'ID') {
     return value;
 }
 
-export function pageRange({ offset = 0, limit = 100 } = {}) {
-    if (!Number.isSafeInteger(offset) || offset < 0 || !Number.isSafeInteger(limit) || limit < 1 || limit > 200) throw new Error('Phân trang cần offset >= 0 và limit từ 1 đến 200.');
+export function pageRange({ offset = 0, limit = 100 } = {}, maxLimit = 200) {
+    if (!Number.isSafeInteger(offset) || offset < 0 || !Number.isSafeInteger(limit) || limit < 1 || limit > maxLimit) throw new Error(`Phân trang cần offset >= 0 và limit từ 1 đến ${maxLimit}.`);
     return { offset, limit, end: offset + limit - 1 };
 }

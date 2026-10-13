@@ -5,6 +5,7 @@ import { cartLines, cartKey, availableForOption, gramsFromKg, baseQuantity, isWe
 import { findProduct } from '../utils/productLookup.js';
 import { useAccountStore } from './useAccountStore.js';
 import { createCloudCommandRunner } from '../services/cloudCommandRunner.js';
+import { PRODUCT_PAGE_SIZE } from '../services/productService.js';
 
 const pageSize = 200;
 let generation = 0;
@@ -12,12 +13,12 @@ let scopeVersion = 0;
 const empty = () => ({ storeId: null, products: [], customers: [], entries: [], cart: {}, debtCarts: {},
     loading: false, error: '' });
 
-async function listAll(read) {
+async function listAll(read, limit = pageSize) {
     const rows = [];
-    for (let offset = 0; offset < 10000; offset += pageSize) {
-        const page = await read({ offset, limit: pageSize });
+    for (let offset = 0; offset < 10000; offset += limit) {
+        const page = await read({ offset, limit });
         rows.push(...page);
-        if (page.length < pageSize) return rows;
+        if (page.length < limit) return rows;
     }
     throw new Error('Có quá nhiều dữ liệu để tải toàn bộ. Vui lòng liên hệ quản trị viên.');
 }
@@ -38,12 +39,12 @@ export const useCloudShopStore = create((set, get) => ({
         set({ ...(first ? empty() : {}), storeId, loading: first || !!get().error, error: '' });
         try {
             const repo = createSupabaseShopRepository({ storeId });
-            const [products, allCustomers] = await Promise.all([
-                listAll(options => repo.listProducts(options)),
+            const [products, allCustomers, entries] = await Promise.all([
+                listAll(options => repo.listProducts(options), PRODUCT_PAGE_SIZE),
                 listAll(options => repo.listCustomers(options)),
+                activityService.list(storeId),
             ]);
             const customers = allCustomers.filter(row => row.isInDebtBook);
-            const entries = await activityService.list(storeId, new Map(allCustomers.map(row => [row.id, row.name])));
             if (current !== generation || get().storeId !== storeId) return;
             set({ products, customers, entries, loading: false, error: '' });
         } catch (error) {

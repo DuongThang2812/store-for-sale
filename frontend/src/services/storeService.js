@@ -14,8 +14,8 @@ export function createStoreService(clientProvider = getSupabaseClient) {
         return user;
     };
     const service = {
-        async getProfile() {
-            const user = await requireUser();
+        async getProfile(confirmedUser = null) {
+            const user = confirmedUser ?? await requireUser();
             const row = await unwrap(clientProvider().from('profiles').select('id,display_name,account_status')
                 .eq('id', user.id).maybeSingle());
             if (!row || row.account_status !== 'active') {
@@ -23,8 +23,8 @@ export function createStoreService(clientProvider = getSupabaseClient) {
             }
             return { id: user.id, name: row?.display_name || user.user_metadata?.name || user.email?.split('@')[0] || 'Chủ tiệm' };
         },
-        async listStores() {
-            const user = await requireUser();
+        async listStores(confirmedUser = null) {
+            const user = confirmedUser ?? await requireUser();
             const rows = await unwrap(clientProvider().from('store_members').select(membershipFields)
                 .eq('user_id', user.id).eq('is_active', true).order('created_at').order('store_id'));
             return rows.map(mapStoreMembership);
@@ -58,8 +58,8 @@ export function createStoreService(clientProvider = getSupabaseClient) {
             // The caller should load getStore(storeId); never retry create_store blindly.
             return storeId;
         },
-        async loadContext(preferredStoreId = null) {
-            const stores = await service.listStores();
+        async loadContext(preferredStoreId = null, confirmedUser = null) {
+            const stores = await service.listStores(confirmedUser);
             const store = preferredStoreId
                 ? stores.find(item => item.id === preferredStoreId) ?? null
                 : stores.length === 1 ? stores[0] : null;

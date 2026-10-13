@@ -32,14 +32,16 @@ export function createAccountSessionController({ auth = authService, stores = st
             const user = await withTimeout(auth.getUser());
             if (current !== generation) return;
             if (!user || user.id !== session.user.id) { signedOut(); return; }
-            const context = await withTimeout(stores.loadContext(preferredStoreId));
-            const profile = await withTimeout(stores.getProfile());
+            const [context, profile] = await withTimeout(Promise.all([
+                stores.loadContext(preferredStoreId, user), stores.getProfile(user),
+            ]));
             if (current !== generation) return;
             let dataMode = 'demo';
             if (context.store) {
-                const imported = await withTimeout(stores.hasCompletedLegacyImport?.(context.store.id) ?? Promise.resolve(false));
+                const local = localExists(user.id, context.store.id);
+                const imported = local ? await withTimeout(stores.hasCompletedLegacyImport?.(context.store.id) ?? Promise.resolve(false)) : false;
                 if (current !== generation) return;
-                dataMode = imported || !localExists(user.id, context.store.id) ? 'supabase' : 'demo';
+                dataMode = imported || !local ? 'supabase' : 'demo';
                 if (dataMode === 'demo') openShop(user.id, context.store.id);
             }
             account.getState().setAuthenticated({

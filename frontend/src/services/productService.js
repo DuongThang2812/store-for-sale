@@ -3,12 +3,13 @@ import { pageRange, requireUuid, unwrap } from './serviceUtils.js';
 import { mapProductCommand } from '../mappers/productMapper.js';
 
 const fields = 'id,store_id,name,category,category_id,product_group,base_unit,stock_base,low_stock_threshold,is_active,version,created_at,updated_at,units';
+export const PRODUCT_PAGE_SIZE = 800;
 
 export function createProductService(clientProvider = getSupabaseClient) {
     return Object.freeze({
         async list(storeId, options = {}) {
             requireUuid(storeId, 'Cửa hàng');
-            const { offset, end } = pageRange(options);
+            const { offset, end } = pageRange(options, PRODUCT_PAGE_SIZE);
             let query = clientProvider().from('product_catalog').select(fields).eq('store_id', storeId);
             if (options.activeOnly) query = query.eq('is_active', true);
             return unwrap(query.order('name').order('id').range(offset, end));

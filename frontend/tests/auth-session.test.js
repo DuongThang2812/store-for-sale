@@ -23,7 +23,13 @@ test('boot verifies session with Auth server before opening local shop', async (
     const account = accountView();
     const controller = createAccountSessionController({
         auth: { getSession: async () => ({ user: { id: userId } }), getUser: async () => ({ id: userId, email: 'a@example.invalid' }) },
-        stores: { loadContext: async () => ({ stores: [{ id: storeId }], store: { id: storeId, role: 'owner' } }), getProfile: async () => ({ name: 'Owner A' }) },
+        stores: { loadContext: async (_preferred, user) => {
+            assert.equal(user.id, userId);
+            return { stores: [{ id: storeId }], store: { id: storeId, role: 'owner' } };
+        }, getProfile: async user => {
+            assert.equal(user.id, userId);
+            return { name: 'Owner A' };
+        } },
         account, clearShop: () => calls.push('clear'), openShop: (uid, sid) => calls.push([uid, sid]),
         localExists: () => true,
     });
@@ -38,7 +44,8 @@ test('new shop uses Supabase mode without creating local business data', async (
     const controller = createAccountSessionController({
         auth: { getSession: async () => ({ user: { id: userId } }), getUser: async () => ({ id: userId }) },
         stores: { loadContext: async () => ({ stores: [{ id: storeId }], store: { id: storeId } }),
-            getProfile: async () => ({ name: 'Owner' }), hasCompletedLegacyImport: async () => false },
+            getProfile: async () => ({ name: 'Owner' }),
+            hasCompletedLegacyImport: async () => { throw new Error('No legacy DB check without local data'); } },
         account, localExists: () => false, clearShop: () => {},
         openShop: () => { throw new Error('must not open local shop'); },
     });

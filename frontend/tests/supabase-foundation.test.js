@@ -291,6 +291,8 @@ test('repository scopes product queries, paginates and maps both read views', as
     assert.ok(client.calls.some(call => JSON.stringify(call) === JSON.stringify(['eq', 'store_id', storeId])));
     assert.ok(client.calls.some(call => JSON.stringify(call) === JSON.stringify(['range', 20, 29])));
     assert.ok(client.calls.some(call => JSON.stringify(call) === JSON.stringify(['eq', 'is_active', true])));
+    await repo.listProducts({ offset: 0, limit: 800 });
+    assert.ok(client.calls.some(call => JSON.stringify(call) === JSON.stringify(['range', 0, 799])));
     assert.equal((await repo.getProduct(productId)).id, productId);
     await assert.rejects(repo.listProducts({ limit: 1000 }), /Phân trang/);
     const customers = fakeClient({ rows: [{ id: customerId, store_id: storeId, name: 'Khách', current_debt: '10000', open_invoice_count: '1', is_in_debt_book: true }] });
