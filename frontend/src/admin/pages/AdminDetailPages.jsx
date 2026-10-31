@@ -1,5 +1,7 @@
 import { useId, useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
+import { motion } from 'motion/react';
+import { StaggerContainer, StaggerItem } from '../../components/motion/MotionPrimitives.jsx';
 import { useAdminData } from '../hooks/useAdminData.js';
 import { ActionDialog } from '../components/AdminActionDialog.jsx';
 import { AdminTable, DataState, Heading, Pager, StatusBadge } from '../components/AdminData.jsx';
@@ -69,14 +71,14 @@ function ShopDetail({ targetId }) {
     const [action, setAction] = useState(null);
     const tabId = useId();
     return <><Heading title="Chi tiết cửa hàng" text="Thông tin quản trị và sự kiện được hệ thống ghi nhận." back="/admin/shops"/>
-        <DataState state={state}>{shop => <><section className="admin-panel panel"><h2>{shop.name}</h2>
+        <DataState state={state}>{shop => <><motion.section className="admin-panel panel" initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.2 }}><h2>{shop.name}</h2>
             <p>{businessLabel(shop.business_type)} · <StatusBadge value={shop.status}/></p>
             <div className="admin-inline-actions">{shop.status === 'active' && <button className="button danger" onClick={() => setAction('suspended')}>Tạm khóa</button>}
                 {shop.status === 'suspended' && <button className="button primary" onClick={() => setAction('active')}>Mở lại</button>}
                 {shop.status !== 'archived' && <button className="button secondary" onClick={() => setAction('archived')}>Lưu trữ</button>}
-                <button className="button secondary" onClick={state.reload}>Tải lại</button></div></section>
+                <button className="button secondary" onClick={state.reload}>Tải lại</button></div></motion.section>
             <DetailTabs selected={selected} onChange={setSelected} id={tabId}/>
-            <div role="tabpanel" id={`${tabId}-panel`} aria-labelledby={`${tabId}-${selected}`} tabIndex={0}>
+            <motion.div key={selected} role="tabpanel" id={`${tabId}-panel`} aria-labelledby={`${tabId}-${selected}`} tabIndex={0} initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.18 }}>
                 {selected === 'overview' && <section className="admin-panel panel"><h2>Tổng quan</h2><dl className="admin-detail-grid">
                     <div><dt>Chủ</dt><dd><Link to={`/admin/users/${shop.owner_id}`}>{shop.owner_name || 'Chưa rõ'}</Link><br/>{shop.owner_email || ''}</dd></div>
                     <div><dt>Thành viên hoạt động</dt><dd>{integer(shop.member_count)}</dd></div>
@@ -87,7 +89,7 @@ function ShopDetail({ targetId }) {
                 {selected === 'members' && <RelatedList key="members" resource="shop_members" targetId={targetId} columns={memberColumns} title="Thành viên" emptyText="Chưa có thành viên."/>}
                 {selected === 'activity' && <RelatedList key="activity" resource="shop_activity" targetId={targetId} columns={activityColumns} title="Hoạt động nền tảng" emptyText="Chưa có thao tác quản trị với cửa hàng này."/>}
                 {selected === 'security' && <RelatedList key="security" resource="shop_security" targetId={targetId} columns={securityColumns} title="Sự kiện bảo mật" emptyText="Chưa có sự kiện liên quan được hệ thống ghi nhận."/>}
-            </div>
+            </motion.div>
             {action && <ActionDialog title={shopActions[action].title} confirmWord={shopActions[action].word}
                 intent={{ action: 'store_status', targetId, status: action }}
                 warning={`Cửa hàng ${shop.name} sẽ chuyển trạng thái. Bán hàng, nhập kho, công nợ và sửa hàng bị chặn tại database khi cửa hàng tạm khóa hoặc lưu trữ.`}
@@ -99,7 +101,7 @@ function UserDetail({ targetId }) {
     const state = useAdminData('user', { targetId });
     const [action, setAction] = useState(null);
     return <><Heading title="Chi tiết tài khoản" text="Thông tin truy cập và sự kiện quản trị liên quan." back="/admin/users"/>
-        <DataState state={state}>{user => <><section className="admin-panel panel"><h2>{user.display_name}</h2>
+        <DataState state={state}>{user => <StaggerContainer><StaggerItem as="section" className="admin-panel panel"><h2>{user.display_name}</h2>
             <dl className="admin-detail-grid"><div><dt>Email</dt><dd>{user.email || '—'}</dd></div>
                 <div><dt>Trạng thái</dt><dd><StatusBadge value={user.account_status}/></dd></div>
                 <div><dt>Ngày tạo</dt><dd>{date(user.created_at)}</dd></div><div><dt>Mã tài khoản</dt><dd>{user.id}</dd></div></dl>
@@ -107,14 +109,14 @@ function UserDetail({ targetId }) {
                 onClick={() => setAction(user.account_status === 'active' ? 'disabled' : 'active')}>
                 {user.account_status === 'active' ? 'Vô hiệu tài khoản' : 'Kích hoạt lại'}</button>
                 <button className="button secondary" onClick={() => setAction('password_reset')}>Gửi email đặt lại mật khẩu</button>
-                <button className="button secondary" onClick={state.reload}>Tải lại</button></div></section>
-            <section className="admin-panel panel"><h2>Thông tin xác thực</h2>{user.authentication_summary?.available
+                <button className="button secondary" onClick={state.reload}>Tải lại</button></div></StaggerItem>
+            <StaggerItem as="section" className="admin-panel panel"><h2>Thông tin xác thực</h2>{user.authentication_summary?.available
                 ? <dl className="admin-detail-grid"><div><dt>Email xác nhận</dt><dd>{user.authentication_summary.email_confirmed_at ? date(user.authentication_summary.email_confirmed_at) : 'Chưa xác nhận'}</dd></div>
                     <div><dt>Đăng nhập gần nhất</dt><dd>{date(user.authentication_summary.last_sign_in_at)}</dd></div></dl>
-                : <p>Chưa lấy được thông tin xác thực. Nhấn Tải lại để kiểm tra.</p>}</section>
-            <RelatedList resource="user_memberships" targetId={targetId} columns={membershipColumns} title="Cửa hàng tham gia" emptyText="Chưa tham gia cửa hàng."/>
-            <RelatedList resource="user_security" targetId={targetId} columns={securityColumns} title="Sự kiện bảo mật" emptyText="Chưa có sự kiện được hệ thống ghi nhận."/>
-            <RelatedList resource="user_activity" targetId={targetId} columns={activityColumns} title="Thao tác Admin liên quan" emptyText="Chưa có thao tác quản trị với tài khoản này."/>
+                : <p>Chưa lấy được thông tin xác thực. Nhấn Tải lại để kiểm tra.</p>}</StaggerItem>
+            <StaggerItem><RelatedList resource="user_memberships" targetId={targetId} columns={membershipColumns} title="Cửa hàng tham gia" emptyText="Chưa tham gia cửa hàng."/></StaggerItem>
+            <StaggerItem><RelatedList resource="user_security" targetId={targetId} columns={securityColumns} title="Sự kiện bảo mật" emptyText="Chưa có sự kiện được hệ thống ghi nhận."/></StaggerItem>
+            <StaggerItem><RelatedList resource="user_activity" targetId={targetId} columns={activityColumns} title="Thao tác Admin liên quan" emptyText="Chưa có thao tác quản trị với tài khoản này."/></StaggerItem>
             {action && <ActionDialog title={action === 'disabled' ? 'Vô hiệu tài khoản' : action === 'active' ? 'Kích hoạt tài khoản' : 'Gửi email đặt lại mật khẩu'}
                 intent={{ action: action === 'password_reset' ? 'password_reset' : 'user_status', targetId, status: action }}
                 confirmWord={action === 'disabled' ? 'DISABLE' : action === 'active' ? 'ENABLE' : 'RESET'}
@@ -122,7 +124,7 @@ function UserDetail({ targetId }) {
                 onClose={() => setAction(null)} onConfirm={async (reason, requestId) => {
                     await adminApi.act(action === 'password_reset' ? 'password_reset' : 'user_status',
                         { targetId, ...(action === 'password_reset' ? {} : { status: action }), reason, requestId }); state.reload();
-                }}/>}</>}</DataState></>;
+                }}/>}</StaggerContainer>}</DataState></>;
 }
 // Parameter changes remount local dialog/tab/page state, so an old confirmation
 // cannot accidentally target the next account/shop after client navigation.

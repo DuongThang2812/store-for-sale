@@ -1,10 +1,12 @@
 import { useShallow } from 'zustand/react/shallow';
 import { useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
+import { motion } from 'motion/react';
 import { ArrowRight, Download, FileSpreadsheet, Upload, Check } from 'lucide-react';
 import { useActiveShopStore } from '../stores/useActiveShopStore';
 import { useAccountStore } from '../stores/useAccountStore';
 import { Confirm, Notice, PageHeading } from '../components/ui';
+import { StaggerContainer, StaggerItem } from '../components/motion/MotionPrimitives.jsx';
 import { formatKgFromGrams, productGroupsForBusiness, isWeightedProduct, retailUnitLabel } from '../utils/productPricing';
 import { parseStockCsv, planStockImport, stockCsvTemplate } from '../utils/stockCsv';
 import { mapStockCsvRows } from '../mappers/stockCsvMapper';
@@ -56,28 +58,28 @@ export function CsvImportPage() {
     return <>
         <PageHeading title="Nhập hàng từ file CSV" description="Thêm nhiều mặt hàng vào kho trong một lần." back="/import" />
         {success && <Notice action={<Link className="text-link" to="/inventory">Xem kho <ArrowRight size={18}/></Link>}>{success}</Notice>}
-        <div className="csv-intro-grid">
-            <section className="panel csv-upload">
+        <StaggerContainer className="csv-intro-grid">
+            <StaggerItem as="section" className="panel csv-upload">
                 <span className="choice-icon blue"><Upload size={36}/></span>
                 <h2>Chọn danh sách hàng cần nhập</h2>
                 <p>File CSV UTF-8 · Tối đa 2 MB hoặc 2.000 mặt hàng</p>
                 <input ref={input} className="csv-file-input" id="stock-csv-file" type="file" accept=".csv,text/csv" disabled={busy} onChange={e => readFile(e.target.files?.[0])}/>
                 <label className={`button primary ${busy ? 'disabled' : ''}`} htmlFor="stock-csv-file"><FileSpreadsheet size={20}/>{busy ? 'Đang đọc file…' : 'Chọn file CSV'}</label>
                 <span className="file-name" role="status">{filename || 'Chưa chọn file'}</span>
-            </section>
-            <section className="panel csv-guide">
+            </StaggerItem>
+            <StaggerItem as="section" className="panel csv-guide">
                 <h2>Chuẩn bị file thật đơn giản</h2>
                 <ol><li>Tải file mẫu và mở bằng Excel.</li><li>Chọn mẫu đúng nhóm, điền giá nhập, giá bán và quy cách. {businessType === 'fruit_shop' ? 'Trái cây cân theo kg dùng tối đa 3 số lẻ; trái cây theo quả/hộp nhập số nguyên.' : 'Cột “Giá bán” là giá bán lẻ theo “Đơn vị bán lẻ”.'}</li><li>Lưu dưới dạng CSV UTF-8 rồi chọn file bên cạnh.</li></ol>
                 <label className="field">File mẫu theo nhóm<select value={templateGroup} onChange={e => setTemplateGroup(e.target.value)}>{groups.map(g => <option value={g.id} key={g.id}>{g.label}</option>)}</select></label><p className="muted">Giá và quy cách trong mẫu chỉ là ví dụ; hãy thay bằng hàng thực tế của tiệm.</p><button className="button secondary" onClick={() => exportCsv(`mau-nhap-${templateGroup}.csv`, stockCsvTemplate(templateGroup))}><Download size={19}/> Tải file mẫu</button>
-            </section>
-        </div>
+            </StaggerItem>
+        </StaggerContainer>
         <div className="info-box csv-rules"><b>Cách cộng hàng vào kho</b><p>Trùng tên: cộng tồn theo quy đổi đã khai báo và giữ giá hiện tại. Tên mới: tạo mặt hàng cùng các giá và quy cách trong file. Cột “Còn lại” trong file tải từ kho cũng được hiểu là số lượng nhập thêm, không phải thay thế số tồn.</p></div>
         {(error || planError) && <p className="error" role="alert">{error || planError}</p>}
-        {plan.length > 0 && !planError && <section className="panel csv-preview">
+        {plan.length > 0 && !planError && <motion.section className="panel csv-preview" initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.24 }}>
             <div className="panel-heading"><div><h2>Kiểm tra trước khi nhập</h2><p>{plan.length} mặt hàng · {existingCount} hàng đã có · {plan.length - existingCount} hàng mới</p></div><span className="stock-pill">Chưa lưu vào kho</span></div>
             <div className="table-scroll"><table className="data-table"><thead><tr><th>Mặt hàng</th><th>Giá bán</th><th>Hiện có</th><th>Nhập thêm</th><th>Sau khi nhập</th></tr></thead><tbody>{plan.map(row => { const product = products.find(item => item.id === row.productId) || row.productTemplate; const fruit = isWeightedProduct(product); return <tr key={row.line}><td><strong>{row.name}</strong><small>{row.productId ? 'Hàng đã có' : 'Tạo hàng mới'}{row.priceDifferent ? ' · Giữ giá bán trong kho' : ''}</small></td><td>{formatCurrency(row.price)} / {product ? retailUnitLabel(product) : row.stockUnit}</td><td>{fruit ? formatKgFromGrams(row.before) : `${row.before} ${row.stockUnit}`}</td><td className="text-green">+{row.quantity} {row.unit}</td><td><strong>{fruit ? formatKgFromGrams(row.after) : `${row.after} ${row.stockUnit}`}</strong></td></tr>; })}</tbody></table></div>
             <div className="csv-actions"><p>Hãy kiểm tra tên, đơn vị và số lượng trước khi xác nhận.</p><button className="button primary" onClick={() => setConfirm(true)}><Check size={20}/> Nhập {plan.length} mặt hàng vào kho</button></div>
-        </section>}
+        </motion.section>}
         {confirm && <Confirm title="Xác nhận nhập hàng từ CSV" onClose={() => setConfirm(false)} label="Đúng, nhập vào kho" onConfirm={async () => {
             const count = await importProducts(rows);
             setSuccess(`Đã nhập ${count} mặt hàng từ ${filename}. Lịch sử nhập hàng đã được lưu.`);

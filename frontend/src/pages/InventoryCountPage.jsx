@@ -1,5 +1,7 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
+import { ClipboardCheck, RefreshCw } from 'lucide-react';
+import { motion } from 'motion/react';
 import { useAccountStore } from '../stores/useAccountStore';
 import { useActiveShopStore } from '../stores/useActiveShopStore';
 import { useCloudShopStore } from '../stores/useCloudShopStore';
@@ -23,7 +25,11 @@ export function InventoryCountPage() {
     const [refreshing, setRefreshing] = useState(false);
     const { found, deferredQuery } = useProductSearch(products, query);
     const { visible, showMore, hasMore } = useListWindow(found, deferredQuery);
-    if (mode !== 'supabase' || store.role !== 'owner') return <><PageHeading title="Kiểm kê kho" back="/inventory"/><p>Kiểm kê DB dành cho chủ cửa hàng đang dùng Supabase.</p><Link className="button secondary" to="/inventory">Về kho</Link></>;
+    if (mode !== 'supabase' || store.role !== 'owner') return <>
+        <PageHeading title="Kiểm kê kho" back="/inventory"/>
+        <div className="info-box"><p>Kiểm kê DB dành cho chủ cửa hàng đang dùng Supabase.</p></div>
+        <Link className="button secondary" to="/inventory">Về kho</Link>
+    </>;
     function change(product, field, value) {
         setCounted(current => ({ ...current, [product.id]: {
             expectedVersion: product.version, systemStock: product.stock,
@@ -44,25 +50,45 @@ export function InventoryCountPage() {
             setPending(items);
         } catch (cause) { setError(cause.message); }
     }
-    return <><PageHeading title="Kiểm kê kho" description="Đếm số hàng thực tế. Chỉ mặt hàng đã nhập số lượng mới được ghi vào phiếu." back="/inventory"/>
+    return <>
+        <PageHeading title="Kiểm kê kho" description="Đếm số hàng thực tế. Chỉ mặt hàng đã nhập số lượng mới được ghi vào phiếu." back="/inventory"/>
         {success && <Notice onClose={() => setSuccess('')}>{success}</Notice>}
-        <form className="panel form-panel" onSubmit={review}>
-            <p className="info-box">Đếm theo đơn vị tồn ghi bên cạnh tên hàng. Hàng cân đếm gram (1 kg = 1.000 gram); hàng theo quả/hộp đếm số nguyên. Nếu kho có giao dịch mới trong lúc đếm, DB sẽ yêu cầu kiểm tra lại.</p>
-            <SearchBox value={query} onChange={setQuery}/>
-            <button type="button" className="button secondary" disabled={refreshing} onClick={async () => {
-                setRefreshing(true); setError('');
-                try { await useCloudShopStore.getState().load(store.id); setCounted({}); setPending(null); }
-                catch (cause) { setError(cause.message); }
-                finally { setRefreshing(false); }
-            }}>{refreshing ? 'Đang tải…' : 'Tải lại tồn để đếm lại'}</button>
-            <div className="table-scroll"><table className="data-table"><thead><tr><th>Mặt hàng</th><th>Trong hệ thống</th><th>Đếm thực tế</th><th>Lý do chênh lệch</th></tr></thead>
-                <tbody>{visible.map(product => <tr key={product.id}><td>{product.name}<small> · {product.unit}</small></td><td>{stockDescription(product)}</td>
-                    <td><input aria-label={`Tồn thực tế ${product.name}`} type="number" min="0" step="1" value={counted[product.id]?.quantity ?? ''} onChange={event => change(product, 'quantity', event.target.value)}/></td>
-                    <td><input aria-label={`Lý do ${product.name}`} maxLength={300} value={counted[product.id]?.reason ?? ''} onChange={event => change(product, 'reason', event.target.value)} placeholder="Nếu có chênh lệch"/></td></tr>)}</tbody></table></div>
+        <motion.form className="panel form-panel" onSubmit={review} initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }}>
+            <div className="info-box">
+                <ClipboardCheck size={22}/>
+                <p>Đếm theo đơn vị tồn ghi bên cạnh tên hàng. Hàng cân đếm gram (1 kg = 1.000 gram); hàng theo quả/hộp đếm số nguyên. Nếu kho có giao dịch mới trong lúc đếm, DB sẽ yêu cầu kiểm tra lại.</p>
+            </div>
+            <div className="inventory-tools">
+                <SearchBox value={query} onChange={setQuery}/>
+                <button type="button" className="button secondary" disabled={refreshing} onClick={async () => {
+                    setRefreshing(true); setError('');
+                    try { await useCloudShopStore.getState().load(store.id); setCounted({}); setPending(null); }
+                    catch (cause) { setError(cause.message); }
+                    finally { setRefreshing(false); }
+                }}><RefreshCw size={18}/> {refreshing ? 'Đang tải…' : 'Tải lại tồn để đếm lại'}</button>
+            </div>
+            <div className="table-scroll">
+                <table className="data-table">
+                    <thead>
+                        <tr><th>Mặt hàng</th><th>Trong hệ thống</th><th>Đếm thực tế</th><th>Lý do chênh lệch</th></tr>
+                    </thead>
+                    <tbody>
+                        {visible.map(product => (
+                            <tr key={product.id}>
+                                <td><strong>{product.name}</strong><small> · {product.unit}</small></td>
+                                <td>{stockDescription(product)}</td>
+                                <td><input aria-label={`Tồn thực tế ${product.name}`} type="number" min="0" step="1" value={counted[product.id]?.quantity ?? ''} onChange={event => change(product, 'quantity', event.target.value)}/></td>
+                                <td><input aria-label={`Lý do ${product.name}`} maxLength={300} value={counted[product.id]?.reason ?? ''} onChange={event => change(product, 'reason', event.target.value)} placeholder="Nếu có chênh lệch"/></td>
+                            </tr>
+                        ))}
+                    </tbody>
+                </table>
+            </div>
             <ListMore shown={visible.length} total={found.length} hasMore={hasMore} onMore={showMore}/>
             <label className="field">Ghi chú phiếu<textarea maxLength={500} rows={2} value={note} onChange={event => setNote(event.target.value)}/></label>
-            {error && <p className="error" role="alert">{error}</p>}<button className="button primary">Xem xác nhận kiểm kê</button>
-        </form>
+            {error && <p className="error" role="alert">{error}</p>}
+            <button className="button primary"><ClipboardCheck size={19}/> Xem xác nhận kiểm kê</button>
+        </motion.form>
         {pending && <Confirm title="Chốt phiếu kiểm kê?" label="Lưu kiểm kê vào DB" onClose={() => setPending(null)} onConfirm={async () => {
             const result = await countStock(pending, note);
             setCounted({}); setNote(''); setPending(null);

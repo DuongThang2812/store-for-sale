@@ -90,8 +90,7 @@
   flex-direction: column;
   transition:
     transform var(--motion-fast) var(--motion-ease),
-    box-shadow var(--motion-fast) var(--motion-ease),
-    border-color var(--motion-fast) var(--motion-ease);
+    opacity var(--motion-fast) var(--motion-ease);
 }
 
 .stat-card:hover {
@@ -181,7 +180,7 @@
 .stat-top > svg:last-child {
   margin-left: auto;
   color: var(--border-strong);
-  transition: transform var(--motion-fast) var(--motion-ease), color var(--motion-fast) var(--motion-ease);
+  transition: transform var(--motion-fast) var(--motion-ease), opacity var(--motion-fast) var(--motion-ease);
 }
 
 .stat-card:hover .stat-top > svg:last-child {
@@ -243,7 +242,7 @@
   background: rgba(255, 255, 255, 0.16);
   border-radius: 50%;
   color: #ffffff;
-  transition: transform var(--motion-fast) var(--motion-ease), background var(--motion-fast) var(--motion-ease);
+  transition: transform var(--motion-fast) var(--motion-ease), opacity var(--motion-fast) var(--motion-ease);
 }
 
 .stat-card.revenue:hover .mini-circle {
@@ -313,8 +312,7 @@
   box-shadow: var(--shadow-xs);
   transition:
     transform var(--motion-fast) var(--motion-ease),
-    box-shadow var(--motion-fast) var(--motion-ease),
-    border-color var(--motion-fast) var(--motion-ease);
+    opacity var(--motion-fast) var(--motion-ease);
 }
 
 .onboarding-step-card:hover {
@@ -353,7 +351,7 @@
 .onboarding-step-card > svg:last-child {
   margin-left: auto;
   color: var(--border-strong);
-  transition: transform var(--motion-fast) var(--motion-ease), color var(--motion-fast) var(--motion-ease);
+  transition: transform var(--motion-fast) var(--motion-ease), opacity var(--motion-fast) var(--motion-ease);
 }
 
 .onboarding-step-card:hover > svg:last-child {
@@ -391,6 +389,14 @@
   gap: 18px;
 }
 
+.quick-grid > div {
+  display: flex;
+}
+
+.quick-grid > div > .quick-card {
+  flex: 1;
+}
+
 .quick-card {
   padding: 24px 22px;
   background: var(--surface);
@@ -399,8 +405,7 @@
   box-shadow: var(--shadow-sm);
   transition:
     transform var(--motion-fast) var(--motion-ease),
-    box-shadow var(--motion-fast) var(--motion-ease),
-    border-color var(--motion-fast) var(--motion-ease);
+    opacity var(--motion-fast) var(--motion-ease);
   display: flex;
   flex-direction: column;
   cursor: pointer;
@@ -431,16 +436,17 @@
   transition: transform var(--motion-fast) var(--motion-ease);
 }
 
-.quick-card:hover .quick-icon { transform: scale(1.05); }
+.quick-card:hover .quick-icon { transform: scale(1.06); }
 
 .quick-arrow {
   color: var(--border-strong);
-  transition: transform var(--motion-fast) var(--motion-ease), color var(--motion-fast) var(--motion-ease);
+  transition: transform var(--motion-fast) var(--motion-ease), opacity var(--motion-fast) var(--motion-ease);
 }
 
 .quick-card:hover .quick-arrow {
   transform: translate(2px, -2px);
   color: var(--tone, var(--green));
+  opacity: 1;
 }
 
 .quick-card h3 {
@@ -498,7 +504,7 @@
   gap: 14px;
   padding: 16px 24px;
   border-top: 1px solid var(--border-subtle);
-  transition: background var(--motion-fast) var(--motion-ease);
+  transition: opacity var(--motion-fast) var(--motion-ease);
 }
 
 .activity-row:hover { background: #f8faf8; }
@@ -516,10 +522,45 @@
 
 .activity-dot.debt { background: var(--accent-light); color: var(--accent); }
 .activity-dot.stock, .activity-dot.edit { background: #e8f4fd; color: #184f75; }
+.activity-dot.cancel, .activity-dot.adjustment { background: var(--danger-light); color: var(--danger); }
 
 .activity-text { min-width: 0; flex: 1; }
 .activity-text > strong { font-size: 14px; color: var(--ink); font-weight: 600; }
 .activity-text > p { font-size: 13px; color: var(--muted); margin-top: 3px; }
+
+.cancelled-badge {
+  display: inline-flex;
+  align-items: center;
+  margin-left: 8px;
+  padding: 2px 8px;
+  font-size: 11px;
+  font-weight: 700;
+  border-radius: var(--radius-full);
+  background: var(--danger-light);
+  color: var(--danger);
+  border: 1px solid #f4c8c6;
+  vertical-align: middle;
+}
+
+.cancel-sale-button {
+  margin-top: 8px;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 4px 10px;
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--danger);
+  background: var(--danger-light);
+  border: 1px solid #f2c7c5;
+  border-radius: var(--radius-sm);
+  transition: transform var(--motion-fast) var(--motion-ease), opacity var(--motion-fast) var(--motion-ease);
+}
+
+.cancel-sale-button:hover {
+  background: #fbe6e5;
+  transform: translateY(-1px);
+}
 
 .activity-meta {
   text-align: right;
@@ -605,7 +646,7 @@
   color: var(--green);
   font-weight: 700;
   text-decoration: none;
-  transition: background var(--motion-fast) var(--motion-ease);
+  transition: opacity var(--motion-fast) var(--motion-ease);
 }
 
 .stock-link:hover { background: var(--green-light); }

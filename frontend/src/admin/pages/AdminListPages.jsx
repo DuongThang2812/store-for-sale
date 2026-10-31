@@ -1,6 +1,8 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
+import { motion } from 'motion/react';
 import { Modal } from '../../components/ui.jsx';
+import { StaggerContainer } from '../../components/motion/MotionPrimitives.jsx';
 import { adminApi } from '../services/adminApi.js';
 import { useAdminData } from '../hooks/useAdminData.js';
 import { useAdminListFilters } from '../hooks/useAdminListFilters.js';
@@ -55,8 +57,8 @@ export function AdminAdminsPage() {
         { key: 'actions', label: 'Thao tác', render: row => <button className="button secondary" onClick={() => setAction({ id: row.user_id, enable: !row.is_active, name: row.display_name })}>{row.is_active ? 'Vô hiệu' : 'Kích hoạt'}</button> },
     ];
     return <><Heading title="Quản trị viên" text="Chỉ cấp quyền cho tài khoản đã tồn tại. Admin cuối cùng được bảo vệ."/>
-        <section className="admin-panel panel"><h2>Cấp quyền Admin</h2><label className="field">UUID tài khoản có sẵn<input value={targetId} onChange={event => setTargetId(event.target.value)} placeholder="UUID từ trang Tài khoản"/></label>
-            <button className="button primary" disabled={!/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(targetId.trim())} onClick={() => setAction({ id: targetId.trim(), enable: true, name: targetId.trim() })}>Cấp quyền</button></section>
+        <motion.section className="admin-panel panel" initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.2 }}><h2>Cấp quyền Admin</h2><label className="field">UUID tài khoản có sẵn<input value={targetId} onChange={event => setTargetId(event.target.value)} placeholder="UUID từ trang Tài khoản"/></label>
+            <button className="button primary" disabled={!/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(targetId.trim())} onClick={() => setAction({ id: targetId.trim(), enable: true, name: targetId.trim() })}>Cấp quyền</button></motion.section>
         <AdminFilterBar resource="admins" filters={filters} onReload={state.reload}/>
         <DataState state={state}>{data => <><AdminTable rows={data.items} columns={columns}/><Pager offset={filters.offset} limit={limit} total={data.total} onChange={filters.setOffset}/></>}</DataState>
         {action && <ActionDialog title={action.enable ? 'Cấp / kích hoạt Admin' : 'Vô hiệu Admin'}
@@ -77,9 +79,9 @@ export function AdminSecurityPage() {
         { key: 'metadata', label: 'Thông tin ghi nhận', render: row => <code>{JSON.stringify(row.metadata)}</code> },
     ];
     return <><Heading title="Bảo mật" text="Chỉ hiển thị sự kiện hệ thống thực sự ghi nhận."/>
-        <DataState state={summary}>{data => <div className="admin-metrics"><Metric label="Shop tạm khóa" value={data.suspended_shops}/>
+        <DataState state={summary}>{data => <StaggerContainer className="admin-metrics"><Metric label="Shop tạm khóa" value={data.suspended_shops}/>
             <Metric label="User vô hiệu" value={data.disabled_users}/><Metric label="Admin hoạt động" value={data.active_admins}/>
-            <Metric label="Thao tác Admin hôm nay" value={data.admin_actions_today}/></div>}</DataState>
+            <Metric label="Thao tác Admin hôm nay" value={data.admin_actions_today}/></StaggerContainer>}</DataState>
         <AdminFilterBar resource="security" filters={filters} onReload={() => { events.reload(); summary.reload(); }}/>
         <DataState state={events}>{data => <><AdminTable rows={data.items} columns={columns} emptyText="Chưa có sự kiện phù hợp được hệ thống ghi nhận."/>
             <Pager offset={filters.offset} limit={limit} total={data.total} onChange={filters.setOffset}/></>}</DataState></>;

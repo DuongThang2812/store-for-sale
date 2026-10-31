@@ -11,6 +11,7 @@ import { RevenueChart, DailyRevenueTable } from '../components/reports/RevenueCh
 import { summarizeRevenue } from '../utils/revenue';
 import { formatGrossMargin } from '../utils/reportDisplay.js';
 import { reportScopeMatches } from '../domain/reportScope.js';
+import { StaggerContainer, StaggerItem } from '../components/motion/MotionPrimitives.jsx';
 
 export function RevenuePage() {
     const { entries, customers } = useActiveShopStore(useShallow(s => ({ entries: s.entries, customers: s.customers })));
@@ -51,13 +52,13 @@ export function RevenuePage() {
     return <>
         <PageHeading title="Biểu đồ & doanh thu" description="Xem tiệm bán được bao nhiêu và đã nhận về bao nhiêu tiền." action={<button className="button secondary" onClick={exportReport}><Download size={19}/> Tải báo cáo</button>}/>
         <div className="report-toolbar"><div className="filter-tabs" aria-label="Khoảng thời gian">{[7, 30, 90].map(value => <button key={value} className={days === value ? 'selected' : ''} aria-pressed={days === value} onClick={() => { setDays(value); setSelectedDay(null); }}>{value} ngày gần đây</button>)}</div><span>{rows[0].date.toLocaleDateString('vi-VN')} – {rows.at(-1).date.toLocaleDateString('vi-VN')}</span></div>
-        <section className="report-cards">
-            <article className="panel report-card"><span className="quick-icon green"><ChartColumnIncreasing size={25}/></span><p>Doanh thu bán hàng</p><strong>{formatCurrency(totals.revenue)}</strong><small>Gồm trả ngay và mua chịu</small></article>
-            <article className="panel report-card"><span className="quick-icon blue"><Wallet size={25}/></span><p>Tiền thực thu</p><strong>{formatCurrency(totals.received)}</strong><small>Bán trả ngay + nhận trả nợ</small></article>
-            <article className="panel report-card"><span className="quick-icon orange"><BookOpen size={25}/></span><p>Khách đang còn nợ</p><strong>{formatCurrency(currentDebt)}</strong><small>Số dư hiện tại của toàn bộ khách</small></article>
-            <article className="panel report-card"><span className="quick-icon purple"><ShoppingBasket size={25}/></span><p>Số đơn bán hàng</p><strong>{totals.count.toLocaleString('vi-VN')} <span>đơn</span></strong><small>Trong {days} ngày đã chọn</small></article>
-            {dataMode === 'supabase' && <><article className="panel report-card"><span className="quick-icon blue"><Wallet size={25}/></span><p>Giá vốn</p><strong>{totals.cogs === null ? 'Chưa đủ dữ liệu' : formatCurrency(totals.cogs)}</strong><small>Giá vốn của các dòng bán trong kỳ</small></article><article className="panel report-card"><span className="quick-icon green"><ChartColumnIncreasing size={25}/></span><p>Lợi nhuận gộp</p><strong>{totals.grossProfit === null ? 'Chưa đủ dữ liệu' : formatCurrency(totals.grossProfit)}</strong><small>Doanh thu trừ giá vốn đã ghi nhận</small></article><article className="panel report-card"><p>Tỷ suất lợi nhuận gộp</p><strong>{formatGrossMargin(totals.grossMarginPercent)}</strong><small>{totals.cogs === null ? 'Chưa đủ dữ liệu giá vốn' : totals.revenue === 0 ? 'Không có doanh thu để tính tỷ suất' : 'Lợi nhuận gộp / doanh thu × 100%'}</small></article></>}
-        </section>
+        <StaggerContainer as="section" className="report-cards">
+            <StaggerItem as="article" className="panel report-card"><span className="quick-icon green"><ChartColumnIncreasing size={25}/></span><p>Doanh thu bán hàng</p><strong>{formatCurrency(totals.revenue)}</strong><small>Gồm trả ngay và mua chịu</small></StaggerItem>
+            <StaggerItem as="article" className="panel report-card"><span className="quick-icon blue"><Wallet size={25}/></span><p>Tiền thực thu</p><strong>{formatCurrency(totals.received)}</strong><small>Bán trả ngay + nhận trả nợ</small></StaggerItem>
+            <StaggerItem as="article" className="panel report-card"><span className="quick-icon orange"><BookOpen size={25}/></span><p>Khách đang còn nợ</p><strong>{formatCurrency(currentDebt)}</strong><small>Số dư hiện tại của toàn bộ khách</small></StaggerItem>
+            <StaggerItem as="article" className="panel report-card"><span className="quick-icon purple"><ShoppingBasket size={25}/></span><p>Số đơn bán hàng</p><strong>{totals.count.toLocaleString('vi-VN')} <span>đơn</span></strong><small>Trong {days} ngày đã chọn</small></StaggerItem>
+            {dataMode === 'supabase' && <><StaggerItem as="article" className="panel report-card"><span className="quick-icon blue"><Wallet size={25}/></span><p>Giá vốn</p><strong>{totals.cogs === null ? 'Chưa đủ dữ liệu' : formatCurrency(totals.cogs)}</strong><small>Giá vốn của các dòng bán trong kỳ</small></StaggerItem><StaggerItem as="article" className="panel report-card"><span className="quick-icon green"><ChartColumnIncreasing size={25}/></span><p>Lợi nhuận gộp</p><strong>{totals.grossProfit === null ? 'Chưa đủ dữ liệu' : formatCurrency(totals.grossProfit)}</strong><small>Doanh thu trừ giá vốn đã ghi nhận</small></StaggerItem><StaggerItem as="article" className="panel report-card"><p>Tỷ suất lợi nhuận gộp</p><strong>{formatGrossMargin(totals.grossMarginPercent)}</strong><small>{totals.cogs === null ? 'Chưa đủ dữ liệu giá vốn' : totals.revenue === 0 ? 'Không có doanh thu để tính tỷ suất' : 'Lợi nhuận gộp / doanh thu × 100%'}</small></StaggerItem></>}
+        </StaggerContainer>
         <section className="panel revenue-chart"><div className="panel-heading"><div><h2>Tình hình bán hàng từng ngày</h2><p>Chạm vào cột để xem số tiền của ngày đó.</p></div><label className="chart-metric">Hiển thị<select value={metric} onChange={e => setMetric(e.target.value)}><option value="revenue">Doanh thu bán hàng</option><option value="received">Tiền thực thu</option></select></label></div>
             <div className="chart-detail" role="status"><span>{day.date.toLocaleDateString('vi-VN', { weekday: 'long', day: '2-digit', month: '2-digit' })}</span><strong>{metricLabel}: {formatCurrency(day[metric])}</strong><span>{day.count} đơn · Thu nợ: {formatCurrency(day.repayments)}</span></div>
             <RevenueChart rows={rows} metric={metric} selectedKey={day.key} onSelect={setSelectedDay}/>
@@ -66,7 +67,5 @@ export function RevenuePage() {
         </section>
         <div className="info-box report-explanation"><b>Đọc số tiền cho đúng</b><p>Doanh thu là giá trị hàng đã bán, kể cả mua chịu. Tiền khách trả nợ chỉ cộng vào tiền thực thu; không cộng doanh thu lần nữa. Đơn hủy giảm doanh thu vào ngày hủy; tiền hoàn khách giảm thực thu vào ngày hoàn. Số nợ đầu kỳ không được tính là doanh thu mới. {dataMode === 'supabase' ? 'Lợi nhuận gộp chỉ hiện khi tất cả dòng hàng trong kỳ có giá vốn xác định; chưa trừ chi phí vận hành.' : 'Đây chưa phải lợi nhuận vì chưa trừ giá vốn và chi phí.'}</p></div>
         <DailyRevenueTable rows={rows}/>
-
     </>;
 }
-

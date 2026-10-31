@@ -11,6 +11,7 @@ import { stockDescription } from '../../utils/productPricing.js';
 import { ActivityList } from '../../components/ui';
 import { summarizeRevenue } from '../../utils/revenue';
 import { formatCurrency } from '../../utils/formatters';
+import { StaggerContainer, StaggerItem } from '../../components/motion/MotionPrimitives';
 
 const actions = [
     { to: '/sales', icon: ShoppingBasket, label: 'Bán hàng', text: 'Chọn hàng, tính tiền', color: 'green', number: '01' },
@@ -50,8 +51,8 @@ export function HomePage() {
                 <div className="date-chip"><CalendarDays size={18}/>{date}</div>
             </div>
 
-            <section className="stats-grid" aria-label="Tình hình cửa hàng">
-                <div className="stat-card revenue">
+            <StaggerContainer as="section" className="stats-grid" aria-label="Tình hình cửa hàng">
+                <StaggerItem className="stat-card revenue">
                     <div className="stat-top">
                         <span className="stat-icon"><Wallet size={24}/></span>
                         <span>Hôm nay đã thu</span>
@@ -62,9 +63,9 @@ export function HomePage() {
                         <span>{dashboard.error || (dataMode === 'supabase' && store?.role !== 'owner' ? 'Chỉ chủ tiệm xem số tiền' : 'Bán hàng + trả nợ − hoàn tiền')}</span>
                         <Link to="/revenue" className="mini-circle" title="Xem báo cáo doanh thu"><ArrowUpRight size={19}/></Link>
                     </div>
-                </div>
+                </StaggerItem>
 
-                <div className="stats-subgrid">
+                <StaggerItem className="stats-subgrid">
                     <Link to="/debt" className="stat-card debt-stat">
                         <div className="stat-top">
                             <span className="stat-icon"><Users size={22}/></span>
@@ -103,8 +104,8 @@ export function HomePage() {
                             <span className="text-link">Xem danh sách <ArrowRight size={15}/></span>
                         </div>
                     </Link>
-                </div>
-            </section>
+                </StaggerItem>
+            </StaggerContainer>
 
             {isNewStore && (
                 <section className="onboarding-banner panel">
@@ -149,18 +150,20 @@ export function HomePage() {
                     <h2>Bạn muốn làm gì?</h2>
                     <span>Chạm một lần, bắt đầu ngay</span>
                 </div>
-                <div className="quick-grid">
+                <StaggerContainer className="quick-grid">
                     {actions.map(a => (
-                        <Link className={`quick-card ${a.color}`} to={a.to} key={a.to}>
-                            <div className="quick-top">
-                                <span className="quick-icon"><a.icon size={29} strokeWidth={1.7}/></span>
-                                <ArrowUpRight className="quick-arrow" size={21}/>
-                            </div>
-                            <h3>{a.label}</h3>
-                            <p>{a.text}</p>
-                        </Link>
+                        <StaggerItem key={a.to}>
+                            <Link className={`quick-card ${a.color}`} to={a.to}>
+                                <div className="quick-top">
+                                    <span className="quick-icon"><a.icon size={29} strokeWidth={1.7}/></span>
+                                    <ArrowUpRight className="quick-arrow" size={21}/>
+                                </div>
+                                <h3>{a.label}</h3>
+                                <p>{a.text}</p>
+                            </Link>
+                        </StaggerItem>
                     ))}
-                </div>
+                </StaggerContainer>
             </section>
 
             {ownerCloud && <OwnerDashboard {...dashboard} businessType={store.businessType}/>}

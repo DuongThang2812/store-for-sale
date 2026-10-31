@@ -13,7 +13,7 @@ body {
   margin: 0;
   min-width: 320px;
   background:
-    radial-gradient(1200px circle at 50% -80px, rgba(17, 82, 59, 0.04) 0%, transparent 70%),
+    radial-gradient(1200px circle at 50% -80px, rgba(17, 82, 59, 0.045) 0%, transparent 70%),
     var(--canvas);
   background-attachment: fixed;
   color: var(--ink);
@@ -28,10 +28,10 @@ button, a, input, select { -webkit-tap-highlight-color: transparent; }
 button, a { touch-action: manipulation; }
 button { cursor: pointer; }
 
-button:disabled { cursor: not-allowed; opacity: 0.44; }
+button:disabled { cursor: not-allowed; opacity: 0.45; }
 
 button:focus-visible, a:focus-visible, summary:focus-visible {
-  outline: 2px solid var(--green);
+  outline: 2.5px solid var(--green);
   outline-offset: 2px;
   border-radius: var(--radius-xs);
 }
@@ -75,7 +75,7 @@ strong, b { font-weight: 700; }
 
 ::selection { background: #b8e2cf; color: var(--ink); }
 
-input::placeholder, textarea::placeholder { color: #8ba898; opacity: 1; }
+input::placeholder, textarea::placeholder { color: #607367; opacity: 1; }
 
 .tabular-nums, .num { font-variant-numeric: tabular-nums; }
 .muted { color: var(--muted); }

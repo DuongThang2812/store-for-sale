@@ -1,12 +1,14 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Apple, Store, ArrowRight, Check, Plus } from 'lucide-react';
+import { Apple, Store, ArrowRight, Check, Plus, LogOut } from 'lucide-react';
+import { motion } from 'motion/react';
 import { useAccountStore } from '../stores/useAccountStore.js';
 import { storeService } from '../services/storeService.js';
 import { accountSession } from '../services/accountSession.js';
 import { authService } from '../services/authService.js';
 import { BUSINESS_TYPES, businessTypeLabel } from '../domain/businessTypes.js';
 import { useDocumentTitle } from '../hooks/useDocumentTitle.js';
+import { StaggerContainer, StaggerItem } from '../components/motion/MotionPrimitives.jsx';
 
 export function StoreSetupPage() {
     useDocumentTitle();
@@ -51,8 +53,8 @@ export function StoreSetupPage() {
 
     return (
         <main className="store-setup">
-            <section className="panel">
-                <div className="session-logo-badge" style={{ margin: '0 auto 12px' }}>
+            <motion.section className="panel" initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }}>
+                <div className="session-logo-badge">
                     <Store size={32} />
                 </div>
                 <h1>{stores.length && !creating ? 'Chọn cửa hàng' : 'Tạo cửa hàng của bạn'}</h1>
@@ -60,24 +62,24 @@ export function StoreSetupPage() {
 
                 {stores.length > 0 && !creating && (
                     <>
-                        <div className="store-choices">
+                        <StaggerContainer className="store-choices">
                             {stores.map(store => (
-                                <button
-                                    type="button"
-                                    className="button secondary full"
-                                    key={store.id}
-                                    disabled={busy}
-                                    onClick={() => { void choose(store.id); }}
-                                    style={{ justifyContent: 'space-between', padding: '14px 18px', height: 'auto' }}
-                                >
-                                    <div style={{ textAlign: 'left' }}>
-                                        <strong style={{ display: 'block', fontSize: '15px' }}>{store.name}</strong>
-                                        <small style={{ color: 'var(--muted)' }}>{businessTypeLabel(store.businessType)} · {store.role === 'owner' ? 'Chủ tiệm' : 'Nhân viên'}</small>
-                                    </div>
-                                    <ArrowRight size={18} />
-                                </button>
+                                <StaggerItem key={store.id}>
+                                    <button
+                                        type="button"
+                                        className="button secondary full"
+                                        disabled={busy}
+                                        onClick={() => { void choose(store.id); }}
+                                    >
+                                        <div>
+                                            <strong>{store.name}</strong>
+                                            <span>{businessTypeLabel(store.businessType)} · {store.role === 'owner' ? 'Chủ tiệm' : 'Nhân viên'}</span>
+                                        </div>
+                                        <ArrowRight size={18} />
+                                    </button>
+                                </StaggerItem>
                             ))}
-                        </div>
+                        </StaggerContainer>
                         <button type="button" className="button primary full" disabled={busy} onClick={() => setCreating(true)}>
                             <Plus size={18} /> Thêm cửa hàng mới
                         </button>
@@ -101,14 +103,12 @@ export function StoreSetupPage() {
                                         <label
                                             key={type.id}
                                             className={`business-type-option ${isSelected ? 'selected' : ''}`}
-                                            style={{ position: 'relative' }}
                                         >
                                             <input
                                                 type="radio"
                                                 name="business-type"
                                                 value={type.id}
                                                 checked={isSelected}
-                                                style={{ position: 'absolute', top: '14px', right: '14px' }}
                                                 onChange={() => {
                                                     setBusinessType(type.id);
                                                     if (name === 'Tạp hóa BIN' || name === 'Trái cây BIN') {
@@ -116,11 +116,13 @@ export function StoreSetupPage() {
                                                     }
                                                 }}
                                             />
-                                            <div className="metric-icon-wrap" style={{ background: isSelected ? '#e6f4ea' : '#f0f4f1', color: '#175c45', marginBottom: '4px' }}>
-                                                <Icon size={24} />
+                                            <div>
+                                                <div className={`metric-icon-wrap ${isSelected ? 'metric-icon-green' : ''}`}>
+                                                    <Icon size={22} />
+                                                </div>
+                                                <strong>{type.label}</strong>
+                                                <small>{type.description}</small>
                                             </div>
-                                            <strong>{type.label}</strong>
-                                            <small>{type.description}</small>
                                         </label>
                                     );
                                 })}
@@ -143,9 +145,8 @@ export function StoreSetupPage() {
 
                 <button
                     type="button"
-                    className="text-link"
+                    className="text-link login-mode-link"
                     disabled={busy}
-                    style={{ margin: '8px auto 0' }}
                     onClick={async () => {
                         setBusy(true);
                         try {
@@ -157,9 +158,9 @@ export function StoreSetupPage() {
                         }
                     }}
                 >
-                    Đăng xuất
+                    <LogOut size={16}/> Đăng xuất
                 </button>
-            </section>
+            </motion.section>
         </main>
     );
 }

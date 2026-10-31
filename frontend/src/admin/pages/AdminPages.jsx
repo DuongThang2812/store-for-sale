@@ -7,15 +7,15 @@ import { authService } from '../../services/authService.js';
 import { accountSession } from '../../services/accountSession.js';
 import { useAccountStore } from '../../stores/useAccountStore.js';
 import { AdminSystemHealth, SystemHealthDetails } from '../components/AdminSystemHealth.jsx';
-
+import { StaggerContainer } from '../../components/motion/MotionPrimitives.jsx';
 
 export function AdminDashboardPage() {
     const state = useAdminData('dashboard');
     return <><Heading title="Tổng quan nền tảng" text="Các số liệu được tính từ dữ liệu hiện có, không dùng số mẫu."/>
-        <DataState state={state}>{data => <><div className="admin-metrics">
+        <DataState state={state}>{data => <><StaggerContainer className="admin-metrics">
             <Metric label="Tổng cửa hàng" value={data.total_shops}/><Metric label="Đang hoạt động" value={data.active_shops}/>
             <Metric label="Tạm khóa" value={data.suspended_shops}/><Metric label="Tài khoản" value={data.total_users}/>
-            <Metric label="Admin hoạt động" value={data.active_admins}/></div>
+            <Metric label="Admin hoạt động" value={data.active_admins}/></StaggerContainer>
             <div className="admin-two-columns"><section className="admin-panel panel"><h2>7 ngày gần đây</h2>
                 <p>Cửa hàng mới: <b>{integer(data.new_shops_7d)}</b></p><p>Tài khoản mới: <b>{integer(data.new_users_7d)}</b></p>
                 <p>Tạp hóa: <b>{integer(data.grocery_shops)}</b> · Trái cây: <b>{integer(data.fruit_shops)}</b></p></section>
@@ -31,9 +31,9 @@ export { AdminShopDetailPage, AdminUserDetailPage } from './AdminDetailPages.jsx
 export function AdminSystemPage() {
     const state = useAdminData('system');
     return <><Heading title="Tình trạng hệ thống" text="Các chỉ số này phản ánh truy vấn đang chạy, không phải cam kết uptime."/>
-        <DataState state={state}>{data => <><div className="admin-metrics"><Metric label="Cửa hàng" value={data.total_shops}/>
+        <DataState state={state}>{data => <><StaggerContainer className="admin-metrics"><Metric label="Cửa hàng" value={data.total_shops}/>
             <Metric label="Tài khoản" value={data.total_users}/><Metric label="Sản phẩm" value={data.total_products}/>
-            <Metric label="Bản ghi bán hàng" value={data.total_sales_records}/></div>
+            <Metric label="Bản ghi bán hàng" value={data.total_sales_records}/></StaggerContainer>
             <SystemHealthDetails data={data}/></>}</DataState></>;
 }
 

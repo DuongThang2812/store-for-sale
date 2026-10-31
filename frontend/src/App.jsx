@@ -6,28 +6,25 @@ import {
     SalesPage, CartPage, ImportPage, ImportExistingPage, ProductFormPage,
     InventoryPage, InventoryCountPage, DebtPage, CustomerPage, HistoryPage, CsvImportPage,
     CatalogImportPage, RevenuePage, LoginPage, AccountPage, CalculatorPage, ShopSettingsPage,
+    CategoriesPage, SuppliersPage, LegacyMigrationPage, StoreSetupPage, ResetPasswordPage,
 } from './routePages';
 import { PageLoading, PageErrorBoundary } from './components/PageLoading';
 import { AccountBootstrap, AuthenticatedGate, PublicOnlyGate, StoreGate } from './auth/AccountBootstrap';
 import { ShopOperationGate } from './auth/ShopOperationGate';
-import { StoreSetupPage } from './pages/StoreSetupPage';
-import { ResetPasswordPage } from './pages/ResetPasswordPage';
-import { LegacyMigrationPage } from './pages/LegacyMigrationPage';
-import { CategoriesPage } from './pages/CategoriesPage';
-import { SuppliersPage } from './pages/SuppliersPage';
 import { Empty } from './components/ui';
 import { AdminAccessGate } from './admin/AdminAccessGate.jsx';
 import { AdminLayout } from './admin/AdminLayout.jsx';
-import { AdminMfaSetupPage, AdminMfaChallengePage } from './admin/pages/AdminMfaPages.jsx';
 import {
     AdminDashboardPage, AdminShopsPage, AdminShopDetailPage,
     AdminUsersPage, AdminUserDetailPage, AdminAdminsPage,
     AdminSecurityPage, AdminAuditPage, AdminSystemPage, AdminSettingsPage,
+    AdminMfaSetupPage, AdminMfaChallengePage,
 } from './admin/adminRoutePages.js';
 import { ToastProvider } from './components/feedback/Toast.jsx';
+import { AppMotionProvider } from './components/motion/MotionPrimitives.jsx';
 
 function App() {
-    return <BrowserRouter><AccountBootstrap><PageErrorBoundary><Suspense fallback={<PageLoading/>}><ToastProvider><Routes>
+    return <BrowserRouter><AppMotionProvider><AccountBootstrap><PageErrorBoundary><Suspense fallback={<PageLoading/>}><ToastProvider><Routes>
         <Route path="login" element={<PublicOnlyGate><LoginPage/></PublicOnlyGate>}/>
         <Route path="reset-password" element={<ResetPasswordPage/>}/>
         <Route element={<AuthenticatedGate/>}>
@@ -83,7 +80,7 @@ function App() {
               </Route>
             </Route>
         </Route>
-    </Routes></ToastProvider></Suspense></PageErrorBoundary></AccountBootstrap></BrowserRouter>;
+    </Routes></ToastProvider></Suspense></PageErrorBoundary></AccountBootstrap></AppMotionProvider></BrowserRouter>;
 }
 
 export default App;

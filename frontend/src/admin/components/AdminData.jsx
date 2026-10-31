@@ -1,6 +1,7 @@
 import { Link } from 'react-router-dom';
 import { adminActions, adminSecurityEvents } from '../domain/listFilters.js';
 import { adminInteger, statusLabel } from '../domain/display.js';
+import { StaggerItem } from '../../components/motion/MotionPrimitives.jsx';
 
 export function DataState({ state, children }) {
     if (state.loading) return <div className="admin-panel" role="status">Đang tải dữ liệu thật từ hệ thống…</div>;
@@ -16,7 +17,7 @@ export function Pager({ offset, limit, total, onChange }) {
         <button className="button secondary" disabled={offset === 0} onClick={() => onChange(Math.max(0, offset - limit))}>Trước</button>
         <button className="button secondary" disabled={offset + limit >= total} onClick={() => onChange(offset + limit)}>Sau</button></div>;
 }
-export function Metric({ label, value }) { return <article className="admin-metric panel"><span>{label}</span><strong>{adminInteger(value)}</strong></article>; }
+export function Metric({ label, value }) { return <StaggerItem as="article" className="admin-metric panel"><span>{label}</span><strong>{adminInteger(value)}</strong></StaggerItem>; }
 export function StatusBadge({ value }) { return <span className={`admin-status ${value}`}>{statusLabel(value)}</span>; }
 export function AdminTable({ rows, columns, emptyText = 'Không có dữ liệu phù hợp.' }) {
     return <div className="admin-table-wrap panel"><table><thead><tr>{columns.map(column => <th key={column.key} scope="col">{column.label}</th>)}</tr></thead>

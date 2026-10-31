@@ -12,6 +12,11 @@ const loaders = {
     calculator: () => import('./pages/CalculatorPage'),
     login: () => import('./pages/LoginPage'),
     settings: () => import('./pages/ShopSettingsPage'),
+    categories: () => import('./pages/CategoriesPage'),
+    suppliers: () => import('./pages/SuppliersPage'),
+    migrate: () => import('./pages/LegacyMigrationPage'),
+    setup: () => import('./pages/StoreSetupPage'),
+    resetPassword: () => import('./pages/ResetPasswordPage'),
 };
 const pending = new Map();
 function load(group) {
@@ -38,6 +43,11 @@ export const AccountPage = page('account', 'AccountPage');
 export const CalculatorPage = page('calculator', 'CalculatorPage');
 export const LoginPage = page('login', 'LoginPage');
 export const ShopSettingsPage = page('settings', 'ShopSettingsPage');
+export const CategoriesPage = page('categories', 'CategoriesPage');
+export const SuppliersPage = page('suppliers', 'SuppliersPage');
+export const LegacyMigrationPage = page('migrate', 'LegacyMigrationPage');
+export const StoreSetupPage = page('setup', 'StoreSetupPage');
+export const ResetPasswordPage = page('resetPassword', 'ResetPasswordPage');
 
 // Fetch only the page the user is pointing at or focusing with the keyboard.
 export function preloadRoute(event) {
@@ -46,6 +56,7 @@ export function preloadRoute(event) {
     const path = href.split('?')[0];
     const group = path.startsWith('/import/csv') ? 'csv'
         : path.startsWith('/import/catalog') ? 'catalog'
+        : path.startsWith('/account/migrate') ? 'migrate'
         : /^\/(sales|cart)(\/|$)/.test(path) ? 'sales'
         : /^\/(import|inventory)(\/|$)/.test(path) ? 'stock'
         : /^\/(debt|history)(\/|$)/.test(path) ? 'debt'

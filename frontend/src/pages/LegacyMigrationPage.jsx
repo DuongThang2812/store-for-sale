@@ -1,6 +1,7 @@
 import { useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ArrowRight, Download, ShieldCheck } from 'lucide-react';
+import { motion } from 'motion/react';
 import { useAccountStore } from '../stores/useAccountStore.js';
 import { prepareLegacyMigration, readLegacyShop } from '../services/legacyMigration.js';
 import { legacyImportService } from '../services/legacyImportService.js';
@@ -35,7 +36,6 @@ export function LegacyMigrationPage() {
     }
 
     async function commit() {
-        // The exact snapshot and request ID are retained across network retries.
         const live = readLegacyShop(user.id, store.id);
         if (!live) throw new Error('Dữ liệu trên máy đã thay đổi. Hãy kiểm tra và sao lưu lại.');
         const liveBackup = await createBackup(live.state, live.key);
@@ -59,7 +59,6 @@ export function LegacyMigrationPage() {
         setResult(done);
         setConfirm(false);
         setError('');
-        // Stop local writes immediately after reconciliation, even if Auth refresh fails.
         if (useAccountStore.getState().store?.id === store.id) {
             useAccountStore.setState({ dataMode: 'supabase' });
         }
@@ -71,20 +70,45 @@ export function LegacyMigrationPage() {
         <div className="info-box">Cửa hàng này đang dùng dữ liệu Supabase DB. Không thể nhập lại lịch sử từ máy.</div></>;
     const report = prepared?.report;
     const blocking = !!(report?.review.debtDiscrepancies.length || report?.review.orphanOutstandingCustomerCount);
-    return <><PageHeading title="Chuyển dữ liệu từ máy lên DB" description="Giữ nguyên lịch sử cũ, đưa tồn kho và số nợ hiện tại sang cửa hàng đã chọn." back="/account"/>
-        <div className="info-box"><ShieldCheck size={23}/><div><b>{store.name}</b><p>Ứng dụng chỉ đọc dữ liệu gắn với tài khoản và cửa hàng này. Bản cũ trên máy sẽ không bị xóa. Hãy lưu file JSON vừa tải ở nơi an toàn.</p></div></div>
+    return <>
+        <PageHeading title="Chuyển dữ liệu từ máy lên DB" description="Giữ nguyên lịch sử cũ, đưa tồn kho và số nợ hiện tại sang cửa hàng đã chọn." back="/account"/>
+        <motion.div className="info-box" initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }}>
+            <ShieldCheck size={23}/>
+            <div>
+                <b>{store.name}</b>
+                <p>Ứng dụng chỉ đọc dữ liệu gắn với tài khoản và cửa hàng này. Bản cũ trên máy sẽ không bị xóa. Hãy lưu file JSON vừa tải ở nơi an toàn.</p>
+            </div>
+        </motion.div>
         {error && <p className="error" role="alert">{error}</p>}
-        {!prepared && !result && <section className="panel backup-card"><h2>1. Kiểm tra và tải sao lưu</h2><p>Kiểm tra số lượng hàng, khách và lịch sử trước khi ghi DB. Thao tác này tự tải file JSON có mã kiểm tra.</p><button className="button primary" disabled={busy} onClick={prepare}><Download size={19}/>{busy ? 'Đang kiểm tra…' : 'Kiểm tra & tải sao lưu'}</button></section>}
-        {report && !result && <section className="panel restore-preview"><h2>2. Đối chiếu bản trên máy</h2>
-            <div className="backup-counts"><span>{report.counts.products} mặt hàng</span><span>{report.counts.customers} khách</span><span>{report.counts.sales} đơn cũ</span><span>{report.counts.receipts} lần nhập</span><span>{report.counts.payments} lần trả nợ</span><span>{report.counts.adjustments} lần hao hụt</span></div>
-            <p>Số nợ chuyển đầu kỳ: <b>{formatCurrency(report.totals.outstandingDebt)}</b>.</p>
-            <p>{report.counts.archiveOnlySales} đơn không có chi tiết món, {report.review.missingProductLines.length} dòng tham chiếu hàng không còn trong kho. Các bản ghi này được lưu nguyên văn trong lịch sử cũ, không tự cộng lại kho hay doanh thu.</p>
-            <p>Giá vốn của các đơn cũ chưa rõ sẽ giữ trạng thái chưa xác định. Giỏ hàng tạm thời vẫn nằm trong file sao lưu trên máy.</p>
-            {blocking && <p className="error" role="alert">Sổ nợ chưa khớp: {report.review.debtDiscrepancies.length} khách lệch số dư và {report.review.orphanOutstandingCustomerCount} khách đã xóa còn nợ trong lịch sử. Hãy đối chiếu trước khi chuyển.</p>}
-            <label className="checkbox-field"><input type="checkbox" checked={acknowledged} onChange={event => setAcknowledged(event.target.checked)}/> Tôi đã giữ file JSON sao lưu và hiểu các giao dịch cũ sẽ được lưu làm lịch sử đối chiếu.</label>
-            <button className="button primary" disabled={!acknowledged || blocking} onClick={() => setConfirm(true)}>Chuyển vào DB <ArrowRight size={18}/></button>
-        </section>}
-        {result && <section className="panel success-panel" role="status"><ShieldCheck size={38}/><h2>DB đã nhận và đối chiếu dữ liệu</h2><p>{result.counts.products} mặt hàng, {result.counts.customers} khách, {result.counts.entries} dòng lịch sử. Tồn: {result.counts.stock_base_total} đơn vị gốc; công nợ: {formatCurrency(Number(result.counts.outstanding_debt))}.</p><p>File và dữ liệu trên máy vẫn còn. Từ đây các thao tác mới sẽ dùng DB.</p><button className="button primary" onClick={async () => { await accountSession.refresh(store.id); navigate('/', { replace: true }); }}>Mở cửa hàng trên DB <ArrowRight size={18}/></button></section>}
+        {!prepared && !result && (
+            <motion.section className="panel backup-card" initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }}>
+                <span className="choice-icon green"><Download size={30}/></span>
+                <h2>1. Kiểm tra và tải sao lưu</h2>
+                <p>Kiểm tra số lượng hàng, khách và lịch sử trước khi ghi DB. Thao tác này tự tải file JSON có mã kiểm tra.</p>
+                <button className="button primary" disabled={busy} onClick={prepare}><Download size={19}/>{busy ? 'Đang kiểm tra…' : 'Kiểm tra & tải sao lưu'}</button>
+            </motion.section>
+        )}
+        {report && !result && (
+            <motion.section className="panel restore-preview" initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }}>
+                <h2>2. Đối chiếu bản trên máy</h2>
+                <div className="backup-counts"><span>{report.counts.products} mặt hàng</span><span>{report.counts.customers} khách</span><span>{report.counts.sales} đơn cũ</span><span>{report.counts.receipts} lần nhập</span><span>{report.counts.payments} lần trả nợ</span><span>{report.counts.adjustments} lần hao hụt</span></div>
+                <p>Số nợ chuyển đầu kỳ: <b>{formatCurrency(report.totals.outstandingDebt)}</b>.</p>
+                <p>{report.counts.archiveOnlySales} đơn không có chi tiết món, {report.review.missingProductLines.length} dòng tham chiếu hàng không còn trong kho. Các bản ghi này được lưu nguyên văn trong lịch sử cũ, không tự cộng lại kho hay doanh thu.</p>
+                <p>Giá vốn của các đơn cũ chưa rõ sẽ giữ trạng thái chưa xác định. Giỏ hàng tạm thời vẫn nằm trong file sao lưu trên máy.</p>
+                {blocking && <p className="error" role="alert">Sổ nợ chưa khớp: {report.review.debtDiscrepancies.length} khách lệch số dư và {report.review.orphanOutstandingCustomerCount} khách đã xóa còn nợ trong lịch sử. Hãy đối chiếu trước khi chuyển.</p>}
+                <label className="checkbox-field"><input type="checkbox" checked={acknowledged} onChange={event => setAcknowledged(event.target.checked)}/> Tôi đã giữ file JSON sao lưu và hiểu các giao dịch cũ sẽ được lưu làm lịch sử đối chiếu.</label>
+                <button className="button primary" disabled={!acknowledged || blocking} onClick={() => setConfirm(true)}>Chuyển vào DB <ArrowRight size={18}/></button>
+            </motion.section>
+        )}
+        {result && (
+            <motion.section className="panel success-panel" role="status" initial={{ opacity: 0, scale: 0.97 }} animate={{ opacity: 1, scale: 1 }}>
+                <span className="success-symbol"><ShieldCheck size={38}/></span>
+                <h2>DB đã nhận và đối chiếu dữ liệu</h2>
+                <p>{result.counts.products} mặt hàng, {result.counts.customers} khách, {result.counts.entries} dòng lịch sử. Tồn: {result.counts.stock_base_total} đơn vị gốc; công nợ: {formatCurrency(Number(result.counts.outstanding_debt))}.</p>
+                <p>File và dữ liệu trên máy vẫn còn. Từ đây các thao tác mới sẽ dùng DB.</p>
+                <button className="button primary" onClick={async () => { await accountSession.refresh(store.id); navigate('/', { replace: true }); }}>Mở cửa hàng trên DB <ArrowRight size={18}/></button>
+            </motion.section>
+        )}
         {confirm && <Confirm title={`Chuyển dữ liệu vào ${store.name}?`} label="Đúng, chuyển dữ liệu" onClose={() => setConfirm(false)} onConfirm={commit}><p>Nhập tồn hiện tại và số nợ đầu kỳ vào DB trong một giao dịch. Lịch sử cũ được giữ để đối chiếu, không phát lại các lần bán/nhập hàng.</p><p>Nếu DB đã có giao dịch hoặc hàng đang bán, hệ thống sẽ dừng và không ghi đè.</p></Confirm>}
     </>;
 }

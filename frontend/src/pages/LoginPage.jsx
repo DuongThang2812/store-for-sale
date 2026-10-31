@@ -1,12 +1,14 @@
 import { useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { ArrowRight, Eye, EyeOff, Leaf, Store, CheckCircle2, ShieldCheck } from 'lucide-react';
+import { AnimatePresence, motion } from 'motion/react';
 import { authService } from '../services/authService.js';
 import { accountSession } from '../services/accountSession.js';
 import { accountErrorMessage } from '../services/authMessages.js';
 import { getSupabaseConfigurationStatus } from '../lib/supabase.js';
 import { useAccountStore } from '../stores/useAccountStore.js';
 import { useDocumentTitle } from '../hooks/useDocumentTitle.js';
+import { StaggerContainer, StaggerItem } from '../components/motion/MotionPrimitives.jsx';
 
 const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const strongPassword = value => value.length >= 8 && /[A-Za-z]/.test(value) && /\d/.test(value);
@@ -69,25 +71,27 @@ export function LoginPage() {
                     <span className="brand-icon"><Store size={30}/></span>
                     <span>Tạp hóa<strong>BIN.</strong></span>
                 </div>
-                <div>
-                    <span className="eyebrow"><Leaf size={18}/> DÀNH CHO TIỆM NHỎ CỦA BẠN</span>
-                    <h1>Nhẹ việc tiệm.<br/>Vui mỗi ngày.</h1>
-                    <p>Bán hàng, quản lý kho và ghi sổ nợ.<br/>Mọi việc gọn gàng, minh bạch ở một nơi.</p>
+                <StaggerContainer>
+                    <StaggerItem>
+                        <span className="eyebrow"><Leaf size={18}/> DÀNH CHO TIỆM NHỎ CỦA BẠN</span>
+                        <h1>Nhẹ việc tiệm.<br/>Vui mỗi ngày.</h1>
+                        <p>Bán hàng, quản lý kho và ghi sổ nợ.<br/>Mọi việc gọn gàng, minh bạch ở một nơi.</p>
+                    </StaggerItem>
                     <div className="login-features">
-                        <div className="login-feature-item">
+                        <StaggerItem className="login-feature-item">
                             <span className="login-feature-icon"><CheckCircle2 size={16}/></span>
                             <span>Bán hàng siêu nhanh, hỗ trợ bán lẻ, bán thùng và cân kg</span>
-                        </div>
-                        <div className="login-feature-item">
+                        </StaggerItem>
+                        <StaggerItem className="login-feature-item">
                             <span className="login-feature-icon"><CheckCircle2 size={16}/></span>
                             <span>Sổ nợ rõ ràng, ghi nhớ chi tiết từng khách mua chịu</span>
-                        </div>
-                        <div className="login-feature-item">
+                        </StaggerItem>
+                        <StaggerItem className="login-feature-item">
                             <span className="login-feature-icon"><CheckCircle2 size={16}/></span>
                             <span>Tồn kho chính xác, cảnh báo kịp thời khi hàng sắp hết</span>
-                        </div>
+                        </StaggerItem>
                     </div>
-                </div>
+                </StaggerContainer>
                 <span><ShieldCheck size={18}/> Tài khoản được bảo vệ bằng Supabase Auth</span>
             </section>
 
@@ -97,8 +101,18 @@ export function LoginPage() {
                         <span className="brand-icon"><Store size={24}/></span>
                         <span>Tạp hóa <strong>BIN.</strong></span>
                     </div>
-                    <h1>{mode === 'login' ? 'Đăng nhập' : mode === 'register' ? 'Tạo tài khoản' : 'Quên mật khẩu?'}</h1>
-                    <p>{mode === 'forgot' ? 'Nhập email để nhận hướng dẫn đặt lại mật khẩu.' : 'Mở cửa hàng của bạn để bắt đầu làm việc.'}</p>
+                    <AnimatePresence mode="wait" initial={false}>
+                        <motion.div
+                            key={mode}
+                            initial={{ opacity: 0, y: 6 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            exit={{ opacity: 0, y: -6 }}
+                            transition={{ duration: 0.18 }}
+                        >
+                            <h1>{mode === 'login' ? 'Đăng nhập' : mode === 'register' ? 'Tạo tài khoản' : 'Quên mật khẩu?'}</h1>
+                            <p>{mode === 'forgot' ? 'Nhập email để nhận hướng dẫn đặt lại mật khẩu.' : 'Mở cửa hàng của bạn để bắt đầu làm việc.'}</p>
+                        </motion.div>
+                    </AnimatePresence>
 
                     {!configuration.configured && (
                         <div className="info-box" role="alert">

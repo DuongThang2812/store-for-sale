@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Store, ArrowRight, Eye, EyeOff } from 'lucide-react';
+import { Store, ArrowRight, Eye, EyeOff, KeyRound } from 'lucide-react';
+import { motion } from 'motion/react';
 import { authService } from '../services/authService.js';
 import { accountErrorMessage } from '../services/authMessages.js';
 import { accountSession } from '../services/accountSession.js';
@@ -33,9 +34,9 @@ export function ResetPasswordPage() {
 
     return (
         <main className="store-setup">
-            <section className="panel">
-                <div className="session-logo-badge" style={{ margin: '0 auto 12px' }}>
-                    <Store size={32} />
+            <motion.section className="panel" initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }}>
+                <div className="session-logo-badge">
+                    <KeyRound size={30} />
                 </div>
                 <h1>Đặt mật khẩu mới</h1>
                 <p>Mật khẩu mới cần ít nhất 8 ký tự, bao gồm cả chữ và số.</p>
@@ -87,7 +88,10 @@ export function ResetPasswordPage() {
                         {busy ? 'Đang lưu…' : 'Lưu mật khẩu mới'} <ArrowRight size={18} />
                     </button>
                 </form>
-            </section>
+                <div className="sidebar-signoff">
+                    <Store size={15}/> Bảo mật tài khoản BIN
+                </div>
+            </motion.section>
         </main>
     );
 }

@@ -13,7 +13,7 @@ h3 { font-weight: 700; }
 
 button, input, select, textarea { accent-color: var(--green); }
 button, a { -webkit-tap-highlight-color: transparent; }
-input::placeholder, textarea::placeholder { color: #8ba898; opacity: 1; }
+input::placeholder, textarea::placeholder { color: #607367; opacity: 1; }
 ::selection { background: #c6e8d8; color: var(--ink); }
 
 /* ─── Shell Overrides ─────────────────────────────────────── */
@@ -74,9 +74,13 @@ input::placeholder, textarea::placeholder { color: #8ba898; opacity: 1; }
 /* Icon containers */
 .stat-icon, .quick-icon, .product-symbol, .choice-icon { border-radius: var(--radius-md); }
 
-/* Quick section */
+/* ─── Quick section ───────────────────────────────────────── */
 .quick-section { margin: var(--space-8) 0; }
 .quick-grid, .products-grid, .customer-grid, .import-group-grid { gap: var(--space-4); }
+.import-group-grid > div, .customer-grid > div, .store-choices > div { display: flex; }
+.import-group-grid > div > *, .customer-grid > div > *, .store-choices > div > * { flex: 1; }
+.store-setup .session-logo-badge { margin: 0 auto 12px; }
+.store-setup .login-mode-link { display: inline-flex; align-items: center; gap: 6px; margin-top: 8px; }
 .quick-card { padding: var(--space-6); }
 .quick-card p { font-size: 14px; color: var(--muted); }
 .quick-top { margin-bottom: var(--space-5); }
@@ -134,7 +138,7 @@ input::placeholder, textarea::placeholder { color: #8ba898; opacity: 1; }
   font-size: 15px;
   color: var(--ink);
   background: var(--surface);
-  transition: border-color var(--motion-fast) var(--motion-ease), box-shadow var(--motion-fast) var(--motion-ease);
+  transition: transform var(--motion-fast) var(--motion-ease), opacity var(--motion-fast) var(--motion-ease);
 }
 .field input:focus, .field select:focus, .field textarea:focus {
   border-color: var(--green);

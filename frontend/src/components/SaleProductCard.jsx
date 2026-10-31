@@ -4,6 +4,7 @@ import { useShallow } from 'zustand/react/shallow';
 import { useActiveShopStore } from '../stores/useActiveShopStore';
 import { Stepper } from './ui';
 import { ProductSymbol } from './ProductSymbol';
+import { StaggerContainer, StaggerItem } from './motion/MotionPrimitives';
 import { formatCurrency } from '../utils/formatters';
 import { cartKey, baseQuantity, formatKgFromGrams, isWeightUnit, isWeightedProduct, saleOptions } from '../utils/productPricing';
 
@@ -56,7 +57,7 @@ const SaleProductCard = memo(function SaleProductCard({ product: p, customerId }
         const other = quantities.reduce((sum, value, position) => sum + (position === index ? 0 : value), 0);
         const available = Math.max(0, p.stock - other);
         const key = cartKey(p.id, option.key);
-        return <article className={`product-card ${p.stock === 0 ? 'sold-out' : ''} ${grams ? 'is-in-cart' : ''}`}>
+        return <StaggerItem as="article" className={`product-card ${p.stock === 0 ? 'sold-out' : ''} ${grams ? 'is-in-cart' : ''}`}>
             <div className="product-card-top"><ProductSymbol category={p.category}/><span className={`stock-pill ${p.stock === 0 ? 'out' : p.stock <= (p.lowStockThreshold ?? (p.pricing.group === 'fruit' ? 5000 : 500)) ? 'low' : ''}`}>{p.stock === 0 ? 'Hết hàng' : `Còn ${formatKgFromGrams(p.stock)}`}</span></div>
             <h3>{p.name}</h3>{options.length > 1 && <div className="sale-unit-tabs" role="group" aria-label={`Đơn vị cân ${p.name}`}>
                 {options.map(row => <button type="button" key={row.key} className={`sale-unit-tab ${option.key === row.key ? 'active' : ''}`} aria-pressed={option.key === row.key} onClick={() => setUnitChoice(row.key)}>{row.unit}</button>)}</div>}
@@ -64,14 +65,14 @@ const SaleProductCard = memo(function SaleProductCard({ product: p, customerId }
             {isWeightUnit(option.unit) ? <WeightPicker key={option.key} name={p.name} grams={grams} stock={available} option={option} onChange={value => setQuantity(key, value, customerId)}/>
                 : <Stepper value={grams / option.factor} min={0} max={Math.floor(available / option.factor)} label={`${p.name} (${option.unit})`} onChange={value => setQuantity(key, value, customerId)}/>}
             {other > 0 && <p className="unit-cart-note">Đã chọn thêm {formatKgFromGrams(other)} ở đơn vị khác.</p>}
-        </article>;
+        </StaggerItem>;
     }
     const option = options.find(o => o.key === unitChoice) || options[0];
     const index = options.indexOf(option);
     const key = cartKey(p.id, option.key);
     const used = options.reduce((sum, o, i) => sum + (i === index ? 0 : quantities[i] * o.factor), 0);
     const available = Math.max(0, Math.floor((p.stock - used) / option.factor));
-    return <article className={`product-card ${p.stock === 0 ? 'sold-out' : ''} ${quantities.some(q => q > 0) ? 'is-in-cart' : ''}`}>
+    return <StaggerItem as="article" className={`product-card ${p.stock === 0 ? 'sold-out' : ''} ${quantities.some(q => q > 0) ? 'is-in-cart' : ''}`}>
         <div className="product-card-top"><ProductSymbol category={p.category}/><span className={`stock-pill ${p.stock === 0 ? 'out' : p.stock <= (p.lowStockThreshold ?? 5) ? 'low' : ''}`}>{p.stock === 0 ? 'Hết hàng' : `Còn ${p.stock} ${p.unit}`}</span></div><h3>{p.name}</h3>
         {options.length > 1 && (
             <div className="sale-unit-tabs" role="group" aria-label={`Chọn đơn vị bán ${p.name}`}>
@@ -92,9 +93,9 @@ const SaleProductCard = memo(function SaleProductCard({ product: p, customerId }
         <p className="product-price">{formatCurrency(option.price)}<span> / {option.unit}</span></p>
         {quantities[index] ? <Stepper value={quantities[index]} max={available} label={`${p.name} (${option.unit})`} onChange={q => setQuantity(key, q, customerId)}/> : <button className="button add-button" disabled={available === 0} onClick={() => setQuantity(key, 1, customerId)}><Plus size={18}/>{p.stock === 0 ? 'Đã hết hàng' : available === 0 ? `Không đủ 1 ${option.unit}` : `Thêm ${option.unit}`}</button>}
         {options.length > 1 && <p className="unit-cart-note">{options.map((o, i) => `${quantities[i]} ${o.unit}`).join(' + ')} đã chọn</p>}
-    </article>;
+    </StaggerItem>;
 });
 
 export const SaleProductGrid = memo(function SaleProductGrid({ products, customerId }) {
-    return <div className="products-grid">{products.map(product => <SaleProductCard key={product.id} product={product} customerId={customerId}/>)}</div>;
+    return <StaggerContainer className="products-grid">{products.map(product => <SaleProductCard key={product.id} product={product} customerId={customerId}/>)}</StaggerContainer>;
 });

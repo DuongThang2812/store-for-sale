@@ -1,10 +1,12 @@
 import { useEffect, useRef, useState } from 'react';
+import { Check, RefreshCw, Store, UserPlus, Users } from 'lucide-react';
 import { useAccountStore } from '../stores/useAccountStore';
 import { shopSettingsService } from '../services/shopSettingsService';
 import { storeService } from '../services/storeService';
 import { createRequestJournal } from '../services/requestJournal';
 import { createCloudCommandRunner } from '../services/cloudCommandRunner';
 import { Confirm, Modal, Notice, PageHeading } from '../components/ui';
+import { StaggerContainer, StaggerItem } from '../components/motion/MotionPrimitives';
 import { businessTypeLabel } from '../domain/businessTypes';
 
 const journal = createRequestJournal();
@@ -16,8 +18,13 @@ const command = createCloudCommandRunner({ journal, context: () => {
 export function ShopSettingsPage() {
     const store = useAccountStore(state => state.store);
     if (store.role !== 'owner') return <p className="info-box">Chỉ chủ tiệm được quản lý cài đặt và nhân viên.</p>;
-    return <><PageHeading title="Cài đặt cửa hàng" description="Thông tin cửa hàng và quyền làm việc của từng nhân viên."/>
-        <div className="backup-grid"><StoreDetails key={store.id} store={store}/><StaffList key={store.id} store={store}/></div></>;
+    return <>
+        <PageHeading title="Cài đặt cửa hàng" description="Thông tin cửa hàng và quyền làm việc của từng nhân viên."/>
+        <StaggerContainer className="backup-grid">
+            <StoreDetails key={store.id} store={store}/>
+            <StaffList key={store.id} store={store}/>
+        </StaggerContainer>
+    </>;
 }
 
 function StoreDetails({ store }) {
@@ -46,28 +53,31 @@ function StoreDetails({ store }) {
         } catch (cause) { setError(cause.message); }
         finally { setLoading(false); }
     }
-    return <section className="panel form-panel"><h2>Thông tin tiệm</h2>
-        {success && <Notice onClose={() => setSuccess('')}>{success}</Notice>}
-        {error && <p className="error" role="alert">{error}</p>}
-        <form onSubmit={event => { event.preventDefault(); setConfirm(true); }}>
-            <label className="field">Tên cửa hàng<input required maxLength={120} value={name} onChange={event => setName(event.target.value)}/></label>
-            <label className="field">Điện thoại<input type="tel" maxLength={30} value={phone} onChange={event => setPhone(event.target.value)}/></label>
-            <label className="field">Địa chỉ<textarea maxLength={300} rows={3} value={address} onChange={event => setAddress(event.target.value)}/></label>
-            <p className="muted">{businessTypeLabel(store.businessType)} · VNĐ · Asia/Ho_Chi_Minh</p>
-            <p className="muted">Loại kinh doanh được giữ nguyên để bảo toàn quy cách và lịch sử hàng.</p>
-            <button className="button primary full" disabled={loading || !name.trim()}>Lưu thông tin</button>
-        </form>
-        <button className="button secondary full" disabled={loading || confirm} onClick={reload}>{loading ? 'Đang tải…' : 'Tải lại từ DB'}</button>
-        {confirm && <Confirm title="Lưu cài đặt cửa hàng?" label="Lưu vào DB" onClose={() => setConfirm(false)} onConfirm={async () => {
-            const payload = { name, phone, address, expectedVersion: version };
-            let fresh;
-            await command(store.id, 'settings', payload,
-                requestId => shopSettingsService.saveSettings(store.id, { ...payload, requestId }),
-                async () => { fresh = await storeService.getStore(store.id); });
-            applySettings(fresh);
-            setConfirm(false); setError(''); setSuccess('Đã lưu thông tin cửa hàng.');
-        }}><p>{name} · {phone || 'Chưa thêm điện thoại'}</p><p>{address || 'Chưa thêm địa chỉ'}</p></Confirm>}
-    </section>;
+    return (
+        <StaggerItem as="section" className="panel form-panel">
+            <h2><Store size={20}/> Thông tin tiệm</h2>
+            {success && <Notice onClose={() => setSuccess('')}>{success}</Notice>}
+            {error && <p className="error" role="alert">{error}</p>}
+            <form onSubmit={event => { event.preventDefault(); setConfirm(true); }}>
+                <label className="field">Tên cửa hàng<input required maxLength={120} value={name} onChange={event => setName(event.target.value)}/></label>
+                <label className="field">Điện thoại<input type="tel" maxLength={30} value={phone} onChange={event => setPhone(event.target.value)}/></label>
+                <label className="field">Địa chỉ<textarea maxLength={300} rows={3} value={address} onChange={event => setAddress(event.target.value)}/></label>
+                <p className="muted">{businessTypeLabel(store.businessType)} · VNĐ · Asia/Ho_Chi_Minh</p>
+                <p className="muted">Loại kinh doanh được giữ nguyên để bảo toàn quy cách và lịch sử hàng.</p>
+                <button className="button primary full" disabled={loading || !name.trim()}><Check size={19}/> Lưu thông tin</button>
+            </form>
+            <button className="button secondary full" disabled={loading || confirm} onClick={reload}><RefreshCw size={18}/> {loading ? 'Đang tải…' : 'Tải lại từ DB'}</button>
+            {confirm && <Confirm title="Lưu cài đặt cửa hàng?" label="Lưu vào DB" onClose={() => setConfirm(false)} onConfirm={async () => {
+                const payload = { name, phone, address, expectedVersion: version };
+                let fresh;
+                await command(store.id, 'settings', payload,
+                    requestId => shopSettingsService.saveSettings(store.id, { ...payload, requestId }),
+                    async () => { fresh = await storeService.getStore(store.id); });
+                applySettings(fresh);
+                setConfirm(false); setError(''); setSuccess('Đã lưu thông tin cửa hàng.');
+            }}><p>{name} · {phone || 'Chưa thêm điện thoại'}</p><p>{address || 'Chưa thêm địa chỉ'}</p></Confirm>}
+        </StaggerItem>
+    );
 }
 
 function StaffList({ store }) {
@@ -87,21 +97,28 @@ function StaffList({ store }) {
         return () => { request.current += 1; };
     }, [store.id, offset, revision, key]);
     const page = result?.key === key ? result : null;
-    return <section className="panel form-panel"><div className="panel-heading"><h2>Nhân viên</h2><button className="button secondary" onClick={() => setEditor({})}>Thêm nhân viên</button></div>
-        <p className="muted">Nhân viên đăng ký tài khoản trước. Thêm bằng email đó; ứng dụng không tự gửi thư mời hoặc tạo mật khẩu.</p>
-        {notice && <Notice onClose={() => setNotice('')}>{notice}</Notice>}
-        {error && <p className="error" role="alert">{error}</p>}
-        {!page ? <p role="status">Đang tải danh sách từ DB…</p> : page.failed ? <button className="button secondary" onClick={() => setRevision(value => value + 1)}>Thử lại</button> : <>
-            <div className="table-scroll"><table className="data-table"><thead><tr><th>Nhân viên</th><th>Quyền</th><th>Trạng thái</th><th/></tr></thead><tbody>{page.rows.map(row => <tr key={row.user_id}>
-                <td><b>{row.display_name}</b><p>{row.email}</p></td><td>{row.role === 'owner' ? 'Chủ tiệm' : [row.can_sell && 'Bán', row.can_receive_stock && 'Nhập', row.can_manage_debt && 'Công nợ'].filter(Boolean).join(' · ') || 'Chỉ xem kho'}</td>
-                <td>{row.account_status === 'disabled' ? 'Tài khoản bị khóa' : row.is_active ? 'Đang làm việc' : 'Tạm ngừng'}</td>
-                <td>{row.role === 'staff' && <button className="button secondary" onClick={() => setEditor(row)}>Sửa quyền</button>}</td></tr>)}</tbody></table></div>
-            {page.total > 30 && <div className="modal-actions"><button className="button secondary" disabled={offset === 0} onClick={() => setOffset(value => Math.max(0,value-30))}>Trước</button>
-                <span>{offset+1}–{Math.min(offset+30,page.total)} / {page.total}</span><button className="button secondary" disabled={offset+30 >= page.total} onClick={() => setOffset(value => value+30)}>Sau</button></div>}
-        </>}
-        {editor && <StaffEditor store={store} member={editor} onClose={() => setEditor(null)} onDone={() => {
-            setEditor(null); setRevision(value => value + 1); setNotice('Đã lưu quyền nhân viên trên DB. Lịch sử giao dịch vẫn được giữ.');
-        }}/>}</section>;
+    return (
+        <StaggerItem as="section" className="panel form-panel">
+            <div className="panel-heading">
+                <h2><Users size={20}/> Nhân viên</h2>
+                <button className="button secondary" onClick={() => setEditor({})}><UserPlus size={18}/> Thêm nhân viên</button>
+            </div>
+            <p className="muted">Nhân viên đăng ký tài khoản trước. Thêm bằng email đó; ứng dụng không tự gửi thư mời hoặc tạo mật khẩu.</p>
+            {notice && <Notice onClose={() => setNotice('')}>{notice}</Notice>}
+            {error && <p className="error" role="alert">{error}</p>}
+            {!page ? <p role="status">Đang tải danh sách từ DB…</p> : page.failed ? <button className="button secondary" onClick={() => setRevision(value => value + 1)}>Thử lại</button> : <>
+                <div className="table-scroll"><table className="data-table"><thead><tr><th>Nhân viên</th><th>Quyền</th><th>Trạng thái</th><th/></tr></thead><tbody>{page.rows.map(row => <tr key={row.user_id}>
+                    <td><b>{row.display_name}</b><p>{row.email}</p></td><td>{row.role === 'owner' ? 'Chủ tiệm' : [row.can_sell && 'Bán', row.can_receive_stock && 'Nhập', row.can_manage_debt && 'Công nợ'].filter(Boolean).join(' · ') || 'Chỉ xem kho'}</td>
+                    <td><span className={`status-badge ${row.account_status === 'disabled' ? 'status-badge-danger' : row.is_active ? 'status-badge-active' : 'status-badge-warning'}`}>{row.account_status === 'disabled' ? 'Tài khoản bị khóa' : row.is_active ? 'Đang làm việc' : 'Tạm ngừng'}</span></td>
+                    <td>{row.role === 'staff' && <button className="button secondary" onClick={() => setEditor(row)}>Sửa quyền</button>}</td></tr>)}</tbody></table></div>
+                {page.total > 30 && <div className="modal-actions"><button className="button secondary" disabled={offset === 0} onClick={() => setOffset(value => Math.max(0,value-30))}>Trước</button>
+                    <span>{offset+1}–{Math.min(offset+30,page.total)} / {page.total}</span><button className="button secondary" disabled={offset+30 >= page.total} onClick={() => setOffset(value => value+30)}>Sau</button></div>}
+            </>}
+            {editor && <StaffEditor store={store} member={editor} onClose={() => setEditor(null)} onDone={() => {
+                setEditor(null); setRevision(value => value + 1); setNotice('Đã lưu quyền nhân viên trên DB. Lịch sử giao dịch vẫn được giữ.');
+            }}/>}
+        </StaggerItem>
+    );
 }
 
 function StaffEditor({ store, member, onClose, onDone }) {

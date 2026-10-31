@@ -1,20 +1,24 @@
 import { useEffect, useRef, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import { motion } from 'motion/react';
+import { ArrowLeft, KeyRound, ShieldCheck } from 'lucide-react';
 import { getSupabaseClient } from '../../lib/supabase.js';
 
-function CodeForm({ title, description, onVerify, busy, error }) {
+function CodeForm({ title, description, onVerify, busy, error, embedded }) {
     const [code, setCode] = useState('');
-    return <form className="admin-mfa-card panel" onSubmit={async event => {
+    return <motion.form className={embedded ? '' : 'admin-mfa-card panel'} initial={embedded ? false : { opacity: 0, y: 14 }} animate={embedded ? false : { opacity: 1, y: 0 }} transition={{ duration: 0.24 }} onSubmit={async event => {
         event.preventDefault();
         if (/^\d{6}$/.test(code)) await onVerify(code);
-    }}><h1>{title}</h1><p>{description}</p><label className="field">Mã 6 số từ ứng dụng xác thực<input
-        inputMode="numeric" autoComplete="one-time-code" maxLength={6} pattern="[0-9]{6}"
-        value={code} onChange={event => setCode(event.target.value.replace(/\D/g, ''))}/></label>
+    }}>
+        {!embedded && <div className="session-logo-badge"><KeyRound size={24}/></div>}
+        <h1>{title}</h1><p>{description}</p><label className="field">Mã 6 số từ ứng dụng xác thực<input
+            inputMode="numeric" autoComplete="one-time-code" maxLength={6} pattern="[0-9]{6}" placeholder="000000"
+            value={code} onChange={event => setCode(event.target.value.replace(/\D/g, ''))}/></label>
         {error && <p className="error" role="alert">{error}</p>}
         <button className="button primary full" disabled={busy || code.length !== 6}>
-            {busy ? 'Đang kiểm tra…' : 'Xác thực và vào quản trị'}</button>
-        <Link to="/" className="text-link">Về cửa hàng</Link>
-    </form>;
+            <ShieldCheck size={18}/> {busy ? 'Đang kiểm tra…' : 'Xác thực và vào quản trị'}</button>
+        <Link to="/" className="text-link"><ArrowLeft size={16}/> Về cửa hàng</Link>
+    </motion.form>;
 }
 
 export function AdminMfaSetupPage() {
@@ -44,14 +48,15 @@ export function AdminMfaSetupPage() {
         } catch { setError('Mã chưa đúng hoặc đã hết hạn. Hãy thử mã mới.'); }
         finally { setBusy(false); }
     }
-    return <div className="admin-mfa-page"><div className="admin-mfa-card panel">
+    return <div className="admin-mfa-page"><motion.div className="admin-mfa-card panel" initial={{ opacity: 0, y: 14 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.24 }}>
+        <div className="session-logo-badge"><ShieldCheck size={24}/></div>
         <h1>Thiết lập xác thực hai bước</h1><p>Quét mã bằng ứng dụng xác thực trên điện thoại. Cổng quản trị chỉ mở sau khi bạn nhập đúng mã.</p>
         {factor?.totp?.qr_code && <img className="admin-mfa-qr" src={factor.totp.qr_code} alt="Mã QR thiết lập xác thực hai bước"/>}
         {factor?.totp?.secret && <p className="admin-mfa-secret">Không quét được? Nhập mã này trong ứng dụng: <code>{factor.totp.secret}</code></p>}
         {!factor && !error && <p role="status">Đang tạo mã QR…</p>}
-        {factor && <CodeForm title="Xác nhận thiết lập" description="Nhập mã đang hiện trong ứng dụng xác thực." onVerify={verify} busy={busy} error={error}/>}
+        {factor && <CodeForm embedded title="Xác nhận thiết lập" description="Nhập mã đang hiện trong ứng dụng xác thực." onVerify={verify} busy={busy} error={error}/>}
         {!factor && error && <p className="error" role="alert">{error}</p>}
-    </div></div>;
+    </motion.div></div>;
 }
 
 export function AdminMfaChallengePage() {

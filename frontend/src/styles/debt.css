@@ -8,14 +8,14 @@
   align-items: center;
   gap: 24px;
   padding: 28px 32px;
-  border: 1px solid rgba(184, 115, 23, 0.2);
+  border: 1px solid rgba(154, 91, 19, 0.2);
   background: linear-gradient(135deg, #ffffff 0%, #fefcf9 50%, #fdf7ee 100%);
   border-radius: var(--radius-xl);
   margin-bottom: 28px;
   box-shadow:
     inset 0 1px 0 rgba(255, 255, 255, 0.95),
-    0 2px 6px rgba(184, 115, 23, 0.04),
-    0 12px 28px -6px rgba(184, 115, 23, 0.08);
+    0 2px 6px rgba(154, 91, 19, 0.04),
+    0 12px 28px -6px rgba(154, 91, 19, 0.08);
 }
 
 .debt-overview .choice-icon {
@@ -25,7 +25,7 @@
   background: linear-gradient(135deg, #fcedd8 0%, #f6deb8 100%);
   color: var(--accent-dark);
   border-radius: var(--radius-lg);
-  box-shadow: 0 4px 14px rgba(184, 115, 23, 0.16);
+  box-shadow: 0 4px 14px rgba(154, 91, 19, 0.16);
   flex-shrink: 0;
 }
 
@@ -41,7 +41,7 @@
 
 .debt-overview h2 {
   font-size: 38px;
-  color: #8c4e0b;
+  color: var(--accent-dark);
   margin-top: 4px;
   letter-spacing: -0.04em;
   font-variant-numeric: tabular-nums;
@@ -54,12 +54,12 @@
   align-items: center;
   gap: 8px;
   font-size: 13.5px;
-  color: #8c4e0b;
+  color: var(--accent-dark);
   font-weight: 700;
-  background: rgba(184, 115, 23, 0.1);
+  background: rgba(154, 91, 19, 0.1);
   padding: 6px 14px;
   border-radius: var(--radius-full);
-  border: 1px solid rgba(184, 115, 23, 0.18);
+  border: 1px solid rgba(154, 91, 19, 0.18);
   flex-shrink: 0;
 }
 
@@ -79,8 +79,7 @@
   text-decoration: none;
   transition:
     transform var(--motion-fast) var(--motion-ease),
-    box-shadow var(--motion-fast) var(--motion-ease),
-    border-color var(--motion-fast) var(--motion-ease);
+    opacity var(--motion-fast) var(--motion-ease);
 }
 
 .customer-card:hover {
@@ -116,7 +115,8 @@
 
 .customer-top h2 { font-size: 17px; font-weight: 700; color: var(--ink); }
 .customer-top p { font-size: 13px; color: var(--muted); margin-top: 2px; }
-.customer-top > svg { margin-left: auto; color: var(--border-strong); }
+.customer-top > svg { margin-left: auto; color: var(--border-strong); transition: transform var(--motion-fast) var(--motion-ease); }
+.customer-card:hover .customer-top > svg { transform: translateX(3px); color: var(--accent); }
 
 /* ─── Customer Bottom ─────────────────────────────────────── */
 .customer-bottom {
@@ -141,7 +141,7 @@
   display: block;
   font-size: 22px;
   margin-top: 3px;
-  color: #8c4e0b;
+  color: var(--accent-dark);
   font-variant-numeric: tabular-nums;
   font-weight: 900;
   letter-spacing: -0.03em;

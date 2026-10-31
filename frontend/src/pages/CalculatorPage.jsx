@@ -1,6 +1,7 @@
 import { memo, useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { Calculator, Delete, History, RotateCcw, Trash2 } from 'lucide-react';
 import { Confirm, PageHeading } from '../components/ui';
+import { StaggerContainer, StaggerItem } from '../components/motion/MotionPrimitives.jsx';
 import { useAccountStore } from '../stores/useAccountStore';
 import { calculate, displayCalculation, enterCalculatorKey } from '../utils/calculator';
 import './calculator.css';
@@ -118,8 +119,8 @@ function CalculatorWorkspace({ storageKey }) {
 
     return <>
         <PageHeading title="Máy tính" description="Cộng, trừ, nhân, chia nhanh. Có lịch sử để xem lại khi cần."/>
-        <div className="calculator-layout">
-            <section className="panel calculator-machine" aria-label="Máy tính cơ bản">
+        <StaggerContainer className="calculator-layout">
+            <StaggerItem as="section" className="panel calculator-machine" aria-label="Máy tính cơ bản">
                 <div className="calculator-label"><Calculator size={20}/><span>TÍNH NHANH MỖI NGÀY</span><span className="calculator-ready"/></div>
                 <div className="calculator-screen" aria-live="polite" aria-atomic="true">
                     <CalculatorLine className="calculator-previous">{finished ? `${displayCalculation(lastExpression)} =` : 'Nhập số và chọn phép tính'}</CalculatorLine>
@@ -129,14 +130,14 @@ function CalculatorWorkspace({ storageKey }) {
                 {error && <p className="calculator-error" role="alert">{error}</p>}
                 <div className="calculator-keypad">{keys.map(([key, label, ariaLabel, style]) => <button type="button" key={key} className={`calculator-key ${style || ''}`} aria-label={ariaLabel || label} onClick={() => press(key)}>{key === 'backspace' ? <Delete size={25}/> : label}</button>)}</div>
                 <p className="calculator-keyboard-hint">Dùng bàn phím cũng được: <b>Enter</b> để tính, <b>Esc</b> để xóa.</p>
-            </section>
-            <section className="panel calculator-history" aria-labelledby="calculator-history-title">
+            </StaggerItem>
+            <StaggerItem as="section" className="panel calculator-history" aria-labelledby="calculator-history-title">
                 <div className="calculator-history-heading"><div><h2 id="calculator-history-title"><History size={22}/> Lịch sử tính</h2><p>{history.length ? `${history.length} phép tính gần nhất` : 'Các phép tính sẽ được lưu ở đây'}</p></div><button type="button" className="icon-button" title="Xóa lịch sử tính" aria-label="Xóa lịch sử tính" disabled={!history.length} onClick={() => setConfirmClear(true)}><Trash2 size={20}/></button></div>
                 {storageError && <p className="calculator-error" role="alert">{storageError}</p>}
                 {history.length ? <CalculatorHistory history={history} onRecall={recall}/> : <div className="calculator-history-empty"><History size={36}/><h3>Chưa có phép tính nào</h3><p>Thử nhập <b>25 + 15</b> rồi bấm <b>=</b>.<br/>Kết quả sẽ xuất hiện tại đây.</p></div>}
                 <p className="calculator-history-footnote">Giữ 100 phép tính gần nhất trên trình duyệt này. Bấm một kết quả để tính tiếp.</p>
-            </section>
-        </div>
+            </StaggerItem>
+        </StaggerContainer>
         <p className="calculator-tip">Nhân, chia được tính trước cộng, trừ. Máy tính dùng riêng, không thay đổi tiền bán hàng hay công nợ.</p>
         {confirmClear && <Confirm danger title="Xóa lịch sử tính?" label="Xóa lịch sử" onClose={() => setConfirmClear(false)} onConfirm={() => { saveHistory([]); setConfirmClear(false); }}><p>Xóa {history.length} phép tính đã lưu? Phép tính đang nhập vẫn được giữ.</p></Confirm>}
     </>;

@@ -55,10 +55,10 @@ export function SearchBox({ value, onChange, placeholder = 'Tìm tên hàng…' 
     );
 }
 
-export function Empty({ title = 'Chưa có thông tin', text = 'Thông tin sẽ xuất hiện tại đây.', children }) {
+export function Empty({ icon: Icon = PackageOpen, title = 'Chưa có thông tin', text = 'Thông tin sẽ xuất hiện tại đây.', children }) {
     return (
         <div className="empty-state" role="status">
-            <PackageOpen size={40} />
+            <Icon size={40} />
             <h3>{title}</h3>
             <p>{text}</p>
             {children}

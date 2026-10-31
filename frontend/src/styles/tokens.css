@@ -1,10 +1,10 @@
 @theme {
   --color-primary: #11523b;
   --color-primary-dark: #0a3828;
-  --color-danger: #b8332e;
-  --color-danger-dark: #962622;
-  --color-warning: #b87317;
-  --color-warning-dark: #91570d;
+  --color-danger: #a83531;
+  --color-danger-dark: #8c2824;
+  --color-warning: #9a5b13;
+  --color-warning-dark: #7c470b;
   --color-gray-bg: #f6f8f6;
 }
 
@@ -22,61 +22,61 @@
   --space-14: 56px;
   --space-16: 64px;
 
-  --radius-xs: 4px;
+  --radius-xs: 6px;
   --radius-sm: 8px;
   --radius-md: 12px;
   --radius-lg: 16px;
   --radius-xl: 22px;
-  --radius-2xl: 30px;
+  --radius-2xl: 28px;
   --radius-full: 9999px;
 
-  /* Brand Signature Green Palette */
+  /* Brand Signature Green Palette (WCAG AA+ Verified) */
   --green: #11523b;
   --green-mid: #16684b;
   --green-dark: #0a3828;
   --green-deep: #06261b;
   --green-light: #e8f5ee;
-  --green-lighter: #f1f9f4;
+  --green-lighter: #f2faf5;
   --green-border: #b1dcc6;
-  --green-glow: rgba(17, 82, 59, 0.18);
+  --green-glow: rgba(17, 82, 59, 0.16);
 
-  /* Warm Amber Accent (Finances, attention, debt) */
-  --accent: #b87317;
-  --accent-dark: #8f540b;
-  --accent-light: #fef7ed;
-  --accent-border: #f6dcaf;
+  /* Warm Amber Accent (Finances, attention, debt — >= 4.5:1 on white) */
+  --accent: #9a5b13;
+  --accent-dark: #7c470b;
+  --accent-light: #fef6eb;
+  --accent-border: #f3d4a0;
 
   /* Ink & Typography Scale */
   --ink: #0e221a;
-  --ink-secondary: #223e32;
-  --canvas: #f6f8f6;
-  --canvas-deep: #edf2ee;
-  --canvas-subtle: #f0f4f1;
+  --ink-secondary: #1e3a2f;
+  --canvas: #f5f8f6;
+  --canvas-deep: #ebf1ed;
+  --canvas-subtle: #eff4f1;
 
   /* Surface Hierarchy System */
-  --surface-0: #f6f8f6;
+  --surface-0: #f5f8f6;
   --surface-1: #ffffff;
-  --surface-2: #ffffff;
-  --surface-3: #ffffff;
+  --surface-2: #fbfdfb;
+  --surface-3: #f4f8f5;
 
-  --muted: #4e6a5e;
-  --muted-light: #678477;
+  --muted: #4a665a;
+  --muted-light: #5c786c;
 
   /* Micro borders */
-  --border: rgba(14, 46, 33, 0.09);
+  --border: rgba(14, 46, 33, 0.1);
   --border-light: rgba(14, 46, 33, 0.06);
-  --border-subtle: rgba(14, 46, 33, 0.04);
-  --border-strong: rgba(14, 46, 33, 0.16);
+  --border-subtle: rgba(14, 46, 33, 0.05);
+  --border-strong: rgba(14, 46, 33, 0.18);
 
   --primary: var(--green);
   --primary-hover: var(--green-dark);
   --primary-light: var(--green-light);
   --primary-border: var(--green-border);
-  --danger: #b8332e;
-  --danger-hover: #962622;
+  --danger: #a83531;
+  --danger-hover: #8c2824;
   --danger-light: #fdf3f2;
-  --warning: #b87317;
-  --warning-light: #fef7ed;
+  --warning: var(--accent);
+  --warning-light: var(--accent-light);
   --success: #11523b;
   --success-light: #e8f5ee;
   --info: #13557e;
@@ -84,11 +84,11 @@
 
   --text-primary: var(--ink);
   --text-secondary: var(--muted);
-  --text-muted: #678477;
-  --text-disabled: #9ab4a8;
+  --text-muted: #5c786c;
+  --text-disabled: #92aca0;
 
   --surface: var(--surface-1);
-  --surface-hover: #f9fcf9;
+  --surface-hover: #f7fbf8;
   --surface-elevated: var(--surface-2);
   --focus-ring: #11523b;
 
@@ -100,25 +100,26 @@
   --z-modal: 100;
   --z-toast: 110;
 
-  /* Multi-layer ambient + directional shadows (Apple / Stripe style) */
-  --shadow-xs: 0 1px 2px rgba(12, 34, 24, 0.03), 0 1px 3px rgba(12, 34, 24, 0.02);
-  --shadow-sm: 0 1px 3px rgba(12, 34, 24, 0.04), 0 3px 10px -2px rgba(12, 34, 24, 0.06);
-  --shadow-md: 0 2px 6px rgba(12, 34, 24, 0.03), 0 10px 24px -5px rgba(12, 34, 24, 0.08);
-  --shadow-lg: 0 4px 12px rgba(12, 34, 24, 0.04), 0 20px 42px -8px rgba(12, 34, 24, 0.12);
-  --shadow-xl: 0 8px 24px rgba(12, 34, 24, 0.06), 0 36px 72px -12px rgba(12, 34, 24, 0.18);
+  /* Multi-layer ambient + directional shadows (Premium SaaS depth) */
+  --shadow-xs: 0 1px 2px rgba(12, 34, 24, 0.04), 0 1px 3px rgba(12, 34, 24, 0.02);
+  --shadow-sm: inset 0 1px 0 rgba(255, 255, 255, 0.85), 0 1px 3px rgba(12, 34, 24, 0.04), 0 4px 12px -2px rgba(12, 34, 24, 0.06);
+  --shadow-md: inset 0 1px 0 rgba(255, 255, 255, 0.9), 0 4px 8px -2px rgba(12, 34, 24, 0.04), 0 12px 28px -6px rgba(12, 34, 24, 0.09);
+  --shadow-lg: inset 0 1px 0 rgba(255, 255, 255, 0.95), 0 8px 16px -4px rgba(12, 34, 24, 0.05), 0 24px 48px -10px rgba(12, 34, 24, 0.13);
+  --shadow-xl: 0 12px 28px -6px rgba(12, 34, 24, 0.08), 0 36px 72px -12px rgba(12, 34, 24, 0.2);
   --shadow-card: inset 0 1px 0 rgba(255, 255, 255, 0.9), 0 1px 3px rgba(12, 34, 24, 0.04), 0 4px 14px -3px rgba(12, 34, 24, 0.06);
-  --shadow-inset: inset 0 1px 0 rgba(255, 255, 255, 0.08), inset 0 -1px 0 rgba(0, 0, 0, 0.04);
+  --shadow-inset: inset 0 1px 0 rgba(255, 255, 255, 0.12), inset 0 -1px 0 rgba(0, 0, 0, 0.06);
 
+  /* Motion Tokens (120-200ms micro, 200-350ms component, 300-500ms page) */
   --motion-fast: 150ms;
-  --motion-base: 200ms;
-  --motion-smooth: 300ms;
+  --motion-base: 220ms;
+  --motion-smooth: 320ms;
   --motion-dialog: 260ms;
   --motion-ease: cubic-bezier(0.16, 1, 0.3, 1);
   --ease-spring: cubic-bezier(0.16, 1, 0.3, 1);
   --ease-out: cubic-bezier(0, 0, 0.2, 1);
-  --transition-fast: 0.15s var(--ease-spring);
-  --transition-base: 0.2s var(--ease-spring);
-  --transition-smooth: 0.3s var(--ease-spring);
+  --transition-fast: 150ms var(--ease-spring);
+  --transition-base: 220ms var(--ease-spring);
+  --transition-smooth: 320ms var(--ease-spring);
 
   font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
   -webkit-font-smoothing: antialiased;
@@ -131,15 +132,15 @@
   background: var(--canvas);
 
   /* Curated Signature Gradients */
-  --grad-brand: linear-gradient(135deg, #0b3022 0%, #11523b 50%, #1c7253 100%);
-  --grad-brand-subtle: linear-gradient(135deg, #11523b 0%, #1e7555 100%);
-  --grad-surface: linear-gradient(180deg, #ffffff 0%, #fbfdfb 100%);
-  --grad-hero: linear-gradient(135deg, #08291c 0%, #0e4431 38%, #145e43 75%, #1d7957 100%);
-  --grad-gold: linear-gradient(135deg, #965a10 0%, #b87317 55%, #d18d2d 100%);
-  --grad-amber: linear-gradient(135deg, #b87317 0%, #d48b26 100%);
+  --grad-brand: linear-gradient(135deg, #0b3022 0%, #11523b 52%, #1a6d4f 100%);
+  --grad-brand-subtle: linear-gradient(135deg, #11523b 0%, #1c7253 100%);
+  --grad-surface: linear-gradient(180deg, #ffffff 0%, #fafcfa 100%);
+  --grad-hero: linear-gradient(135deg, #072318 0%, #0d3e2c 40%, #12563e 76%, #1a6e50 100%);
+  --grad-gold: linear-gradient(135deg, #7c470b 0%, #9a5b13 55%, #b87317 100%);
+  --grad-amber: linear-gradient(135deg, #9a5b13 0%, #b87317 100%);
 }
 
-.green { --tone: #145e43; --tint: #eaf6f0; }
-.blue  { --tone: #1d5f8a; --tint: #edf4fb; }
-.orange { --tone: #a86211; --tint: #fcf4e8; }
-.purple { --tone: #684a92; --tint: #f4effa; }
+.green { --tone: #11523b; --tint: #e8f5ee; }
+.blue  { --tone: #155682; --tint: #ebf4fb; }
+.orange { --tone: #9a5b13; --tint: #fef5e7; }
+.purple { --tone: #5f418a; --tint: #f3edfa; }

@@ -15,12 +15,14 @@
   color: var(--ink);
   background: var(--surface);
   overflow: auto;
+  animation: dialog-reveal var(--motion-base) var(--motion-spring) both;
 }
 
 .modal::backdrop {
-  background: rgba(12, 26, 18, 0.58);
-  backdrop-filter: blur(4px);
-  -webkit-backdrop-filter: blur(4px);
+  background: rgba(10, 22, 16, 0.6);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  animation: fade-in var(--motion-fast) var(--motion-ease) both;
 }
 
 /* ─── Modal Head ──────────────────────────────────────────── */
@@ -32,7 +34,12 @@
   margin-bottom: 18px;
 }
 
-.modal-head h2 { font-size: 21px; font-weight: 800; }
+.modal-head h2 {
+  font-size: 21px;
+  font-weight: 800;
+  letter-spacing: -0.025em;
+}
+
 .modal-head .icon-button { margin-right: -8px; }
 
 /* Button stacking in modal */
@@ -63,6 +70,79 @@
   font-size: 15px;
   margin-top: 8px;
   color: var(--muted);
+}
+
+/* ─── Cancellation Dialog Specifics ───────────────────────── */
+.cancel-order-heading {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 14px 16px;
+  border-radius: var(--radius-md);
+  background: var(--danger-light);
+  color: var(--danger);
+  border: 1px solid #f0c9c7;
+  margin-bottom: 16px;
+}
+
+.cancel-order-heading strong {
+  font-size: 15.5px;
+  font-weight: 800;
+}
+
+.cancel-summary {
+  display: grid;
+  gap: 6px;
+  padding: 16px 18px;
+  border-radius: var(--radius-md);
+  background: var(--canvas);
+  border: 1px solid var(--border);
+  margin: 14px 0 18px;
+}
+
+.cancel-summary span {
+  font-size: 12.5px;
+  color: var(--muted);
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.cancel-summary strong {
+  font-size: 20px;
+  font-weight: 900;
+  color: var(--ink);
+  font-variant-numeric: tabular-nums;
+}
+
+.cancel-summary small {
+  font-size: 13.5px;
+  color: var(--muted);
+}
+
+.cancel-stock-list {
+  padding: 14px 16px;
+  border-radius: var(--radius-md);
+  background: #f6fbf8;
+  border: 1px solid var(--green-border);
+  margin-bottom: 18px;
+}
+
+.cancel-stock-list > span {
+  display: block;
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--green-dark);
+  margin-bottom: 8px;
+}
+
+.cancel-stock-list ul {
+  margin: 0;
+  padding-left: 18px;
+  display: grid;
+  gap: 6px;
+  font-size: 14px;
+  color: var(--ink);
 }
 
 /* ─── Modal Actions ───────────────────────────────────────── */

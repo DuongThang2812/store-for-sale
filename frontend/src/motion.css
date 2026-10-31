@@ -1,22 +1,23 @@
 /* ============================================================
    BIN PREMIUM MOTION SYSTEM
-   Composited only. No layout-triggering animations.
+   Strictly GPU-composited (transform & opacity only).
+   Zero layout-triggering or paint-thrashing animations.
    ============================================================ */
 
 html { scrollbar-gutter: stable; }
 
 /* ─── Page Transitions ────────────────────────────────────── */
 .route-content {
-  animation: page-reveal 220ms var(--motion-ease) both;
+  animation: page-reveal 260ms var(--motion-ease) both;
 }
 
 @keyframes page-reveal {
-  from { opacity: 0.3; transform: translateY(6px); }
-  to   { opacity: 1;   transform: translateY(0); }
+  from { opacity: 0; transform: translateY(8px); }
+  to   { opacity: 1; transform: translateY(0); }
 }
 
 @keyframes dialog-reveal {
-  from { opacity: 0; transform: translateY(10px) scale(0.97); }
+  from { opacity: 0; transform: translateY(12px) scale(0.97); }
   to   { opacity: 1; transform: translateY(0) scale(1); }
 }
 
@@ -26,33 +27,38 @@ html { scrollbar-gutter: stable; }
 }
 
 @keyframes slide-up {
-  from { opacity: 0; transform: translateY(16px); }
+  from { opacity: 0; transform: translateY(14px); }
   to   { opacity: 1; transform: translateY(0); }
 }
 
-/* ─── Interactive Elements ────────────────────────────────── */
+@keyframes scale-in {
+  from { opacity: 0; transform: scale(0.92); }
+  to   { opacity: 1; transform: scale(1); }
+}
+
+/* ─── Interactive Elements (GPU-composited) ───────────────── */
 .button, .icon-button, .nav-item, .filter-tabs button, .stepper button,
 .selection-list button, .payment-options button {
   transition:
-    background var(--motion-fast) var(--motion-ease),
-    border-color var(--motion-fast) var(--motion-ease),
-    color var(--motion-fast) var(--motion-ease),
-    box-shadow var(--motion-fast) var(--motion-ease),
-    transform var(--motion-fast) var(--motion-ease);
+    transform var(--motion-fast) var(--motion-ease),
+    opacity var(--motion-fast) var(--motion-ease);
 }
 
 /* Tactile press feedback */
 .button:active:not(:disabled),
 .icon-button:active:not(:disabled),
-.stepper button:active:not(:disabled) {
+.stepper button:active:not(:disabled),
+.filter-tabs button:active:not(:disabled),
+.selection-list button:active:not(:disabled),
+.payment-options button:active:not(:disabled) {
   transform: scale(0.97) translateY(1px);
 }
 
 /* ─── Focus Visible ───────────────────────────────────────── */
 :is(button, a, input, select, textarea, summary):focus-visible {
-  outline: 2.5px solid var(--accent);
-  outline-offset: 3px;
-  border-radius: 4px;
+  outline: 2.5px solid var(--green);
+  outline-offset: 2px;
+  border-radius: var(--radius-xs);
 }
 
 /* ─── Modal / Dialog ──────────────────────────────────────── */
@@ -62,9 +68,9 @@ html { scrollbar-gutter: stable; }
 }
 
 .modal::backdrop {
-  background: rgba(12, 28, 20, 0.55);
-  backdrop-filter: blur(4px);
-  -webkit-backdrop-filter: blur(4px);
+  background: rgba(10, 26, 18, 0.56);
+  backdrop-filter: blur(5px);
+  -webkit-backdrop-filter: blur(5px);
   animation: fade-in 200ms var(--motion-ease);
 }
 
@@ -82,9 +88,9 @@ html { scrollbar-gutter: stable; }
   scrollbar-gutter: stable;
 }
 
-/* ─── Chart bar animation ─────────────────────────────────── */
+/* ─── Chart bar animation (scaleY composited) ─────────────── */
 .chart-bar {
-  transition: height var(--motion-base) var(--motion-ease),
+  transition: transform var(--motion-base) var(--motion-ease),
               opacity var(--motion-fast) var(--motion-ease);
 }
 

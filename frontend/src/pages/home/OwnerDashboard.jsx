@@ -1,12 +1,13 @@
 import { Link } from 'react-router-dom';
 import { formatCurrency } from '../../utils/formatters.js';
 import { formatReportQuantity, formatReportTimestamp } from '../../utils/reportDisplay.js';
+import { StaggerContainer, StaggerItem } from '../../components/motion/MotionPrimitives.jsx';
 
 const count = value => value.toLocaleString('vi-VN');
 const money = value => value === null ? 'Chưa đủ giá vốn' : formatCurrency(value);
 
 function DashboardMetric({ label, value, note }) {
-    return <article className="panel report-card"><p>{label}</p><strong>{value}</strong><small>{note}</small></article>;
+    return <StaggerItem as="article" className="panel report-card"><p>{label}</p><strong>{value}</strong><small>{note}</small></StaggerItem>;
 }
 
 export function OwnerDashboard({ data, error, retry, businessType }) {
@@ -18,7 +19,7 @@ export function OwnerDashboard({ data, error, retry, businessType }) {
     const { totals } = report;
     return <section className="owner-dashboard" aria-label="Báo cáo hôm nay">
         <div className="section-heading"><h2>Tình hình hôm nay</h2><button className="button secondary" onClick={retry}>Cập nhật số liệu</button><Link className="text-link" to="/revenue">Xem báo cáo</Link></div>
-        <div className="report-cards">
+        <StaggerContainer className="report-cards">
             <DashboardMetric label="Doanh thu" value={formatCurrency(totals.revenue)} note="Bán trả ngay và mua chịu, trừ đơn hủy"/>
             <DashboardMetric label="Giá vốn" value={money(totals.cogs)} note="Giá vốn đã ghi nhận khi bán"/>
             <DashboardMetric label="Lợi nhuận gộp" value={money(totals.grossProfit)} note="Chưa trừ hao hụt và chi phí vận hành"/>
@@ -32,7 +33,7 @@ export function OwnerDashboard({ data, error, retry, businessType }) {
                 <DashboardMetric label="Giá trị hư/thối" value={money(spoilage.value)} note={spoilage.costDataComplete
                     ? 'Giá vốn tại thời điểm ghi nhận hư/thối' : `${count(spoilage.unvaluedMovements)} lần chưa có giá vốn`}/>
             </>}
-        </div>
+        </StaggerContainer>
         {!totals.costDataComplete && <p className="info-box">Có {count(totals.unvaluedSaleEvents)} sự kiện bán/hủy chưa đủ giá vốn. Giá vốn và lợi nhuận sẽ để trống để bạn không đọc nhầm.</p>}
         <div className="owner-dashboard-lists">
             <section className="panel"><div className="panel-heading"><h2>Hàng bán chạy hôm nay</h2></div>

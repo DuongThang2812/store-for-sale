@@ -1,9 +1,11 @@
 import { useMemo, useRef, useState } from 'react';
 import { useShallow } from 'zustand/react/shallow';
 import { Link } from 'react-router-dom';
+import { motion } from 'motion/react';
 import { ArrowRight, FileSpreadsheet, Upload, Check } from 'lucide-react';
 import { useShopStore } from '../stores/useShopStore';
 import { Confirm, Notice, PageHeading } from '../components/ui';
+import { StaggerContainer, StaggerItem } from '../components/motion/MotionPrimitives.jsx';
 import { formatCurrency } from '../utils/formatters';
 import { parseCatalogWorkbook, planCatalogDraftImport } from '../utils/catalogWorkbook';
 import { CloudCatalogImport } from '../components/CloudCatalogImport';
@@ -50,21 +52,21 @@ export function CatalogImportPage() {
         <PageHeading title="Nhập danh mục từ Excel" description="Một file, mỗi nhóm hàng một sheet. Chọn lưu vào DB hoặc dữ liệu trên máy." back="/import"/>
         <div className="filter-tabs" aria-label="Nơi lưu danh mục"><button className={mode === 'cloud' ? 'selected' : ''} onClick={() => setMode('cloud')}>Lưu vào Supabase DB</button><button className={mode === 'demo' ? 'selected' : ''} onClick={() => setMode('demo')}>Lưu trên máy</button></div>
         {success && <Notice action={<Link className="text-link" to="/inventory?filter=inactive">Xem hàng nháp <ArrowRight size={18}/></Link>}>{success}</Notice>}
-        <div className="csv-intro-grid">
-            <section className="panel csv-upload"><span className="choice-icon blue"><Upload size={36}/></span><h2>Chọn file danh mục</h2><p>Excel .xlsx · Tối đa 2 MB hoặc 2.000 mặt hàng</p>
+        <StaggerContainer className="csv-intro-grid">
+            <StaggerItem as="section" className="panel csv-upload"><span className="choice-icon blue"><Upload size={36}/></span><h2>Chọn file danh mục</h2><p>Excel .xlsx · Tối đa 2 MB hoặc 2.000 mặt hàng</p>
                 <input ref={input} className="csv-file-input" id="catalog-xlsx-file" type="file" accept=".xlsx,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" disabled={busy} onChange={e => readFile(e.target.files?.[0])}/>
                 <label className={`button primary ${busy ? 'disabled' : ''}`} htmlFor="catalog-xlsx-file"><FileSpreadsheet size={20}/>{busy ? 'Đang đọc file…' : 'Chọn file Excel'}</label><span className="file-name" role="status">{filename || 'Chưa chọn file'}</span>
-            </section>
-            <section className="panel csv-guide"><h2>Sau khi nhập sẽ ra sao?</h2><ol><li>Mỗi sheet là một nhóm hàng. Tên trùng được đối chiếu, không ghi đè hàng đang có.</li><li>Hàng mới ở trạng thái ngừng bán, tồn kho 0. Giá nhập được giữ làm dữ liệu nguồn.</li><li>Xác nhận đơn vị, quy cách, giá bán và tồn thực tế trước khi bật bán.</li></ol></section>
-        </div>
+            </StaggerItem>
+            <StaggerItem as="section" className="panel csv-guide"><h2>Sau khi nhập sẽ ra sao?</h2><ol><li>Mỗi sheet là một nhóm hàng. Tên trùng được đối chiếu, không ghi đè hàng đang có.</li><li>Hàng mới ở trạng thái ngừng bán, tồn kho 0. Giá nhập được giữ làm dữ liệu nguồn.</li><li>Xác nhận đơn vị, quy cách, giá bán và tồn thực tế trước khi bật bán.</li></ol></StaggerItem>
+        </StaggerContainer>
         <div className="info-box csv-rules"><b>Giá trong file là giá nhập từ danh sách bạn gửi.</b><p>Những số viết tắt, giá bậc, chương trình tặng hàng và dòng chưa có giá cần kiểm tra lại. File không chứa số lượng tồn thực tế. Nhập file này sẽ không cộng kho hay tạo giao dịch mua bán.</p></div>
         {error && <p className="error" role="alert">{error}</p>}
         {mode === 'cloud' && <CloudCatalogImport records={records} filename={filename} requestId={requestId}/>}
-        {records.length > 0 && <section className="panel csv-preview"><div className="panel-heading"><div><h2>Xem trước danh mục</h2><p>{mode === 'demo' ? `${records.length} dòng · ${plan.create.length} hàng nháp mới · ${plan.skipped} tên trùng bỏ qua` : `${records.length} dòng nguồn · Tên trùng sẽ được đối chiếu trong DB`}</p></div><span className="stock-pill">File Excel</span></div>
+        {records.length > 0 && <motion.section className="panel csv-preview" initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.24 }}><div className="panel-heading"><div><h2>Xem trước danh mục</h2><p>{mode === 'demo' ? `${records.length} dòng · ${plan.create.length} hàng nháp mới · ${plan.skipped} tên trùng bỏ qua` : `${records.length} dòng nguồn · Tên trùng sẽ được đối chiếu trong DB`}</p></div><span className="stock-pill">File Excel</span></div>
             <div className="table-scroll"><table className="data-table"><thead><tr><th>Mặt hàng</th><th>Nhóm</th><th>Giá nhập tham khảo</th><th>Giá bán</th></tr></thead><tbody>{records.slice(0, 30).map((row, index) => <tr key={`${row.sourceId}-${index}`}><td><strong>{row.name}</strong><small>{row.sourceId} · {row.supplierQuote.reviewNote || 'Cần xác nhận quy cách'}</small></td><td>{row.category}</td><td>{row.supplierQuote.purchasePrice === null ? 'Chưa rõ' : formatCurrency(row.supplierQuote.purchasePrice)}{row.supplierQuote.purchaseUnit ? ` / ${row.supplierQuote.purchaseUnit}` : ''}</td><td>{row.salePrice === null ? 'Chưa có' : formatCurrency(row.salePrice)}</td></tr>)}</tbody></table></div>
             {records.length > 30 && <p className="page-hint">Đang hiện 30 dòng đầu; toàn bộ {records.length} dòng sẽ được xử lý.</p>}
             {mode === 'demo' && <div className="csv-actions"><p>Nhập danh mục nháp không thay đổi tồn kho, công nợ hay doanh thu.</p><button className="button primary" disabled={!plan.create.length} onClick={() => setConfirm(true)}><Check size={20}/> Thêm {plan.create.length} hàng nháp trên máy</button></div>}
-        </section>}
+        </motion.section>}
         {confirm && <Confirm title="Nhập danh mục hàng nháp?" onClose={() => setConfirm(false)} label="Đúng, thêm hàng nháp" onConfirm={commit}><p>Thêm <b>{plan.create.length} mặt hàng nháp</b> từ {filename}?</p><p>Các hàng này chưa bán được và tồn kho luôn bắt đầu từ 0. {plan.skipped} tên trùng sẽ được giữ nguyên trong kho.</p></Confirm>}
     </>;
 }

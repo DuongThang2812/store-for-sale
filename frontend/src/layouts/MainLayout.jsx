@@ -10,6 +10,7 @@ import { useActiveShopStore } from '../stores/useActiveShopStore';
 import { preloadRoute } from '../routePages';
 import { PageLoading, PageErrorBoundary } from '../components/PageLoading';
 import { useDocumentTitle } from '../hooks/useDocumentTitle';
+import { PageTransition } from '../components/motion/MotionPrimitives';
 
 const navItems = [
     { to: '/', icon: Home, label: 'Trang chủ' },
@@ -152,9 +153,9 @@ export function MainLayout() {
                 <main id="main-content" className="main-content">
                     <PageErrorBoundary key={location.pathname}>
                         <Suspense fallback={<PageLoading/>}>
-                            <div className="route-content">
+                            <PageTransition routeKey={location.pathname}>
                                 <Outlet />
-                            </div>
+                            </PageTransition>
                         </Suspense>
                     </PageErrorBoundary>
                 </main>

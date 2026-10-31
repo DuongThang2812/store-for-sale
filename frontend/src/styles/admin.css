@@ -20,7 +20,6 @@
   flex-direction: column;
   gap: 20px;
   border-right: 1px solid rgba(255,255,255,0.04);
-  /* Subtle inner glow */
   box-shadow: inset -1px 0 0 rgba(255,255,255,0.03);
   position: sticky;
   top: 0;
@@ -90,8 +89,8 @@
   font-size: 14px;
   position: relative;
   transition:
-    background var(--motion-fast) var(--motion-ease),
-    color var(--motion-fast) var(--motion-ease);
+    transform var(--motion-fast) var(--motion-ease),
+    opacity var(--motion-fast) var(--motion-ease);
 }
 
 .admin-nav-item:hover { background: rgba(255, 255, 255, 0.06); color: #ffffff; }
@@ -137,8 +136,8 @@
   background: rgba(255, 255, 255, 0.04);
   border: 1px solid rgba(255, 255, 255, 0.04);
   transition:
-    background var(--motion-fast) var(--motion-ease),
-    color var(--motion-fast) var(--motion-ease);
+    transform var(--motion-fast) var(--motion-ease),
+    opacity var(--motion-fast) var(--motion-ease);
 }
 
 .admin-return-link:hover { color: #ffffff; background: rgba(255, 255, 255, 0.08); }
@@ -221,7 +220,7 @@
   border-radius: var(--radius-lg);
   background: #ffffff;
   box-shadow: var(--shadow-sm);
-  transition: transform var(--motion-fast) var(--motion-ease), box-shadow var(--motion-fast) var(--motion-ease);
+  transition: transform var(--motion-fast) var(--motion-spring), opacity var(--motion-fast) var(--motion-ease);
 }
 
 .admin-metric:hover { transform: translateY(-2px); box-shadow: var(--shadow-md); }
@@ -274,7 +273,7 @@
   background: #ffffff;
   color: #0f1e27;
   font-size: 14px;
-  transition: border-color var(--motion-fast) var(--motion-ease), box-shadow var(--motion-fast) var(--motion-ease);
+  transition: transform var(--motion-fast) var(--motion-ease), opacity var(--motion-fast) var(--motion-ease);
 }
 
 .admin-filters input:focus,
@@ -303,6 +302,11 @@
 .admin-filter-form .field { min-width: 0; margin: 0; }
 .admin-filter-form .field input, .admin-filter-form .field select { width: 100%; min-width: 0; }
 .admin-filter-form p { margin: 0; }
+
+.admin-confirm-form {
+  display: grid;
+  gap: 14px;
+}
 
 /* ─── Audit JSON viewer ───────────────────────────────────── */
 .admin-audit-json { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px; margin-bottom: 16px; }
@@ -443,7 +447,7 @@
   font-weight: 700;
   font-size: 14px;
   white-space: nowrap;
-  transition: background var(--motion-fast) var(--motion-ease), color var(--motion-fast) var(--motion-ease);
+  transition: transform var(--motion-fast) var(--motion-ease), opacity var(--motion-fast) var(--motion-ease);
 }
 
 .admin-detail-tabs button:hover { background: rgba(26, 99, 72, 0.06); color: #0f1e27; }
@@ -476,7 +480,7 @@
   background: #ffffff;
   box-shadow: 0 24px 64px rgba(10, 18, 24, 0.2), 0 4px 16px rgba(10, 18, 24, 0.1);
   border: 1.5px solid #d8e2e6;
-  animation: dialog-reveal 240ms var(--motion-ease);
+  animation: dialog-reveal 240ms var(--motion-spring);
 }
 
 .admin-action-dialog h2 { margin: 0 0 8px; font-size: 22px; font-weight: 900; color: #0f1e27; letter-spacing: -0.03em; }

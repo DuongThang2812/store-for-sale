@@ -1,5 +1,5 @@
 /* ============================================================
-   BIN PREMIUM LOGIN — High-End First Impression
+   BIN PREMIUM LOGIN & STORE SETUP — High-End First Impression
    ============================================================ */
 
 .login-page {
@@ -237,7 +237,7 @@
     inset 0 1px 0 rgba(255, 255, 255, 0.95),
     0 2px 6px rgba(12, 34, 24, 0.03),
     0 16px 40px -8px rgba(12, 34, 24, 0.08);
-  animation: login-card-enter 320ms var(--motion-ease) both;
+  animation: login-card-enter 320ms var(--motion-spring) both;
 }
 
 @keyframes login-card-enter {
@@ -279,7 +279,7 @@
   color: var(--muted);
   background: transparent;
   border: 0;
-  transition: all var(--motion-fast) var(--motion-ease);
+  transition: transform var(--motion-fast) var(--motion-ease), opacity var(--motion-fast) var(--motion-ease);
 }
 
 .login-form .filter-tabs button.selected {
@@ -315,7 +315,7 @@
   padding: 0 14px;
   font-size: 15px;
   color: var(--ink);
-  transition: border-color var(--motion-fast) var(--motion-ease), box-shadow var(--motion-fast) var(--motion-ease), background var(--motion-fast) var(--motion-ease);
+  transition: transform var(--motion-fast) var(--motion-ease), opacity var(--motion-fast) var(--motion-ease);
 }
 
 .login-form .field input:focus {
@@ -334,7 +334,7 @@
   border: 1.5px solid rgba(14, 46, 33, 0.12);
   border-radius: 12px;
   padding: 0 4px 0 0;
-  transition: border-color var(--motion-fast) var(--motion-ease), box-shadow var(--motion-fast) var(--motion-ease), background var(--motion-fast) var(--motion-ease);
+  transition: transform var(--motion-fast) var(--motion-ease), opacity var(--motion-fast) var(--motion-ease);
 }
 
 .password-field:focus-within {
@@ -364,7 +364,7 @@
   border-radius: 8px;
   border: 0;
   background: transparent;
-  transition: color var(--motion-fast) var(--motion-ease), background var(--motion-fast) var(--motion-ease);
+  transition: transform var(--motion-fast) var(--motion-ease), opacity var(--motion-fast) var(--motion-ease);
 }
 
 .password-field .icon-button:hover {
@@ -383,7 +383,7 @@
   border: 0;
   margin-top: 8px;
   box-shadow: 0 2px 6px rgba(17, 82, 59, 0.2), 0 8px 20px -4px rgba(17, 82, 59, 0.35);
-  transition: transform var(--motion-fast) var(--motion-ease), box-shadow var(--motion-fast) var(--motion-ease);
+  transition: transform var(--motion-fast) var(--motion-spring), opacity var(--motion-fast) var(--motion-ease);
 }
 
 .login-form button[type="submit"]:hover:not(:disabled) {
@@ -407,7 +407,7 @@
   background: transparent;
   border: 0;
   cursor: pointer;
-  transition: color var(--motion-fast) var(--motion-ease);
+  transition: transform var(--motion-fast) var(--motion-ease), opacity var(--motion-fast) var(--motion-ease);
 }
 
 .login-mode-link:hover { color: var(--green-dark); text-decoration: underline; }
@@ -421,6 +421,160 @@
   color: var(--ink);
   letter-spacing: -0.04em;
   margin-bottom: 24px;
+}
+
+/* ─── Store Setup & Reset Password Page ───────────────────── */
+.store-setup {
+  min-height: 100vh;
+  display: grid;
+  place-items: center;
+  padding: 32px 20px;
+  background:
+    radial-gradient(900px circle at 50% 0%, rgba(17, 82, 59, 0.08) 0%, transparent 65%),
+    var(--canvas);
+}
+
+.store-setup > section.panel,
+.account-start-error > section.panel {
+  width: min(560px, 100%);
+  padding: 40px 36px;
+  border-radius: var(--radius-2xl);
+  border: 1px solid var(--border);
+  box-shadow: var(--shadow-lg);
+  background: var(--surface);
+  animation: login-card-enter 300ms var(--motion-spring) both;
+}
+
+.store-setup h1 {
+  font-size: clamp(24px, 3vw, 30px);
+  font-weight: 900;
+  letter-spacing: -0.035em;
+  margin: 6px 0 10px;
+}
+
+.store-setup p {
+  color: var(--muted);
+  font-size: 15px;
+  line-height: 1.65;
+  margin-bottom: 22px;
+}
+
+.store-setup form {
+  display: grid;
+  gap: 18px;
+}
+
+.store-choices {
+  display: grid;
+  gap: 10px;
+  margin-bottom: 20px;
+}
+
+.store-choices button {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 16px 18px;
+  border-radius: var(--radius-md);
+  border: 1.5px solid var(--border);
+  background: var(--surface-subtle);
+  text-align: left;
+  transition: transform var(--motion-fast) var(--motion-spring), opacity var(--motion-fast) var(--motion-ease);
+}
+
+.store-choices button:hover {
+  transform: translateY(-2px);
+  border-color: var(--green);
+  background: var(--green-lighter);
+}
+
+.store-choices button strong {
+  font-size: 16px;
+  font-weight: 800;
+  color: var(--ink);
+}
+
+.store-choices button span {
+  font-size: 12.5px;
+  font-weight: 700;
+  padding: 4px 10px;
+  border-radius: var(--radius-full);
+  background: var(--green-light);
+  color: var(--green-dark);
+}
+
+.business-type-field {
+  border: 0;
+  padding: 0;
+  margin: 0;
+}
+
+.business-type-field legend {
+  font-size: 13.5px;
+  font-weight: 700;
+  color: var(--ink-secondary);
+  margin-bottom: 10px;
+}
+
+.business-type-options {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+  gap: 10px;
+}
+
+.business-type-option {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 14px 16px;
+  border-radius: var(--radius-md);
+  border: 1.5px solid var(--border);
+  background: var(--surface-subtle);
+  cursor: pointer;
+  transition: transform var(--motion-fast) var(--motion-spring), opacity var(--motion-fast) var(--motion-ease);
+}
+
+.business-type-option:hover {
+  border-color: var(--green-border);
+  background: var(--green-lighter);
+}
+
+.business-type-option.selected {
+  border-color: var(--green);
+  background: var(--green-light);
+  box-shadow: 0 0 0 3px var(--green-glow);
+}
+
+.business-type-option input {
+  width: 18px;
+  height: 18px;
+  min-height: 18px;
+  margin-top: 3px;
+  accent-color: var(--green);
+}
+
+.business-type-option strong {
+  display: block;
+  font-size: 14.5px;
+  font-weight: 800;
+  color: var(--ink);
+}
+
+.business-type-option small {
+  display: block;
+  font-size: 12.5px;
+  color: var(--muted);
+  margin-top: 3px;
+  line-height: 1.45;
+}
+
+.account-start-error {
+  min-height: 100vh;
+  display: grid;
+  place-items: center;
+  padding: 32px 20px;
+  background: var(--canvas);
 }
 
 /* ─── Session Loading ─────────────────────────────────────── */
@@ -507,6 +661,9 @@
   .login-form > div {
     padding: 32px 24px;
     border-radius: 20px;
+  }
+  .store-setup > section.panel {
+    padding: 28px 22px;
   }
 }
 

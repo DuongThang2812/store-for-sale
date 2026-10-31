@@ -1,6 +1,8 @@
-import { NavLink, Outlet, Link } from 'react-router-dom';
+import { useLayoutEffect } from 'react';
+import { NavLink, Outlet, Link, useLocation } from 'react-router-dom';
 import { Activity, Building2, ClipboardList, Gauge, Settings, Shield, Users, UserRoundCog, ShieldCheck, Store } from 'lucide-react';
 import { useDocumentTitle } from '../hooks/useDocumentTitle.js';
+import { PageTransition } from '../components/motion/MotionPrimitives.jsx';
 
 const items = [
     { to: '/admin', label: 'Tổng quan', icon: Gauge, end: true },
@@ -15,6 +17,11 @@ const items = [
 
 export function AdminLayout() {
     useDocumentTitle();
+    const location = useLocation();
+
+    useLayoutEffect(() => {
+        window.scrollTo({ top: 0, left: 0, behavior: 'instant' });
+    }, [location.pathname]);
 
     return (
         <div className="admin-shell">
@@ -62,9 +69,9 @@ export function AdminLayout() {
                     </div>
                 </header>
                 <main id="admin-main" className="admin-main">
-                    <div className="route-content">
+                    <PageTransition routeKey={location.pathname}>
                         <Outlet />
-                    </div>
+                    </PageTransition>
                 </main>
             </div>
         </div>

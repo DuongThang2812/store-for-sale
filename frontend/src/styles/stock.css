@@ -17,8 +17,7 @@
   align-items: flex-start;
   transition:
     transform var(--motion-fast) var(--motion-ease),
-    box-shadow var(--motion-fast) var(--motion-ease),
-    border-color var(--motion-fast) var(--motion-ease);
+    opacity var(--motion-fast) var(--motion-ease);
   border-radius: var(--radius-lg);
   background: var(--surface);
   border: 1px solid var(--border);
@@ -120,7 +119,7 @@
   background: var(--surface);
   border: 1px solid var(--border);
   text-align: left;
-  transition: all var(--motion-fast) var(--motion-ease);
+  transition: transform var(--motion-fast) var(--motion-ease), opacity var(--motion-fast) var(--motion-ease);
 }
 
 .selection-list > button:hover {
@@ -203,7 +202,7 @@
   background: #fbfdfc;
   color: var(--ink);
   font-size: 15px;
-  transition: all var(--motion-fast) var(--motion-ease);
+  transition: transform var(--motion-fast) var(--motion-ease), opacity var(--motion-fast) var(--motion-ease);
 }
 
 .field input:focus, .field select:focus, .field textarea:focus {
@@ -213,8 +212,63 @@
   outline: none;
 }
 
-.field input::placeholder { color: #8ba898; }
+.field input::placeholder { color: #607367; }
 .field small { font-size: 12.5px; color: var(--muted); font-weight: 400; margin-top: 4px; }
+
+/* Input with unit suffix (e.g. đ) */
+.input-unit {
+  display: flex;
+  align-items: center;
+  background: #fbfdfc;
+  border: 1.5px solid rgba(14, 46, 33, 0.12);
+  border-radius: var(--radius-md);
+  padding-right: 14px;
+}
+
+.input-unit:focus-within {
+  background: #ffffff;
+  border-color: var(--green);
+  box-shadow: 0 0 0 3.5px var(--green-glow);
+}
+
+.input-unit input {
+  flex: 1;
+  min-width: 0;
+  border: 0 !important;
+  background: transparent !important;
+  box-shadow: none !important;
+}
+
+.input-unit > span {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--muted);
+  user-select: none;
+}
+
+/* Checkbox field */
+.checkbox-field {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 14px;
+  margin: 14px 0;
+  border-radius: var(--radius-md);
+  background: var(--canvas);
+  border: 1px solid var(--border-subtle);
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--ink);
+  cursor: pointer;
+}
+
+.checkbox-field input[type="checkbox"] {
+  width: 18px;
+  height: 18px;
+  accent-color: var(--green);
+  flex-shrink: 0;
+  cursor: pointer;
+}
 
 /* Pricing Section inside product form */
 .pricing-section {
@@ -281,6 +335,7 @@
   flex-direction: column;
   gap: 12px;
   align-items: flex-start;
+  margin-bottom: 20px;
 }
 
 .stock-side strong.stock-text {
@@ -289,6 +344,15 @@
   color: var(--green-dark);
   font-variant-numeric: tabular-nums;
   letter-spacing: -0.04em;
+}
+
+.product-history {
+  padding-top: 20px;
+}
+
+.product-history > h2 {
+  padding: 0 24px 12px;
+  font-size: 18px;
 }
 
 /* ─── Inventory Page ──────────────────────────────────────── */
@@ -327,7 +391,7 @@
   padding: 16px 18px;
   border-bottom: 1px solid var(--border-subtle);
   text-decoration: none;
-  transition: background var(--motion-fast) var(--motion-ease);
+  transition: transform var(--motion-fast) var(--motion-ease), opacity var(--motion-fast) var(--motion-ease);
 }
 
 .inventory-row:hover { background: #f8faf8; }
@@ -348,7 +412,8 @@
 .inventory-prices small { color: var(--muted); font-weight: 500; font-size: 12px; }
 
 .inventory-row > .stock-pill { width: fit-content; }
-.inventory-row > svg { color: var(--border-strong); }
+.inventory-row > svg { color: var(--border-strong); transition: transform var(--motion-fast) var(--motion-ease); }
+.inventory-row:hover > svg { transform: translateX(3px); color: var(--green); }
 
 .page-hint {
   color: var(--muted);
@@ -369,7 +434,10 @@
   margin-bottom: 20px;
   font-size: 14.5px;
   box-shadow: var(--shadow-xs);
+  animation: slide-up 200ms var(--motion-ease) both;
 }
+
+.notice > span { flex: 1; }
 
 .error {
   padding: 12px 16px;
@@ -380,6 +448,7 @@
   font-size: 14px;
   margin: 12px 0;
   line-height: 1.55;
+  animation: fade-in 180ms var(--motion-ease) both;
 }
 
 @media (max-width: 900px) {

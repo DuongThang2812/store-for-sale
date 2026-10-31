@@ -40,10 +40,15 @@
   border: 2px dashed var(--green-border);
   background: linear-gradient(160deg, #fafcf9 0%, #f4faf6 100%);
   border-radius: var(--radius-lg);
-  transition: border-color var(--motion-fast) var(--motion-ease), background var(--motion-fast) var(--motion-ease);
+  transition: transform var(--motion-fast) var(--motion-spring), opacity var(--motion-fast) var(--motion-ease);
 }
 
-.csv-upload:hover { border-color: var(--green); background: var(--green-lighter); }
+.csv-upload:hover {
+  border-color: var(--green);
+  background: var(--green-lighter);
+  transform: translateY(-2px);
+}
+
 .csv-upload .choice-icon { margin-bottom: 0; }
 .csv-upload p { font-size: 14px; color: var(--muted); line-height: 1.55; }
 .csv-upload .button { cursor: pointer; }
@@ -88,6 +93,23 @@
   color: var(--muted);
   font-size: 14px;
   margin-top: 4px;
+}
+
+.csv-actions {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 18px 22px;
+  border-top: 1px solid var(--border-subtle);
+  background: var(--canvas);
+  flex-wrap: wrap;
+}
+
+.csv-actions p {
+  font-size: 14px;
+  color: var(--muted);
+  max-width: 540px;
 }
 
 .table-scroll { max-width: 100%; overflow-x: auto; }
@@ -147,8 +169,8 @@
   border: 1px solid var(--border);
   box-shadow: var(--shadow-sm);
   transition:
-    transform var(--motion-fast) var(--motion-ease),
-    box-shadow var(--motion-fast) var(--motion-ease);
+    transform var(--motion-fast) var(--motion-spring),
+    opacity var(--motion-fast) var(--motion-ease);
 }
 
 .report-card:hover { transform: translateY(-2px); box-shadow: var(--shadow-md); }
@@ -202,7 +224,7 @@
   font-size: 13.5px;
   font-weight: 600;
   box-shadow: var(--shadow-xs);
-  transition: border-color var(--motion-fast) var(--motion-ease);
+  transition: transform var(--motion-fast) var(--motion-ease), opacity var(--motion-fast) var(--motion-ease);
 }
 
 .chart-metric select:focus { border-color: var(--green); outline: none; box-shadow: 0 0 0 3px var(--green-glow); }
@@ -270,7 +292,7 @@
   color: var(--muted);
   cursor: pointer;
   position: relative;
-  transition: background var(--motion-fast) var(--motion-ease);
+  transition: transform var(--motion-fast) var(--motion-ease), opacity var(--motion-fast) var(--motion-ease);
 }
 
 .chart-column:hover, .chart-column.selected {
@@ -291,9 +313,11 @@
   display: block;
   width: 60%;
   max-width: 48px;
+  height: 100%;
+  transform-origin: center bottom;
   background: linear-gradient(180deg, #2eb872 0%, #11523b 100%);
   border-radius: 6px 6px 2px 2px;
-  transition: height var(--motion-base) var(--motion-ease);
+  transition: transform var(--motion-base) var(--motion-spring), opacity var(--motion-fast) var(--motion-ease);
   box-shadow: 0 4px 12px rgba(17, 82, 59, 0.2);
 }
 
