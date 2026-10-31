@@ -4,6 +4,20 @@ import assert from 'node:assert/strict';
 
 export async function validateConcurrency({ bin, connection, run }) {
     const sql = text => run('psql', [...connection, '-Atq'], text).trim();
+    // The disposable cluster runs primitive-level race tests. Assert browser
+    // roles have no production access before granting those primitives here.
+    for (const signature of [
+        'public.create_sale(uuid,uuid,jsonb,text,uuid)',
+        'public.cancel_sale(uuid,uuid,text)',
+        'public.save_product(uuid,text,text,text,text,jsonb,bigint,bigint,boolean,uuid)',
+        'public.record_inventory_count(uuid,uuid,jsonb,text)',
+    ]) {
+        assert.equal(sql(`select has_function_privilege('authenticated','${signature}','execute');`), 'f', signature);
+        assert.equal(sql(`select has_function_privilege('anon','${signature}','execute');`), 'f', signature);
+    }
+    sql(`grant execute on function public.create_sale(uuid,uuid,jsonb,text,uuid),
+      public.save_product(uuid,text,text,text,text,jsonb,bigint,bigint,boolean,uuid)
+      to authenticated;`);
     const actor = 'fb000000-0000-4000-8000-000000000001';
     const login = `set role authenticated; set request.jwt.claim.sub='${actor}';`;
     sql(`insert into auth.users(id,email,raw_user_meta_data) values('${actor}','concurrent@example.invalid','{}');`);

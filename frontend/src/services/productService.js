@@ -22,7 +22,6 @@ export function createProductService(clientProvider = getSupabaseClient) {
         },
         save(storeId, product, productId = null, requestId = null) {
             const mapped = mapProductCommand(storeId, product, productId);
-            if (!requestId) return unwrap(clientProvider().rpc('save_product', mapped));
             return unwrap(clientProvider().rpc('save_product_idempotent', {
                 p_store_id: storeId, p_request_id: requireUuid(requestId, 'Mã yêu cầu'),
                 p_product: { ...mapped, expected_version: productId ? product.version : null },

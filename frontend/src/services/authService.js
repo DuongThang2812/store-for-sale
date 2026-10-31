@@ -1,5 +1,6 @@
 import { getSupabaseClient } from '../lib/supabase.js';
 import { requiredText, unwrap } from './serviceUtils.js';
+import { validateNewPassword } from './passwordPolicy.js';
 
 /** Inject a client for tests. Creating the service does not initialize Supabase. */
 export function createAuthService(clientProvider = getSupabaseClient) {
@@ -12,6 +13,7 @@ export function createAuthService(clientProvider = getSupabaseClient) {
     };
     return Object.freeze({
         async signUp({ email, password, name, emailRedirectTo }) {
+            validateNewPassword(password);
             const options = { data: { name: requiredText(name, 'Tên hiển thị') } };
             if (emailRedirectTo) options.emailRedirectTo = emailRedirectTo;
             const data = await unwrap(auth().signUp({ ...credentials({ email, password }), options }));
@@ -43,10 +45,7 @@ export function createAuthService(clientProvider = getSupabaseClient) {
             await unwrap(auth().resetPasswordForEmail(normalized, { redirectTo }));
         },
         async updatePassword(password) {
-            if (typeof password !== 'string' || password.length < 8 || !/[A-Za-z]/.test(password) || !/\d/.test(password)) {
-                throw new Error('Mật khẩu cần ít nhất 8 ký tự, có chữ và số.');
-            }
-            await unwrap(auth().updateUser({ password }));
+            await unwrap(auth().updateUser({ password: validateNewPassword(password) }));
         },
         onAuthStateChange(callback) {
             // Keep the callback synchronous: enqueue further Supabase work outside it.

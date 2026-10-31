@@ -1,5 +1,7 @@
 -- Runs only in the disposable cluster created by validate-postgres-isolated.mjs.
 begin;
+-- This disposable business test exercises the internal sale primitive.
+grant execute on function public.create_sale(uuid,uuid,jsonb,text,uuid) to authenticated;
 create function public.validation_assert(p_ok boolean, p_message text) returns void language plpgsql as $$
 begin if p_ok is distinct from true then raise exception 'ASSERTION FAILED: %', p_message; end if; end; $$;
 insert into auth.users(id,email,raw_user_meta_data) values

@@ -70,9 +70,9 @@ test('importing the foundation without Vite env does not initialize Supabase', (
 test('signup keeps passwords intact and handles email confirmation without a session', async () => {
     let payload;
     const auth = createAuthService(() => ({ auth: { signUp: async input => { payload = input; return { data: { user: { id: userId }, session: null }, error: null }; } } }));
-    const result = await auth.signUp({ email: ' Shop@Example.com ', password: ' a password ', name: ' BIN ' });
+    const result = await auth.signUp({ email: ' Shop@Example.com ', password: ' a password1 ', name: ' BIN ' });
     assert.equal(payload.email, 'shop@example.com');
-    assert.equal(payload.password, ' a password ');
+    assert.equal(payload.password, ' a password1 ');
     assert.deepEqual(payload.options.data, { name: 'BIN' });
     assert.equal(result.requiresEmailConfirmation, true);
     assert.equal(result.session, null);
@@ -233,11 +233,11 @@ test('cloud catalog and count commands use authorized RPCs, never direct stock w
     const client = fakeClient({ rpcData: productId });
     const repo = createSupabaseShopRepository({ storeId, clientProvider: () => client });
     await repo.commands.saveProduct({ name: 'Gia vị', category: 'Gia vị', unit: 'chai', price: 20000,
-        stock: 0, pricing: { group: 'spices', packUnit: 'chai', unitsPerPack: 1, purchasePrice: 15000 } });
+        stock: 0, pricing: { group: 'spices', packUnit: 'chai', unitsPerPack: 1, purchasePrice: 15000 } }, null, requestId);
     await repo.commands.saveCustomer({ name: ' Lan ', phone: ' 0901 ', note: '' });
     await repo.commands.countStock({ requestId, items: [{ productId, actualBase: 96, expectedVersion: 1, reason: 'Sai kiểm kê' }] });
     await repo.commands.valueOpeningStock({ requestId, productId, unitKey: 'base', costPerUnit: 12000 });
-    assert.deepEqual(client.calls.map(call => call[1]), ['save_product', 'save_customer', 'record_inventory_count_reviewed', 'value_opening_stock']);
+    assert.deepEqual(client.calls.map(call => call[1]), ['save_product_idempotent', 'save_customer', 'record_inventory_count_reviewed', 'value_opening_stock']);
     assert.equal(client.calls[1][2].p_name, 'Lan');
     assert.deepEqual(client.calls[2][2].p_items, [{ product_id: productId, actual_base: 96, reason: 'Sai kiểm kê', expected_version: 1 }]);
     assert.equal(client.calls[3][2].p_cost_per_unit, 12000);
@@ -323,14 +323,16 @@ test('catalog import sends source rows to one atomic RPC without changing stock 
 test('sale RPC strips client totals/prices and keeps request ID unchanged across retries', async () => {
     const client = fakeClient({ rpcData: { sale_id: productId, total_amount: 10000, duplicate: false } });
     const repo = createSupabaseShopRepository({ storeId, clientProvider: () => client });
-    const command = { requestId, totalAmount: 1, stock: 999, items: [{ productId, unitKey: 'base', quantity: 1, price: 1 }] };
+    const command = { requestId, totalAmount: 1, stock: 999, items: [{ productId, unitKey: 'base', quantity: 1, price: 1, expectedVersion: 1 }] };
     const result = await repo.commands.createSale(command);
     await repo.commands.createSale(command);
     assert.equal(result.totalAmount, 10000);
     assert.deepEqual(client.calls[0], client.calls[1]);
-    assert.deepEqual(client.calls[0][2], { p_store_id: storeId, p_request_id: requestId, p_items: [{ product_id: productId, unit_key: 'base', quantity: 1 }], p_payment_type: 'cash', p_customer_id: null });
+    assert.equal(client.calls[0][1], 'create_sale_reviewed');
+    assert.deepEqual(client.calls[0][2], { p_store_id: storeId, p_request_id: requestId, p_items: [{ product_id: productId, unit_key: 'base', quantity: 1, expected_version: 1 }], p_payment_type: 'cash', p_customer_id: null });
     await assert.rejects(repo.commands.createSale({ ...command, requestId: undefined }), /UUID/);
     await assert.rejects(repo.commands.createSale({ ...command, paymentType: 'credit' }), /Khách mua chịu/);
+    await assert.rejects(repo.commands.createSale({ ...command, items: [{ ...command.items[0], expectedVersion: undefined }] }), /Phiên bản/);
     assert.equal(client.calls.length, 2);
 });
 

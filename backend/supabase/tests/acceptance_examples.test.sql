@@ -1,6 +1,11 @@
 -- Exact numeric examples from requirements 99-109. Example 102's arithmetic
 -- is corrected: 100 - (2 * 24 + 4) = 48 remaining, 52 sold.
 begin;
+-- Exercise legacy primitives only inside this rolled-back business test.
+grant execute on function public.create_sale(uuid,uuid,jsonb,text,uuid),
+  public.cancel_sale(uuid,uuid,text),
+  public.save_product(uuid,text,text,text,text,jsonb,bigint,bigint,boolean,uuid),
+  public.record_inventory_count(uuid,uuid,jsonb,text) to authenticated;
 create extension if not exists pgtap with schema extensions;
 select no_plan();
 insert into auth.users(id,email,raw_user_meta_data) values

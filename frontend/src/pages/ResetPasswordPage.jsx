@@ -39,7 +39,7 @@ export function ResetPasswordPage() {
                     <KeyRound size={30} />
                 </div>
                 <h1>Đặt mật khẩu mới</h1>
-                <p>Mật khẩu mới cần ít nhất 8 ký tự, bao gồm cả chữ và số.</p>
+                <p>Mật khẩu mới cần 8–72 byte, có chữ và số.</p>
 
                 <form onSubmit={submit}>
                     <label className="field">
@@ -49,7 +49,7 @@ export function ResetPasswordPage() {
                                 required
                                 type={show ? 'text' : 'password'}
                                 minLength={8}
-                                maxLength={100}
+                                maxLength={72}
                                 autoComplete="new-password"
                                 value={password}
                                 onChange={event => setPassword(event.target.value)}
@@ -73,7 +73,7 @@ export function ResetPasswordPage() {
                                 required
                                 type={show ? 'text' : 'password'}
                                 minLength={8}
-                                maxLength={100}
+                                maxLength={72}
                                 autoComplete="new-password"
                                 value={repeat}
                                 onChange={event => setRepeat(event.target.value)}

@@ -3,6 +3,7 @@ import assert from 'node:assert/strict';
 import { buildAuthService } from '../services/auth-service/app.js';
 import { createSessionSecurity } from '../shared/session.js';
 import { ApiError } from '../shared/errors.js';
+import { createRateLimitIdentity } from '../shared/rateLimitIdentity.js';
 
 const user={id:'f9300000-0000-4000-8000-000000000001',email:'owner@example.invalid'};
 const env={SESSION_SECRET:'test-only-session-secret-at-least-32-bytes',ALLOWED_ORIGINS:'http://localhost:5173,http://localhost:8080'};
@@ -71,4 +72,31 @@ test('session encryption rejects tampering and production cookie flags enforce S
     assert.deepEqual(security.read({cookies:{[security.cookieName]:value}}),{accessToken:'a',refreshToken:'b',expiresAt:123});
     assert.throws(()=>security.read({cookies:{[security.cookieName]:`x${value.slice(1)}`}}),ApiError);
     assert.equal(security.cookieName,'__Host-bin-session');
+});
+
+test('Auth service limits gateway clients separately and ignores unsigned IP headers',async t=>{
+    const app=await buildAuthService({...fixture(),env,logger:false});t.after(()=>app.close());
+    const initial=await app.inject('/api/v1/auth/session');
+    const security={cookie:cookieHeaders(initial),'x-csrf-token':initial.json().csrfToken};
+    const identity=createRateLimitIdentity(env.SESSION_SECRET);
+    const login=address=>app.inject({method:'POST',url:'/api/v1/auth/login',headers:{...security,...identity.forward(address)},
+        payload:{email:user.email,password:'correct-password'}});
+    for(let i=0;i<10;i++) assert.equal((await login('198.51.100.10')).statusCode,200);
+    assert.equal((await login('198.51.100.10')).statusCode,429);
+    assert.equal((await login('198.51.100.11')).statusCode,200);
+});
+
+test('Auth registration rejects weak or overlong passwords before provider signup',async t=>{
+    let signups=0;
+    const deps=fixture();
+    deps.identity.client=()=>({auth:{signUp:async()=>{signups++;return {data:{session:null,user:null},error:null};}}});
+    const app=await buildAuthService({...deps,env,logger:false});t.after(()=>app.close());
+    const initial=await app.inject('/api/v1/auth/session');
+    const headers={cookie:cookieHeaders(initial),'x-csrf-token':initial.json().csrfToken};
+    for(const password of ['weak','onlyletters','12345678','a1'.repeat(37),'á'.repeat(36)+'a1']) {
+        const response=await app.inject({method:'POST',url:'/api/v1/auth/register',headers,
+            payload:{email:user.email,name:'Owner',password}});
+        assert.equal(response.statusCode,400);
+    }
+    assert.equal(signups,0);
 });

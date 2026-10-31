@@ -1,4 +1,7 @@
 begin;
+-- Grant legacy primitives only inside this rolled-back isolated test.
+grant execute on function public.create_sale(uuid,uuid,jsonb,text,uuid),
+  public.save_product(uuid,text,text,text,text,jsonb,bigint,bigint,boolean,uuid) to authenticated;
 create function public.validation_assert(p_ok boolean,p_message text) returns void language plpgsql as $$
 begin if p_ok is distinct from true then raise exception 'ASSERTION FAILED: %',p_message; end if; end; $$;
 create function public.validation_throws(p_sql text,p_state text,p_message text) returns void language plpgsql as $$

@@ -7,15 +7,12 @@ export function createSalesService(clientProvider = getSupabaseClient) {
         createSale(storeId, command) {
             // Caller keeps the SAME requestId and payload for retries of one sale.
             const params = mapSaleCommand(storeId, command);
-            if (command.items.some(item => item.expectedVersion !== undefined)) {
-                params.p_items = params.p_items.map((item, index) => {
-                    const expectedVersion = command.items[index].expectedVersion;
-                    if (!Number.isSafeInteger(expectedVersion) || expectedVersion < 1) throw new Error('Phiên bản mặt hàng chưa hợp lệ.');
-                    return { ...item, expected_version: expectedVersion };
-                });
-                return unwrap(clientProvider().rpc('create_sale_reviewed', params));
-            }
-            return unwrap(clientProvider().rpc('create_sale', params));
+            params.p_items = params.p_items.map((item, index) => {
+                const expectedVersion = command.items[index].expectedVersion;
+                if (!Number.isSafeInteger(expectedVersion) || expectedVersion < 1) throw new Error('Phiên bản mặt hàng chưa hợp lệ.');
+                return { ...item, expected_version: expectedVersion };
+            });
+            return unwrap(clientProvider().rpc('create_sale_reviewed', params));
         },
         previewCancellation(storeId, saleId) {
             return unwrap(clientProvider().rpc('preview_sale_cancellation', {

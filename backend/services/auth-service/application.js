@@ -13,6 +13,11 @@ export function createAuthApplication(identity, repository) {
             return { session: data.session, user: await profile(data.user) };
         },
         async register(input) {
+            if (typeof input.password !== 'string' || input.password.length < 8
+                || Buffer.byteLength(input.password, 'utf8') > 72
+                || !/[A-Za-z]/.test(input.password) || !/\d/.test(input.password)) {
+                throw new ApiError('INVALID_REQUEST',400);
+            }
             const { data,error } = await identity.client().auth.signUp({ email: input.email.trim().toLowerCase(), password: input.password,
                 options: { data: { name: input.name.trim() } } });
             if (error) throw new ApiError('INVALID_REQUEST',400);

@@ -9,9 +9,9 @@ import { getSupabaseConfigurationStatus } from '../lib/supabase.js';
 import { useAccountStore } from '../stores/useAccountStore.js';
 import { useDocumentTitle } from '../hooks/useDocumentTitle.js';
 import { StaggerContainer, StaggerItem } from '../components/motion/MotionPrimitives.jsx';
+import { validateNewPassword } from '../services/passwordPolicy.js';
 
 const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-const strongPassword = value => value.length >= 8 && /[A-Za-z]/.test(value) && /\d/.test(value);
 
 export function LoginPage() {
     useDocumentTitle();
@@ -36,7 +36,10 @@ export function LoginPage() {
         const normalized = email.trim().toLowerCase();
         if (!emailPattern.test(normalized)) { setMessage('Vui lòng nhập email đúng định dạng.'); return; }
         if (mode === 'register' && (!name.trim() || name.trim().length > 120)) { setMessage('Vui lòng nhập tên của bạn.'); return; }
-        if (mode === 'register' && !strongPassword(password)) { setMessage('Mật khẩu cần ít nhất 8 ký tự, có chữ và số.'); return; }
+        if (mode === 'register') {
+            try { validateNewPassword(password); }
+            catch (error) { setMessage(error.message); return; }
+        }
         if (mode === 'register' && password !== repeat) { setMessage('Hai lần nhập mật khẩu chưa giống nhau.'); return; }
         if (mode === 'login' && !password) { setMessage('Vui lòng nhập mật khẩu.'); return; }
         setBusy(true); setMessage('');
@@ -146,7 +149,7 @@ export function LoginPage() {
                             <label className="field">
                                 <span>Mật khẩu</span>
                                 <div className="password-field">
-                                    <input required minLength={mode === 'register' ? 8 : undefined} maxLength={100} type={show ? 'text' : 'password'} autoComplete={mode === 'register' ? 'new-password' : 'current-password'} value={password} onChange={event => setPassword(event.target.value)} placeholder={mode === 'register' ? 'Ít nhất 8 ký tự, có chữ và số' : 'Nhập mật khẩu'}/>
+                                    <input required minLength={mode === 'register' ? 8 : undefined} maxLength={mode === 'register' ? 72 : 100} type={show ? 'text' : 'password'} autoComplete={mode === 'register' ? 'new-password' : 'current-password'} value={password} onChange={event => setPassword(event.target.value)} placeholder={mode === 'register' ? '8–72 byte, có chữ và số' : 'Nhập mật khẩu'}/>
                                     <button type="button" className="icon-button" aria-label={show ? 'Ẩn mật khẩu' : 'Hiện mật khẩu'} onClick={() => setShow(!show)}>
                                         {show ? <EyeOff size={20}/> : <Eye size={20}/>}
                                     </button>
@@ -157,7 +160,7 @@ export function LoginPage() {
                             <label className="field">
                                 <span>Nhập lại mật khẩu</span>
                                 <div className="password-field">
-                                    <input required maxLength={100} type={show ? 'text' : 'password'} autoComplete="new-password" value={repeat} onChange={event => setRepeat(event.target.value)} placeholder="Nhập lại mật khẩu"/>
+                                    <input required maxLength={72} type={show ? 'text' : 'password'} autoComplete="new-password" value={repeat} onChange={event => setRepeat(event.target.value)} placeholder="Nhập lại mật khẩu"/>
                                 </div>
                             </label>
                         )}

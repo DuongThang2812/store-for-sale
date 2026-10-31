@@ -17,6 +17,8 @@ dist-ssr
 backend/backups/
 backend/.env.microservices
 backend/.env.*.local
+supabase/.temp/
+supabase/.branches/
 
 # Editor directories and files
 .vscode/*
