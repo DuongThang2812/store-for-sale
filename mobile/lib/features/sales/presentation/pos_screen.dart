@@ -24,6 +24,14 @@ class PosScreen extends StatefulWidget {
 
 class _PosScreenState extends State<PosScreen> {
   final _searchController = TextEditingController();
+  Future<List<CustomerDebtItem>>? _debtorsFuture;
+
+  Future<List<CustomerDebtItem>> _loadDebtors() =>
+      _debtorsFuture ??= widget.debtors.isNotEmpty
+      ? Future.value(widget.debtors)
+      : widget.posController.salesRepository.getDebtors(
+          widget.posController.storeId,
+        );
 
   @override
   void initState() {
@@ -288,20 +296,49 @@ class _PosScreenState extends State<PosScreen> {
 
                       if (ctrl.paymentType == 'credit') ...[
                         const SizedBox(height: 10),
-                        DropdownButtonFormField<CustomerDebtItem>(
-                          initialValue: ctrl.selectedCustomer,
-                          hint: const Text('Chọn khách hàng ghi nợ *'),
-                          items: widget.debtors.map((d) {
-                            return DropdownMenuItem(
-                              value: d,
-                              child: Text(
-                                '${d.name} (${_formatVnd(d.currentDebt)})',
-                              ),
+                        FutureBuilder<List<CustomerDebtItem>>(
+                          future: _loadDebtors(),
+                          builder: (context, snapshot) {
+                            if (snapshot.connectionState !=
+                                ConnectionState.done) {
+                              return const Center(
+                                child: CircularProgressIndicator(),
+                              );
+                            }
+                            if (snapshot.hasError) {
+                              return TextButton(
+                                onPressed: () {
+                                  _debtorsFuture = null;
+                                  setSheetState(() {});
+                                },
+                                child: const Text(
+                                  'Không tải được khách hàng. Thử lại',
+                                ),
+                              );
+                            }
+                            final debtors =
+                                snapshot.data ?? const <CustomerDebtItem>[];
+                            if (debtors.isEmpty) {
+                              return const Text(
+                                'Chưa có khách hàng trong sổ nợ.',
+                              );
+                            }
+                            return DropdownButtonFormField<CustomerDebtItem>(
+                              initialValue: ctrl.selectedCustomer,
+                              hint: const Text('Chọn khách hàng ghi nợ *'),
+                              items: debtors.map((d) {
+                                return DropdownMenuItem(
+                                  value: d,
+                                  child: Text(
+                                    '${d.name} (${_formatVnd(d.currentDebt)})',
+                                  ),
+                                );
+                              }).toList(),
+                              onChanged: (val) {
+                                ctrl.setSelectedCustomer(val);
+                                setSheetState(() {});
+                              },
                             );
-                          }).toList(),
-                          onChanged: (val) {
-                            ctrl.setSelectedCustomer(val);
-                            setSheetState(() {});
                           },
                         ),
                       ],

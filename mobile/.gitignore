@@ -56,3 +56,4 @@ env.*.json
 key.properties
 *.keystore
 *.jks
+*.png

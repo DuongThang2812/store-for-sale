@@ -55,6 +55,7 @@ class HomeScreen extends StatelessWidget {
     final user = authController.user;
     final storeId = store?.id ?? 'default-store';
     final isOwner = store?.isOwner ?? false;
+    final canSell = isOwner || (store?.permissions.canSell ?? false);
     final canReceiveStock = store?.canReceiveStock ?? false;
     final canManageDebt = store?.canManageDebt ?? false;
 
@@ -192,9 +193,20 @@ class HomeScreen extends StatelessWidget {
                 subtitle: 'Tìm hàng, quét mã, giỏ hàng, tiền mặt / ghi nợ',
                 icon: Icons.point_of_sale_rounded,
                 iconColor: const Color(0xFF059669),
-                statusBadge: 'Sẵn sàng',
-                badgeColor: const Color(0xFF059669),
+                statusBadge: canSell ? 'Sẵn sàng' : 'Giới hạn',
+                badgeColor: canSell
+                    ? const Color(0xFF059669)
+                    : const Color(0xFF94A3B8),
                 onTap: () {
+                  if (!canSell) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(
+                        content: Text('Bạn không có quyền bán hàng.'),
+                        duration: Duration(seconds: 2),
+                      ),
+                    );
+                    return;
+                  }
                   Navigator.of(context).push(
                     MaterialPageRoute(
                       builder: (_) => PosScreen(
@@ -307,6 +319,7 @@ class HomeScreen extends StatelessWidget {
                   Navigator.of(context).push(
                     MaterialPageRoute(
                       builder: (_) => InventoryScreen(
+                        canCount: isOwner,
                         inventoryController: InventoryController(
                           inventoryRepository: inventoryRepository,
                           salesRepository: salesRepository,

@@ -86,4 +86,24 @@
 - **Sẵn sàng Release Android**:
   - Cấu hình Gradle `mobile/android/app/build.gradle.kts`: hỗ trợ signing config động qua `key.properties` cho production release và tự động fallback debug signing khi chưa có keystore.
   - Cập nhật hướng dẫn chi tiết trong `mobile/README.md`.
-  - **Ghi nhận môi trường build APK**: Môi trường máy tính hiện tại chưa cài đặt Android SDK Command-line Tools (`Unable to locate Android SDK`). Đã ghi rõ điều kiện tiên quyết trong tài liệu hướng dẫn release, đồng thời đã xác minh toàn diện độ tin cậy bằng bộ test tự động và phân tích tĩnh.
+  - **Môi trường build APK & Trình giả lập Android**:
+    - Đã thiết lập hoàn chỉnh Android SDK (Platform 34/35/36, Build-Tools, Platform-Tools, Emulator) tại `C:\Users\user\AppData\Local\Android\Sdk`.
+    - Tạo AVD `Pixel_API_34` và khởi chạy thành công chế độ cửa sổ hiển thị (GUI window) với tăng tốc phần cứng GPU NVIDIA GeForce RTX 4050.
+    - Biên dịch và cài đặt trực tiếp bản APK `mobile/build/app/outputs/flutter-apk/app-debug.apk` lên emulator qua ADB.
+
+### Phần 7: Kiểm Thử Thực Tế Trên Android Emulator & Bổ Sung Flow Tests
+- **Kiểm thử trực tiếp trên Pixel_API_34 (Android 14)**:
+  - Khởi động app và khôi phục phiên: Impeller OpenGLES khởi tạo thành công, Supabase SDK kết nối endpoint thực, kiểm tra session tự động chuyển từ Splash sang Login.
+  - Validation Form Đăng nhập & Đăng ký: Kiểm thử validation lỗi để trống và định dạng không hợp lệ cho cả 2 tab; xác nhận không tạo tài khoản hay ghi dữ liệu rác lên production.
+  - Google OAuth Flow: App gọi `url_launcher` mở Chrome tới endpoint Supabase OAuth `app.taphoabin://login-callback`. Ghi nhận chính xác phản hồi từ máy chủ Supabase: `Unsupported provider: provider is not enabled` (xác thực Google Provider chưa bật trên Supabase Dashboard).
+  - Điều hướng Back từ Browser: Phím Back Android đưa người dùng về `LoginScreen` an toàn, không giật lag hay crash.
+- **Sửa lỗi phát hiện qua kiểm thử Emulator**:
+  - `login_screen.dart`: Cấp `ValueKey` cho các trường form và gọi `_formKey.currentState?.reset()` khi chuyển tab Đăng nhập/Đăng ký để chống trôi trạng thái validation.
+  - `login_screen.dart`: Bổ sung phản hồi trực quan (SnackBar) khi bấm "Vào phiên kiểm thử" trong môi trường có kết nối Supabase thật.
+  - `login_screen.dart`: Thêm guard `if (!mounted) return;` trước các lệnh `setState()` trong khối `catch` và listener controller để triệt tiêu ngoại lệ `setState() called after dispose()`.
+- **Mở rộng bộ test suite**:
+  - Bổ sung các bài test luồng nghiệp vụ POS Credit checkout, Restock flow, History timeline, Store journey và Role-based permissions (`business_screens_test.dart`, `store_journey_test.dart`).
+  - Toàn bộ **64/64 bài test Flutter passed 100%**.
+  - `flutter analyze`: **0 issues**.
+  - Web & Backend: **180/180 bài test passed 100%**.
+

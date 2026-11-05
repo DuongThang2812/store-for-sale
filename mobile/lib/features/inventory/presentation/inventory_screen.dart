@@ -5,13 +5,19 @@ import '../../../core/widgets/app_empty_view.dart';
 import '../../../core/widgets/app_error_view.dart';
 import '../../../core/widgets/app_loading_view.dart';
 import '../../sales/domain/sales_models.dart';
+import '../domain/inventory_models.dart';
 import 'inventory_controller.dart';
 
 /// Màn hình Kiểm kê & Điều chỉnh hao hụt (Phần 5).
 class InventoryScreen extends StatefulWidget {
   final InventoryController inventoryController;
+  final bool canCount;
 
-  const InventoryScreen({super.key, required this.inventoryController});
+  const InventoryScreen({
+    super.key,
+    required this.inventoryController,
+    this.canCount = true,
+  });
 
   @override
   State<InventoryScreen> createState() => _InventoryScreenState();
@@ -25,7 +31,10 @@ class _InventoryScreenState extends State<InventoryScreen>
   @override
   void initState() {
     super.initState();
-    _tabController = TabController(length: 2, vsync: this);
+    _tabController = TabController(
+      length: widget.canCount ? 2 : 1,
+      vsync: this,
+    );
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (widget.inventoryController.products.isEmpty &&
           !widget.inventoryController.isLoading) {
@@ -39,6 +48,113 @@ class _InventoryScreenState extends State<InventoryScreen>
     _tabController.dispose();
     _searchController.dispose();
     super.dispose();
+  }
+
+  void _showCountDialog(ProductItem product) {
+    var actualText = '';
+    var noteText = '';
+    var isSubmitting = false;
+    String? dialogError;
+
+    showModalBottomSheet<void>(
+      context: context,
+      isScrollControlled: true,
+      builder: (sheetContext) => StatefulBuilder(
+        builder: (context, setSheetState) => Padding(
+          padding: EdgeInsets.fromLTRB(
+            20,
+            20,
+            20,
+            MediaQuery.of(context).viewInsets.bottom + 20,
+          ),
+          child: SingleChildScrollView(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                Text(
+                  'Kiểm kê: ${product.name}',
+                  style: const TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                const SizedBox(height: 8),
+                Text('Sổ sách: ${product.stockBase} ${product.baseUnit}'),
+                const SizedBox(height: 16),
+                TextField(
+                  onChanged: (value) => actualText = value,
+                  keyboardType: TextInputType.number,
+                  decoration: InputDecoration(
+                    labelText: 'Số lượng thực đếm (${product.baseUnit}) *',
+                    border: const OutlineInputBorder(),
+                  ),
+                ),
+                const SizedBox(height: 12),
+                TextField(
+                  onChanged: (value) => noteText = value,
+                  decoration: const InputDecoration(
+                    labelText: 'Ghi chú (tùy chọn)',
+                    border: OutlineInputBorder(),
+                  ),
+                ),
+                if (dialogError != null) ...[
+                  const SizedBox(height: 10),
+                  Text(dialogError!, style: const TextStyle(color: Colors.red)),
+                ],
+                const SizedBox(height: 20),
+                AppButton(
+                  label: 'Ghi nhận kiểm kê',
+                  isLoading: isSubmitting,
+                  onPressed: () async {
+                    final actual = int.tryParse(actualText.trim());
+                    if (actual == null || actual < 0) {
+                      setSheetState(
+                        () => dialogError =
+                            'Vui lòng nhập số lượng nguyên không âm.',
+                      );
+                      return;
+                    }
+                    setSheetState(() {
+                      isSubmitting = true;
+                      dialogError = null;
+                    });
+                    final messenger = ScaffoldMessenger.of(context);
+                    final result = await widget.inventoryController.countStock(
+                      items: [
+                        InventoryCountLineIntent(
+                          productId: product.id,
+                          actualBase: actual,
+                          expectedVersion: product.version,
+                          reason: 'inventory_correction',
+                        ),
+                      ],
+                      note: noteText.trim().isEmpty ? null : noteText.trim(),
+                    );
+                    if (!sheetContext.mounted) return;
+                    if (result != null) {
+                      Navigator.of(sheetContext).pop();
+                      messenger.showSnackBar(
+                        const SnackBar(
+                          content: Text('Đã ghi nhận kiểm kê kho.'),
+                        ),
+                      );
+                    } else {
+                      setSheetState(() {
+                        isSubmitting = false;
+                        dialogError =
+                            widget.inventoryController.error?.message ??
+                            'Không thể ghi nhận kiểm kê.';
+                      });
+                    }
+                  },
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
   }
 
   void _showAdjustDialog(ProductItem product) {
@@ -297,9 +413,9 @@ class _InventoryScreenState extends State<InventoryScreen>
         title: const Text('Kiểm kho & Hao hụt'),
         bottom: TabBar(
           controller: _tabController,
-          tabs: const [
-            Tab(text: 'Hao hụt & Điều chỉnh'),
-            Tab(text: 'Kiểm kê định kỳ'),
+          tabs: [
+            const Tab(text: 'Hao hụt & Điều chỉnh'),
+            if (widget.canCount) const Tab(text: 'Kiểm kê định kỳ'),
           ],
         ),
       ),
@@ -319,7 +435,10 @@ class _InventoryScreenState extends State<InventoryScreen>
 
           return TabBarView(
             controller: _tabController,
-            children: [_buildAdjustTab(ctrl), _buildCountTab(ctrl)],
+            children: [
+              _buildAdjustTab(ctrl),
+              if (widget.canCount) _buildCountTab(ctrl),
+            ],
           );
         },
       ),
@@ -474,7 +593,7 @@ class _InventoryScreenState extends State<InventoryScreen>
                     ),
                     trailing: OutlinedButton(
                       child: const Text('Kiểm đếm'),
-                      onPressed: () => _showAdjustDialog(product),
+                      onPressed: () => _showCountDialog(product),
                     ),
                   ),
                 );

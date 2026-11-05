@@ -56,6 +56,9 @@ class _StoreSetupScreenState extends State<StoreSetupScreen> {
 
     if (newStore != null) {
       await widget.authController.onStoreSelected(newStore);
+      if (mounted && Navigator.of(context).canPop()) {
+        Navigator.of(context).pop();
+      }
     } else {
       setState(() {
         _errorMessage =

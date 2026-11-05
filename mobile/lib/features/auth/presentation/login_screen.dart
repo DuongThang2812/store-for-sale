@@ -69,6 +69,7 @@ class _LoginScreenState extends State<LoginScreen> {
           await widget.authController!.signInWithEmail(email, password);
         }
         if (widget.authController!.error != null) {
+          if (!mounted) return;
           setState(() {
             _errorMessage = widget.authController!.error!.message;
           });
@@ -85,6 +86,7 @@ class _LoginScreenState extends State<LoginScreen> {
         }
       }
     } catch (e) {
+      if (!mounted) return;
       setState(() {
         _errorMessage = e.toString().replaceFirst('Exception: ', '');
       });
@@ -107,6 +109,7 @@ class _LoginScreenState extends State<LoginScreen> {
       if (widget.authController != null) {
         await widget.authController!.signInWithGoogle();
         if (widget.authController!.error != null) {
+          if (!mounted) return;
           setState(() {
             _errorMessage = widget.authController!.error!.message;
           });
@@ -115,6 +118,7 @@ class _LoginScreenState extends State<LoginScreen> {
         await widget.authRepository.signInWithGoogle();
       }
     } catch (e) {
+      if (!mounted) return;
       setState(() {
         _errorMessage = e.toString().replaceFirst('Exception: ', '');
       });
@@ -135,6 +139,15 @@ class _LoginScreenState extends State<LoginScreen> {
           email: 'demo@tap-hoa-bin.vn',
           displayName: 'Nhân viên Thử nghiệm',
           accessToken: 'mock-jwt-token-for-dev-session',
+        ),
+      );
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text(
+            'Chế độ thử nghiệm offline chỉ khả dụng khi không kết nối Supabase production.',
+          ),
+          duration: Duration(seconds: 3),
         ),
       );
     }
@@ -220,6 +233,7 @@ class _LoginScreenState extends State<LoginScreen> {
                               isActive: !_isSignUp,
                               onTap: () {
                                 if (_isSignUp) {
+                                  _formKey.currentState?.reset();
                                   setState(() {
                                     _isSignUp = false;
                                     _errorMessage = null;
@@ -234,6 +248,7 @@ class _LoginScreenState extends State<LoginScreen> {
                               isActive: _isSignUp,
                               onTap: () {
                                 if (!_isSignUp) {
+                                  _formKey.currentState?.reset();
                                   setState(() {
                                     _isSignUp = true;
                                     _errorMessage = null;
@@ -293,6 +308,7 @@ class _LoginScreenState extends State<LoginScreen> {
                       ),
                       const SizedBox(height: 6),
                       TextFormField(
+                        key: const ValueKey('signup_name_field'),
                         controller: _nameController,
                         decoration: const InputDecoration(
                           hintText: 'Nguyễn Văn A',
@@ -319,6 +335,7 @@ class _LoginScreenState extends State<LoginScreen> {
                     ),
                     const SizedBox(height: 6),
                     TextFormField(
+                      key: const ValueKey('auth_email_field'),
                       controller: _emailController,
                       keyboardType: TextInputType.emailAddress,
                       decoration: const InputDecoration(
@@ -347,6 +364,7 @@ class _LoginScreenState extends State<LoginScreen> {
                     ),
                     const SizedBox(height: 6),
                     TextFormField(
+                      key: const ValueKey('auth_password_field'),
                       controller: _passwordController,
                       obscureText: _obscurePassword,
                       decoration: InputDecoration(
