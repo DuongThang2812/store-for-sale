@@ -30,3 +30,11 @@ supabase/.branches/
 *.njsproj
 *.sln
 *.sw?
+
+# Flutter Mobile
+mobile/.dart_tool/
+mobile/build/
+mobile/.flutter-plugins*
+mobile/env.json
+mobile/env.*.json
+!mobile/env.sample.json
