@@ -20,6 +20,11 @@ export function createSessionSecurity({ secret, secure = false }) {
             return Buffer.concat([iv, cipher.getAuthTag(), encrypted]).toString('base64url');
         },
         read(request) {
+            const authHeader = request.headers?.authorization;
+            if (typeof authHeader === 'string' && /^Bearer\s+[^\s]+$/i.test(authHeader)) {
+                const token = authHeader.replace(/^Bearer\s+/i, '').trim();
+                return { accessToken: token, isBearer: true };
+            }
             const cookie = request.cookies?.[cookieName];
             if (!cookie) return null;
             try {
@@ -48,6 +53,10 @@ export function createSessionSecurity({ secret, secure = false }) {
             return token;
         },
         checkCsrf(request) {
+            const authHeader = request.headers?.authorization;
+            if (typeof authHeader === 'string' && /^Bearer\s+[^\s]+$/i.test(authHeader)) {
+                return;
+            }
             const cookie = request.cookies?.[csrfCookie];
             const parts = cookie?.split('.') || [];
             if (parts.length !== 2 || !same(parts[1], csrfMac(parts[0])) || !same(cookie, request.headers['x-csrf-token'])) {

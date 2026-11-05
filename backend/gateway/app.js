@@ -19,7 +19,7 @@ export async function buildGateway({env=process.env,logger=true,transport=fetch}
             tags:documents.flatMap(({spec})=>spec.tags || [])};
     };
     const {app,rateIdentity}=await createServer({name:'gateway',env,gateway:true,logger,openapiProvider:aggregate});
-    const forwardHeaders = request => ({ ...Object.fromEntries(['cookie','origin','content-type','x-csrf-token','idempotency-key']
+    const forwardHeaders = request => ({ ...Object.fromEntries(['authorization','cookie','origin','content-type','x-csrf-token','idempotency-key']
         .filter(key=>typeof request.headers[key]==='string').map(key=>[key,request.headers[key]]).concat([['x-correlation-id',request.id]])),
         ...rateIdentity.forward(request.ip) });
     async function proxy(request,reply,service) {
@@ -43,7 +43,7 @@ export async function buildGateway({env=process.env,logger=true,transport=fetch}
     }
     for (const [path,max] of [['login',10],['register',5]]) app.route({method:'POST',url:`/api/v1/auth/${path}`,
         config:{rateLimit:{max,timeWindow:'1 minute'}},schema:{hide:true},handler:(request,reply)=>proxy(request,reply,'auth')});
-    for (const [prefix,service] of [['auth','auth'],['products','catalog'],['categories','catalog'],['suppliers','catalog'],['inventory','inventory'],['sales','sales'],['activity','sales'],['customers','debt'],['debts','debt'],['reports','reporting']]) {
+    for (const [prefix,service] of [['auth','auth'],['stores','auth'],['products','catalog'],['categories','catalog'],['suppliers','catalog'],['inventory','inventory'],['sales','sales'],['activity','sales'],['customers','debt'],['debts','debt'],['reports','reporting']]) {
         for(const path of [`/api/v1/${prefix}`,`/api/v1/${prefix}/*`]) app.route({method:['GET','POST','PUT','PATCH','DELETE'],url:path,
             schema:{hide:true},handler:(request,reply)=>proxy(request,reply,service)});
     }

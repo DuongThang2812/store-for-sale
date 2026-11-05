@@ -11,7 +11,7 @@
     "db:migrate": "supabase migration up --local",
     "db:reset": "supabase db reset --local",
     "db:test": "supabase test db --local",
-    "test": "node --test tests/*-service.test.js tests/gateway.test.js",
+    "test": "node --test tests/*-service.test.js tests/gateway.test.js tests/store-api.test.js",
     "api:setup": "node scripts/setup-local-api.mjs",
     "api:auth": "node --env-file=.env.microservices services/auth-service/server.js",
     "api:catalog": "node --env-file=.env.microservices services/catalog-service/server.js",

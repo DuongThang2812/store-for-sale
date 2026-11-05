@@ -20,6 +20,31 @@ export function registerAuthRoutes(app, security, application) {
     app.post(`${base}/refresh`, { config:{publicRoute:true},schema:schema({ summary:'Refresh session',description:'Refresh token is read only from HttpOnly cookie; rotation replaces that cookie.',response:{200:authResult} }) },async(request,reply)=>deliver(request,reply,await application.refresh(security.read(request))));
     app.post(`${base}/logout`, { config:{publicRoute:true},schema:schema({ summary:'Đăng xuất',description:'Revoke this provider session and clear the browser cookie.',response:{200:object({success:{type:'boolean'}})} }) },async(request,reply)=>{ await application.logout(security.read(request)); security.clear(reply); return {success:true}; });
     app.get(`${base}/me`, {schema:schema({summary:'Verified current user',description:'Gateway/services may use this endpoint to verify an active identity.',response:{200:user}})},request=>application.current(request.session));
-    app.get(`${base}/stores`,{schema:schema({summary:'My shop memberships',description:'Server identity determines which active memberships are returned.'})},request=>application.stores(request.identity.id));
-    app.post(`${base}/stores`,{schema:schema({summary:'Create shop',description:'Atomic shop/owner membership creation. No role/userId fields accepted.',body:object({name:{type:'string',minLength:1,maxLength:120},businessType:{type:'string',enum:['grocery','fruit_shop']}}),response:{201:object({id:uuid})}})},async(request,reply)=>{ reply.code(201); return {id:await application.createStore(request.identity.id,request.body)}; });
+    const storeListResponse = object({ success: { type: 'boolean' }, data: { type: 'array' }, requestId: { type: 'string' } });
+    for (const path of [`${base}/stores`, '/api/v1/stores']) {
+        app.get(path, {
+            schema: schema({
+                summary: 'Danh sách cửa hàng của tôi',
+                description: 'Xác minh qua Bearer access token hoặc session cookie. Trả về các cửa hàng người dùng có quyền.',
+                response: { 200: storeListResponse }
+            })
+        }, async (request) => {
+            const data = await application.stores(request.identity.id);
+            return { success: true, data, requestId: request.id };
+        });
+    }
+    for (const path of [`${base}/stores`, '/api/v1/stores']) {
+        app.post(path, {
+            schema: schema({
+                summary: 'Create shop',
+                description: 'Atomic shop/owner membership creation. No role/userId fields accepted.',
+                body: object({ name: { type: 'string', minLength: 1, maxLength: 120 }, businessType: { type: 'string', enum: ['grocery', 'fruit_shop'] } }),
+                response: { 201: object({ success: { type: 'boolean' }, data: object({ id: uuid }), requestId: { type: 'string' } }) }
+            })
+        }, async (request, reply) => {
+            reply.code(201);
+            const id = await application.createStore(request.identity.id, request.body);
+            return { success: true, data: { id }, requestId: request.id };
+        });
+    }
 }

@@ -1,4 +1,5 @@
 import { ApiError } from '../../shared/errors.js';
+import { mapStoreDto } from './mapper.js';
 
 export function createAuthApplication(identity, repository) {
     const profile = async user => {
@@ -36,7 +37,10 @@ export function createAuthApplication(identity, repository) {
                 if (error && ![401,403,404].includes(error.status)) throw new ApiError('REQUEST_FAILED',503);
             }
         },
-        stores: actor => repository.stores(actor),
+        stores: async actor => {
+            const rows = await repository.stores(actor);
+            return (rows || []).map(mapStoreDto);
+        },
         createStore: (actor,input) => repository.createStore(actor,input),
     };
 }
