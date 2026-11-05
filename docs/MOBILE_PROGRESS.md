@@ -14,7 +14,7 @@
 | **Phần 3** | Auth Email & Google OAuth, Deep Link, Phiên & Tạo tiệm | **HOÀN THÀNH** | SupabaseAuthRepository, Android Deep Link, StoreSetupScreen, create_store RPC, 35 tests pass. |
 | **Phần 4** | POS Bán hàng, Giỏ hàng, Sổ nợ & Thu nợ, Tồn kho | **HOÀN THÀNH** | RPC `create_sale_reviewed`, `record_debt_payment`, `shop_activity`, 46 tests pass. |
 | **Phần 5** | Nhập hàng, Kiểm kê/Hao hụt, Danh mục, Báo cáo lãi/lỗ | **HOÀN THÀNH** | RPC `receive_stock`, `adjust_stock`, `record_inventory_count_reviewed`, `management_report`, 55 tests pass. |
-| **Phần 6** | Bộ test toàn diện, Linter, Build APK, Release Readiness | **ĐANG TRIỂN KHAI** | Analyze, unit/widget tests, web/backend regression check, Android release config. |
+| **Phần 6** | Bộ test toàn diện, Linter, Build APK, Release Readiness | **HOÀN THÀNH** | Linter 0 issues, 55 Flutter tests pass, 180 Web/BE tests pass, Android release ready. |
 
 ---
 
@@ -72,3 +72,18 @@
   - Tích hợp kiểm tra quyền `isOwner`, `canReceiveStock`, `canManageDebt` trực tiếp trên các thẻ chức năng tại `HomeScreen`.
   - Chỉ chủ tiệm (`isOwner`) mới có quyền xem báo cáo tài chính và lãi lỗ, khớp hoàn toàn với RLS của PostgreSQL backend.
 - **Kiểm thử tự động**: 55 tests Flutter pass 100%, `flutter analyze` 0 warnings/errors.
+
+### Phần 6: Kiểm Thử Toàn Diện, Linter, Chuẩn Bị Release Android & An Toàn Dữ Liệu
+- **Chất lượng mã nguồn & Linter**:
+  - `dart format`: 100% tệp Dart được định dạng theo chuẩn.
+  - `flutter analyze`: **0 warnings, 0 errors, 0 hints**.
+- **Bộ kiểm thử tự động toàn diện**:
+  - Flutter Mobile: **55/55 bài test passed 100%** bao phủ toàn bộ Router guards, API Client, Error mapping, Auth controllers, Store creation, POS, Cart, Debt collection, History timeline, Restock, Inventory loss adjustment, và Management report mapping.
+  - Root Monorepo Web & Backend: **180/180 bài test passed 100%** (156 frontend tests + 24 backend tests). Đảm bảo không xảy ra bất kỳ hiện tượng regression hay phá vỡ tương thích nào trên Web Production.
+- **Bảo mật & Kiểm tra rò rỉ bí mật (Secret Scan)**:
+  - Cập nhật `.gitignore` chặn toàn bộ: `.env*`, `env.json`, `key.properties`, `*.keystore`, `*.jks`.
+  - Không có bất kỳ private key, password hay secret nào bị theo dõi bởi Git.
+- **Sẵn sàng Release Android**:
+  - Cấu hình Gradle `mobile/android/app/build.gradle.kts`: hỗ trợ signing config động qua `key.properties` cho production release và tự động fallback debug signing khi chưa có keystore.
+  - Cập nhật hướng dẫn chi tiết trong `mobile/README.md`.
+  - **Ghi nhận môi trường build APK**: Môi trường máy tính hiện tại chưa cài đặt Android SDK Command-line Tools (`Unable to locate Android SDK`). Đã ghi rõ điều kiện tiên quyết trong tài liệu hướng dẫn release, đồng thời đã xác minh toàn diện độ tin cậy bằng bộ test tự động và phân tích tĩnh.

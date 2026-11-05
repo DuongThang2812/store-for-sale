@@ -1,15 +1,16 @@
 # Tạp Hóa BIN - Ứng Dụng Di Động Android (Flutter)
 
-Nền tảng ứng dụng di động cho hệ thống **Tạp hóa BIN** (`tap-hoa-bin.pages.dev`), xây dựng bằng Flutter/Dart, thiết kế dùng chung cơ sở dữ liệu và tài khoản với phiên bản React Web.
+Nền tảng ứng dụng di động cho hệ sinh thái **Tạp hóa BIN** (`tap-hoa-bin.pages.dev`), xây dựng bằng Flutter/Dart, dùng chung 100% cơ sở dữ liệu PostgreSQL, Auth Session và API Contract với phiên bản React Web.
 
 ---
 
-## 1. Thông Tin Nền Tảng
+## 1. Thông Tin Nền Tảng & Môi Trường
 
 - **Application ID / Package Name**: `com.taphoabin.mobile`
-- **Flutter SDK**: 3.47.9 (kênh stable)
+- **Flutter SDK**: 3.47.9 (channel stable)
 - **Dart SDK**: 3.13.7
-- **Hệ điều hành ưu tiên**: Android (Target API 34+)
+- **Hệ điều hành mục tiêu**: Android (minSdk 21, targetSdk 34+)
+- **Deep Link URL Scheme**: `app.taphoabin://login-callback` (dùng cho Google OAuth & Magic Link callback)
 
 ---
 
@@ -33,87 +34,113 @@ mobile/
 │   │   │   └── api_response.dart       # Phong bì phản hồi chuẩn {success, data, error, requestId}
 │   │   └── widgets/                    # Các thành phần giao diện tái sử dụng (Button, Loading, Error, Empty)
 │   └── features/
-│       ├── auth/                       # Phân hệ Xác thực & Quản lý phiên làm việc
+│       ├── auth/                       # Xác thực Email & Google OAuth (Phần 3)
 │       │   ├── domain/                 # AuthState, AuthUser, AuthRepository interface
-│       │   ├── data/                   # AuthRepositoryImpl
-│       │   └── presentation/           # AuthController, SplashScreen, LoginScreen (khung Phần 2)
-│       ├── stores/                     # Phân hệ Quản lý & Chọn cửa hàng
+│       │   ├── data/                   # SupabaseAuthRepository & AuthRepositoryImpl (Mock)
+│       │   └── presentation/           # AuthController, LoginScreen (Đăng nhập / Đăng ký)
+│       ├── stores/                     # Chọn & Tạo Cửa hàng thật (Phần 3)
 │       │   ├── domain/                 # StoreDto, StorePermissions, StoreRepository interface
-│       │   ├── data/                   # StoreRepositoryImpl (gọi GET /api/v1/stores từ Phần 1)
-│       │   └── presentation/           # StoreController, StoreSelectScreen
-│       └── home/                       # Phân hệ Trang chủ bán hàng
-│           └── presentation/           # HomeScreen (hiển thị tên tiệm thật, không số liệu giả)
-└── test/                               # Bộ kiểm thử tự động toàn diện (31 unit & widget tests)
+│       │   ├── data/                   # StoreRepositoryImpl (gọi GET /api/v1/stores và POST /stores)
+│       │   └── presentation/           # StoreController, StoreSelectScreen, StoreSetupScreen
+│       ├── home/                       # Màn hình Trang chủ trung tâm (Phần 2, 4, 5)
+│       │   └── presentation/           # HomeScreen (kiểm tra phân quyền isOwner, canReceiveStock)
+│       ├── sales/                      # POS Bán hàng & Giỏ hàng (Phần 4)
+│       │   ├── domain/                 # ProductItem, UnitVariant, CartItem, SaleIntent, SaleResult
+│       │   ├── data/                   # SalesRepositoryImpl & MockSalesRepository
+│       │   └── presentation/           # PosController, PosScreen
+│       ├── debt/                       # Sổ nợ & Thu nợ khách hàng (Phần 4)
+│       │   └── presentation/           # DebtController, DebtScreen
+│       ├── history/                    # Nhật ký hoạt động & Lịch sử giao dịch (Phần 4)
+│       │   └── presentation/           # HistoryController, HistoryScreen
+│       ├── inventory/                  # Nhập hàng, Kiểm kê & Hao hụt (Phần 5)
+│       │   ├── domain/                 # InventoryModels & InventoryRepository interface
+│       │   ├── data/                   # InventoryRepositoryImpl & MockInventoryRepository
+│       │   └── presentation/           # InventoryController, InventoryScreen, RestockController, RestockScreen
+│       └── reports/                    # Báo cáo Doanh thu & Lãi lỗ (Phần 5)
+│           ├── domain/                 # ManagementReport, ReportTotals, TopProductReport
+│           ├── data/                   # ReportRepositoryImpl & MockReportRepository
+│           └── presentation/           # ReportController, ReportScreen
+└── test/                               # Bộ kiểm thử tự động toàn diện (55 unit & widget tests pass 100%)
 ```
-
-### Nguyên tắc cốt lõi:
-1. **Giao diện không gọi HTTP trực tiếp**: Widget chỉ tương tác với Controller. Controller gọi Repository. Repository giao tiếp qua `ApiClient`.
-2. **Abstract Repository**: Mọi repository đều có abstract class để có thể thay thế bằng Mock/Fake trong các bài kiểm thử tự động mà không cần mạng.
-3. **Bảo vệ tài chính & kho hàng**: `ApiClient` chỉ tự động retry 1 lần đối với yêu cầu đọc an toàn (`GET`). **Tuyệt đối không tự động retry** các lệnh ghi (`POST`/`PUT`/`DELETE`) tiền, trừ kho hay cộng nợ.
-4. **Không lưu trữ bí mật**: Không commit private key, service role key hay Google Client Secret vào source code.
 
 ---
 
-## 3. Hướng Dẫn Cấu Hình & Chạy Ứng Dụng
+## 3. Các Nguyên Tắc An Toàn Nghiệp Vụ Cốt Lõi
+
+1. **Client Gửi Ý Định (Intent-Based), Server Tính Toán**:
+   - Flutter Mobile tuyệt đối **KHÔNG tự ý cộng trừ tiền, không tự trừ tồn kho, không tự tính giá vốn (COGS) hay ghi nợ**.
+   - Mọi nghiệp vụ cốt lõi đều đóng gói thành Intent kèm `requestId` gửi lên PostgreSQL RPCs (`create_sale_reviewed`, `record_debt_payment`, `receive_stock`, `adjust_stock`, `record_inventory_count_reviewed`).
+   - Báo cáo tài chính, doanh thu, lợi nhuận gộp đọc trực tiếp từ server RPC `management_report`.
+2. **Chống Bấm Lặp & Mạng Chập Chờn**:
+   - Mọi thao tác ghi tiền hoặc kho đều tự sinh `requestId` duy nhất theo chuẩn UUID/Correlation ID. Server xử lý idempotent, ngăn ngừa tạo trùng đơn hàng hoặc trừ kho hai lần.
+3. **Phân Quyền RLS & UI**:
+   - Chỉ chủ cửa hàng (`isOwner`) mới có quyền truy cập màn hình Báo cáo Doanh thu & Lợi nhuận.
+   - Nhân viên chỉ được nhập kho hoặc kiểm kê khi có cờ `canReceiveStock`.
+4. **Không Rò Rỉ Bí Mật (Zero Secret Leaks)**:
+   - File cấu hình chứa key thật `env.json` và `key.properties` được loại trừ trong `.gitignore`.
+
+---
+
+## 4. Hướng Dẫn Cấu Hình & Chạy Kiểm Thử
 
 ### Bước 1: Chuẩn bị file cấu hình môi trường
-Sao chép file mẫu `env.sample.json` thành `env.json` (file này đã được thêm vào `.gitignore` để chống lộ secret):
+Sao chép file mẫu `env.sample.json` thành `env.json`:
 
 ```bash
 cd mobile
-cp env.sample.json env.json
+copy env.sample.json env.json
 ```
 
-Chỉnh sửa nội dung `mobile/env.json`:
+Cập nhật `env.json` với Supabase URL và Supabase Publishable Anon Key của dự án:
 ```json
 {
   "API_BASE_URL": "https://skakrjcahinmzcwaowxc.supabase.co/functions/v1/store-api",
   "SUPABASE_URL": "https://skakrjcahinmzcwaowxc.supabase.co",
-  "SUPABASE_ANON_KEY": "your_supabase_publishable_anon_key_here",
+  "SUPABASE_ANON_KEY": "<SUPABASE_ANON_KEY>",
   "DEV_EMULATOR_GATEWAY_URL": "http://10.0.2.2:8080/api/v1"
 }
 ```
 
-> **Lưu ý với Android Emulator**: Khi chạy máy chủ Gateway cục bộ tại máy tính Windows (`localhost:8080`), ứng dụng sẽ tự động chuyển đổi thành `10.0.2.2:8080` để Emulator truy cập được máy host mà không cần cấu hình thủ công.
-
-### Bước 2: Cài đặt thư viện dependencies
+### Bước 2: Kiểm tra định dạng code & phân tích tĩnh (Linter)
 ```bash
-flutter pub get
+# Kiểm tra định dạng Dart chuẩn hóa
+dart format --output=none --set-exit-if-changed lib test
+
+# Phân tích tĩnh cú pháp (yêu cầu 0 issues)
+flutter analyze
 ```
 
-### Bước 3: Kiểm tra quy chuẩn & chạy kiểm thử
+### Bước 3: Chạy toàn bộ bộ kiểm thử tự động
 ```bash
-# Kiểm tra định dạng code
-dart format --output=none --set-exit-if-changed .
-
-# Phân tích tĩnh cú pháp
-flutter analyze
-
-# Chạy toàn bộ 31 bài test tự động
+# Chạy toàn bộ 55 bài test unit & widget
 flutter test
 ```
 
-### Bước 4: Khởi chạy ứng dụng
+### Bước 4: Chạy ứng dụng trên Emulator hoặc thiết bị thật
 ```bash
-# Chạy với file cấu hình môi trường
 flutter run --dart-define-from-file=env.json
 ```
 
-Nếu chạy mà không truyền file cấu hình, ứng dụng sẽ hiển thị màn hình **"Chưa phát hiện cấu hình API"** (`ConfigMissingView`) với hướng dẫn chi tiết từng bước mà không bị crash.
-
 ---
 
-## 4. Các Trạng Thái Phiên & Điều Hướng (Router Guards)
+## 5. Chuẩn Bị Đóng Gói Release APK (Android)
 
-Router hoạt động theo cơ chế State-driven chuẩn hóa:
+### Cấu hình Ký Ứng Dụng (Release Keystore Signing):
+Tạo file `mobile/android/key.properties` với thông tin chứng chỉ ký số:
+```properties
+storePassword=<mat_khau_keystore>
+keyPassword=<mat_khau_key>
+keyAlias=<ten_alias>
+storeFile=../upload-keystore.jks
+```
 
-| Trạng thái (`AuthStatus`) | Màn hình hiển thị | Router Guard & Hành vi |
-| :--- | :--- | :--- |
-| `unconfigured` | `ConfigMissingView` | Thiếu file cấu hình hoặc key chưa hợp lệ. |
-| `checking` | `SplashScreen` | Đang kiểm tra token / phiên đăng nhập ban đầu. |
-| `signedOut` | `LoginScreen` | Chưa đăng nhập; hiển thị form khung (đăng nhập thật ở Phần 3). |
-| `signedInNeedsStore` | `StoreSelectScreen` | Đã có phiên đăng nhập, nạp danh sách cửa hàng thật từ Backend. |
-| `ready` | `HomeScreen` | Đã chọn cửa hàng hợp lệ; hiển thị tên tiệm và danh mục nghiệp vụ. |
-| `error` | `AppErrorView` | Lỗi mạng hoặc sự cố; có nút Thử lại, không bị vòng lặp redirect. |
+Hệ thống Gradle `mobile/android/app/build.gradle.kts` đã cấu hình sẵn:
+- Nếu có file `key.properties`, bản build release sẽ tự động ký bằng chứng chỉ release.
+- Nếu không có file `key.properties`, bản build sẽ sử dụng debug signing config để đảm bảo lập trình viên và CI vẫn build kiểm tra được mà không gặp lỗi.
 
-> **Nguyên tắc an toàn dữ liệu**: Khi đăng xuất hoặc chuyển đổi tài khoản, toàn bộ thông tin cửa hàng đang giữ trong bộ nhớ (`_activeStore`) sẽ lập tức bị xóa sạch để tránh rò rỉ dữ liệu giữa các phiên người dùng.
+### Lệnh đóng gói Release APK:
+```bash
+flutter build apk --release --dart-define-from-file=env.json
+```
+
+> **Lưu ý về Môi trường Biên Dịch**: Để biên dịch ra file APK thật (`.apk`), máy tính cần cài đặt **Android SDK Command-line Tools / Android Studio** và biến môi trường `ANDROID_HOME` hợp lệ. Nếu môi trường chưa cài đặt Android SDK, hãy chạy bộ test tự động (`flutter test`) để xác minh 100% logic ứng dụng.
