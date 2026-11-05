@@ -7,7 +7,7 @@
     "dev": "vite",
     "build": "vite build",
     "lint": "oxlint",
-    "test": "node --test tests/active-shop-store.test.js tests/dashboard-report.test.js tests/snack-units.test.js tests/application-errors.test.js tests/account-and-cancellation.test.js tests/admin-api-validation.test.js tests/auth-session.test.js tests/calculator.test.js tests/catalog-workbook.test.js tests/fruit-shop.test.js tests/seed-weight.test.js tests/legacy-migration.test.js tests/performance-storage.test.js tests/supabase-foundation.test.js tests/cloud-review.test.js tests/security-hardening.test.js tests/google-auth.test.js",
+    "test": "node --test tests/active-shop-store.test.js tests/dashboard-report.test.js tests/snack-units.test.js tests/application-errors.test.js tests/account-and-cancellation.test.js tests/admin-api-validation.test.js tests/auth-session.test.js tests/calculator.test.js tests/catalog-workbook.test.js tests/fruit-shop.test.js tests/seed-weight.test.js tests/legacy-migration.test.js tests/performance-storage.test.js tests/supabase-foundation.test.js tests/cloud-review.test.js tests/security-hardening.test.js tests/google-auth.test.js tests/store-api-adapter.test.js",
     "test:backend": "node --test tests/supabase-foundation.test.js",
     "test:integration": "node --env-file-if-exists=.env.local scripts/smoke-shop-api.mjs",
     "backend:check": "node --env-file-if-exists=.env.local scripts/check-supabase.mjs",
