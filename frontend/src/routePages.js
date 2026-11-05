@@ -17,6 +17,7 @@ const loaders = {
     migrate: () => import('./pages/LegacyMigrationPage'),
     setup: () => import('./pages/StoreSetupPage'),
     resetPassword: () => import('./pages/ResetPasswordPage'),
+    callback: () => import('./pages/AuthCallbackPage'),
 };
 const pending = new Map();
 function load(group) {
@@ -48,6 +49,7 @@ export const SuppliersPage = page('suppliers', 'SuppliersPage');
 export const LegacyMigrationPage = page('migrate', 'LegacyMigrationPage');
 export const StoreSetupPage = page('setup', 'StoreSetupPage');
 export const ResetPasswordPage = page('resetPassword', 'ResetPasswordPage');
+export const AuthCallbackPage = page('callback', 'AuthCallbackPage');
 
 // Fetch only the page the user is pointing at or focusing with the keyboard.
 export function preloadRoute(event) {
@@ -57,6 +59,7 @@ export function preloadRoute(event) {
     const group = path.startsWith('/import/csv') ? 'csv'
         : path.startsWith('/import/catalog') ? 'catalog'
         : path.startsWith('/account/migrate') ? 'migrate'
+        : path.startsWith('/auth/callback') ? 'callback'
         : /^\/(sales|cart)(\/|$)/.test(path) ? 'sales'
         : /^\/(import|inventory)(\/|$)/.test(path) ? 'stock'
         : /^\/(debt|history)(\/|$)/.test(path) ? 'debt'

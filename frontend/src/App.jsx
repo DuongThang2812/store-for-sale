@@ -7,6 +7,7 @@ import {
     InventoryPage, InventoryCountPage, DebtPage, CustomerPage, HistoryPage, CsvImportPage,
     CatalogImportPage, RevenuePage, LoginPage, AccountPage, CalculatorPage, ShopSettingsPage,
     CategoriesPage, SuppliersPage, LegacyMigrationPage, StoreSetupPage, ResetPasswordPage,
+    AuthCallbackPage,
 } from './routePages';
 import { PageLoading, PageErrorBoundary } from './components/PageLoading';
 import { AccountBootstrap, AuthenticatedGate, PublicOnlyGate, StoreGate } from './auth/AccountBootstrap';
@@ -26,6 +27,8 @@ import { AppMotionProvider } from './components/motion/MotionPrimitives.jsx';
 function App() {
     return <BrowserRouter><AppMotionProvider><AccountBootstrap><PageErrorBoundary><Suspense fallback={<PageLoading/>}><ToastProvider><Routes>
         <Route path="login" element={<PublicOnlyGate><LoginPage/></PublicOnlyGate>}/>
+        <Route path="register" element={<PublicOnlyGate><LoginPage initialMode="register"/></PublicOnlyGate>}/>
+        <Route path="auth/callback" element={<AuthCallbackPage/>}/>
         <Route path="reset-password" element={<ResetPasswordPage/>}/>
         <Route element={<AuthenticatedGate/>}>
             <Route path="admin" element={<AdminAccessGate/>}>
