@@ -57,6 +57,9 @@ class StoreDto {
   });
 
   bool get isOwner => role == 'owner';
+  bool get canReceiveStock => isOwner || permissions.canManageInventory;
+  bool get canManageDebt => isOwner || permissions.canSell;
+  bool get canViewReports => isOwner || permissions.canViewReports;
 
   factory StoreDto.fromJson(Map<String, dynamic> json) {
     return StoreDto(

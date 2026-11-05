@@ -6,6 +6,16 @@ import '../../debt/presentation/debt_controller.dart';
 import '../../debt/presentation/debt_screen.dart';
 import '../../history/presentation/history_controller.dart';
 import '../../history/presentation/history_screen.dart';
+import '../../inventory/data/mock_inventory_repository.dart';
+import '../../inventory/domain/inventory_repository.dart';
+import '../../inventory/presentation/inventory_controller.dart';
+import '../../inventory/presentation/inventory_screen.dart';
+import '../../inventory/presentation/restock_controller.dart';
+import '../../inventory/presentation/restock_screen.dart';
+import '../../reports/data/mock_report_repository.dart';
+import '../../reports/domain/report_repository.dart';
+import '../../reports/presentation/report_controller.dart';
+import '../../reports/presentation/report_screen.dart';
 import '../../sales/data/mock_sales_repository.dart';
 import '../../sales/domain/sales_repository.dart';
 import '../../sales/presentation/pos_controller.dart';
@@ -14,28 +24,39 @@ import '../../stores/presentation/store_controller.dart';
 
 /// Màn hình Trang chủ Tạp hóa BIN.
 ///
-/// Quản lý trung tâm điều hướng các phân hệ nghiệp vụ:
+/// Quản lý trung tâm điều hướng các phân hệ nghiệp vụ và kiểm tra phân quyền người dùng:
 /// - POS Bán hàng (Phần 4)
 /// - Sổ nợ & Thu nợ khách hàng (Phần 4)
 /// - Nhật ký giao dịch (Phần 4)
-/// - Nhập hàng, Kiểm kho & Báo cáo doanh thu (Phần 5)
+/// - Nhập hàng từ nhà cung cấp (Phần 5)
+/// - Kiểm kho & Hao hụt (Phần 5)
+/// - Báo cáo doanh thu & Lợi nhuận gộp (Phần 5)
 class HomeScreen extends StatelessWidget {
   final AuthController authController;
   final StoreController storeController;
   final SalesRepository salesRepository;
+  final InventoryRepository inventoryRepository;
+  final ReportRepository reportRepository;
 
   HomeScreen({
     super.key,
     required this.authController,
     required this.storeController,
     SalesRepository? salesRepository,
-  }) : salesRepository = salesRepository ?? MockSalesRepository();
+    InventoryRepository? inventoryRepository,
+    ReportRepository? reportRepository,
+  }) : salesRepository = salesRepository ?? MockSalesRepository(),
+       inventoryRepository = inventoryRepository ?? MockInventoryRepository(),
+       reportRepository = reportRepository ?? MockReportRepository();
 
   @override
   Widget build(BuildContext context) {
     final store = storeController.selectedStore;
     final user = authController.user;
     final storeId = store?.id ?? 'default-store';
+    final isOwner = store?.isOwner ?? false;
+    final canReceiveStock = store?.canReceiveStock ?? false;
+    final canManageDebt = store?.canManageDebt ?? false;
 
     return Scaffold(
       appBar: AppBar(
@@ -115,7 +136,7 @@ class HomeScreen extends StatelessWidget {
                                 ),
                                 const SizedBox(height: 4),
                                 Text(
-                                  'Vai trò: ${store?.isOwner == true ? "Chủ cửa hàng" : "Nhân viên"} • ${store?.storeType ?? ""}',
+                                  'Vai trò: ${isOwner ? "Chủ cửa hàng" : "Nhân viên"} • ${store?.storeType ?? ""}',
                                   style: const TextStyle(
                                     fontSize: 13,
                                     color: Color(0xFF64748B),
@@ -194,9 +215,20 @@ class HomeScreen extends StatelessWidget {
                 subtitle: 'Theo dõi dư nợ và thu nợ từng phần atomic',
                 icon: Icons.book_outlined,
                 iconColor: const Color(0xFFDC2626),
-                statusBadge: 'Sẵn sàng',
-                badgeColor: const Color(0xFFDC2626),
+                statusBadge: isOwner || canManageDebt ? 'Sẵn sàng' : 'Giới hạn',
+                badgeColor: isOwner || canManageDebt
+                    ? const Color(0xFFDC2626)
+                    : const Color(0xFF94A3B8),
                 onTap: () {
+                  if (!isOwner && !canManageDebt) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(
+                        content: Text('Bạn không có quyền quản lý sổ nợ.'),
+                        duration: Duration(seconds: 2),
+                      ),
+                    );
+                    return;
+                  }
                   Navigator.of(context).push(
                     MaterialPageRoute(
                       builder: (_) => DebtScreen(
@@ -211,19 +243,33 @@ class HomeScreen extends StatelessWidget {
               ),
               const SizedBox(height: 10),
 
-              // Nhật ký hoạt động
+              // Nhập hàng (Nhà cung cấp)
               _buildFeatureCard(
-                title: 'Nhật ký giao dịch',
-                subtitle: 'Dòng thời gian các đơn bán hàng và thu tiền nợ',
-                icon: Icons.receipt_long_rounded,
-                iconColor: const Color(0xFF2563EB),
-                statusBadge: 'Sẵn sàng',
-                badgeColor: const Color(0xFF2563EB),
+                title: 'Nhập hàng từ nhà cung cấp',
+                subtitle: 'Lập phiếu nhập kho, tính giá vốn và cộng tồn kho',
+                icon: Icons.local_shipping_outlined,
+                iconColor: const Color(0xFF0284C7),
+                statusBadge: isOwner || canReceiveStock
+                    ? 'Sẵn sàng'
+                    : 'Giới hạn',
+                badgeColor: isOwner || canReceiveStock
+                    ? const Color(0xFF0284C7)
+                    : const Color(0xFF94A3B8),
                 onTap: () {
+                  if (!isOwner && !canReceiveStock) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(
+                        content: Text('Bạn không có quyền nhập hàng.'),
+                        duration: Duration(seconds: 2),
+                      ),
+                    );
+                    return;
+                  }
                   Navigator.of(context).push(
                     MaterialPageRoute(
-                      builder: (_) => HistoryScreen(
-                        historyController: HistoryController(
+                      builder: (_) => RestockScreen(
+                        restockController: RestockController(
+                          inventoryRepository: inventoryRepository,
                           salesRepository: salesRepository,
                           storeId: storeId,
                         ),
@@ -234,41 +280,75 @@ class HomeScreen extends StatelessWidget {
               ),
               const SizedBox(height: 10),
 
-              // Kiểm kho & Nhập hàng (Phần 5)
+              // Kiểm kho & Hao hụt (Phần 5)
               _buildFeatureCard(
-                title: 'Kiểm kho & Nhập hàng',
-                subtitle: 'Hao hụt, kiểm kê, đơn vị quy đổi (Phần 5)',
+                title: 'Kiểm kho & Hao hụt',
+                subtitle: 'Báo hỏng, hao hụt, mất mát và kiểm kê thực tế',
                 icon: Icons.inventory_2_outlined,
                 iconColor: const Color(0xFFD97706),
-                statusBadge: 'Phần 5',
-                badgeColor: const Color(0xFF64748B),
+                statusBadge: isOwner || canReceiveStock
+                    ? 'Sẵn sàng'
+                    : 'Giới hạn',
+                badgeColor: isOwner || canReceiveStock
+                    ? const Color(0xFFD97706)
+                    : const Color(0xFF94A3B8),
                 onTap: () {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(
-                      content: Text(
-                        'Chức năng kiểm kho & nhập hàng nằm ở Phần 5.',
+                  if (!isOwner && !canReceiveStock) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(
+                        content: Text(
+                          'Bạn không có quyền kiểm kho & điều chỉnh hao hụt.',
+                        ),
+                        duration: Duration(seconds: 2),
                       ),
-                      duration: Duration(seconds: 1),
+                    );
+                    return;
+                  }
+                  Navigator.of(context).push(
+                    MaterialPageRoute(
+                      builder: (_) => InventoryScreen(
+                        inventoryController: InventoryController(
+                          inventoryRepository: inventoryRepository,
+                          salesRepository: salesRepository,
+                          storeId: storeId,
+                        ),
+                      ),
                     ),
                   );
                 },
               ),
               const SizedBox(height: 10),
 
-              // Báo cáo doanh thu (Phần 5)
+              // Báo cáo doanh thu & Lợi nhuận (Phần 5)
               _buildFeatureCard(
                 title: 'Báo cáo doanh thu & Lãi lỗ',
-                subtitle:
-                    'Doanh thu, giá vốn, lợi nhuận server-computed (Phần 5)',
+                subtitle: 'Doanh thu, giá vốn, lợi nhuận server-computed',
                 icon: Icons.bar_chart_rounded,
                 iconColor: const Color(0xFF7C3AED),
-                statusBadge: 'Phần 5',
-                badgeColor: const Color(0xFF64748B),
+                statusBadge: isOwner ? 'Chủ tiệm' : 'Khóa',
+                badgeColor: isOwner
+                    ? const Color(0xFF7C3AED)
+                    : const Color(0xFF94A3B8),
                 onTap: () {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(
-                      content: Text('Chức năng báo cáo quản trị nằm ở Phần 5.'),
-                      duration: Duration(seconds: 1),
+                  if (!isOwner) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(
+                        content: Text(
+                          'Chỉ chủ cửa hàng mới có quyền xem báo cáo tài chính.',
+                        ),
+                        duration: Duration(seconds: 2),
+                      ),
+                    );
+                    return;
+                  }
+                  Navigator.of(context).push(
+                    MaterialPageRoute(
+                      builder: (_) => ReportScreen(
+                        reportController: ReportController(
+                          reportRepository: reportRepository,
+                          storeId: storeId,
+                        ),
+                      ),
                     ),
                   );
                 },

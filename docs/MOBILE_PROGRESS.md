@@ -13,8 +13,8 @@
 | **Phần 2** | Nền tảng Flutter Android, Theme, Router, Core client | **HOÀN THÀNH** | Commit `15de220`. App ID `com.taphoabin.mobile`, Flutter 3.47.9, 31 tests pass. |
 | **Phần 3** | Auth Email & Google OAuth, Deep Link, Phiên & Tạo tiệm | **HOÀN THÀNH** | SupabaseAuthRepository, Android Deep Link, StoreSetupScreen, create_store RPC, 35 tests pass. |
 | **Phần 4** | POS Bán hàng, Giỏ hàng, Sổ nợ & Thu nợ, Tồn kho | **HOÀN THÀNH** | RPC `create_sale_reviewed`, `record_debt_payment`, `shop_activity`, 46 tests pass. |
-| **Phần 5** | Nhập hàng, Kiểm kê/Hao hụt, Danh mục, Báo cáo lãi/lỗ | **ĐANG TRIỂN KHAI** | Restock, stock counting, supplier/category, management report RPC. |
-| **Phần 6** | Bộ test toàn diện, Linter, Build APK, Release Readiness | **CHƯA BẮT ĐẦU** | Analyze, unit/widget tests, web/backend regression check, Android release config. |
+| **Phần 5** | Nhập hàng, Kiểm kê/Hao hụt, Danh mục, Báo cáo lãi/lỗ | **HOÀN THÀNH** | RPC `receive_stock`, `adjust_stock`, `record_inventory_count_reviewed`, `management_report`, 55 tests pass. |
+| **Phần 6** | Bộ test toàn diện, Linter, Build APK, Release Readiness | **ĐANG TRIỂN KHAI** | Analyze, unit/widget tests, web/backend regression check, Android release config. |
 
 ---
 
@@ -56,3 +56,19 @@
 - **Nhật ký giao dịch**:
   - `HistoryController` và `HistoryScreen`: hiển thị timeline các sự kiện bán hàng, thu nợ, nhập hàng từ RPC `shop_activity`.
 - **Kiểm thử tự động**: 46 tests Flutter pass 100%, `flutter analyze` 0 warnings/errors.
+
+### Phần 5: Nhập Hàng, Kiểm Kê/Hao Hụt, Nhà Cung Cấp, Danh Mục & Báo Cáo Lãi/Lỗ
+- **Nhập hàng (Restock)**:
+  - `RestockController` & `RestockScreen`: chọn mặt hàng, đơn vị quy đổi, số lượng và giá nhập.
+  - Chọn nhà cung cấp (`SupplierItem`), tính tổng dự kiến trên UI và gửi ý định qua RPC `receive_stock`.
+  - Server tự động tính giá vốn bình quân gia quyền (Weighted Average Cost), cập nhật giá nhập mới nhất và cộng tồn kho nguyên tử.
+- **Hao hụt & Điều chỉnh tồn kho**:
+  - `InventoryController` & `InventoryScreen`: giao diện điều chỉnh tồn kho với các lý do chuẩn hóa (`damaged`, `spoiled`, `lost`, `inventory_correction`, `personal_use`, `other`) qua RPC `adjust_stock`.
+  - Hỗ trợ kiểm kê định kỳ thực tế qua RPC `record_inventory_count_reviewed`.
+- **Báo cáo Doanh thu & Lãi lỗ (COGS, Margin %)**:
+  - `ReportController` & `ReportScreen`: hiển thị doanh thu, tiền thực thu, bán chịu, thu nợ, giá vốn (COGS), lợi nhuận gộp, tỷ suất lợi nhuận (%) và giá trị hao hụt theo các kỳ (1, 7, 30, 90 ngày).
+  - Toàn bộ phép tính tài chính thực hiện 100% tại PostgreSQL Server RPC `management_report`; Flutter tuyệt đối không nhân đôi logic tính toán sang Dart.
+- **Phân quyền người dùng (Store Permissions)**:
+  - Tích hợp kiểm tra quyền `isOwner`, `canReceiveStock`, `canManageDebt` trực tiếp trên các thẻ chức năng tại `HomeScreen`.
+  - Chỉ chủ tiệm (`isOwner`) mới có quyền xem báo cáo tài chính và lãi lỗ, khớp hoàn toàn với RLS của PostgreSQL backend.
+- **Kiểm thử tự động**: 55 tests Flutter pass 100%, `flutter analyze` 0 warnings/errors.

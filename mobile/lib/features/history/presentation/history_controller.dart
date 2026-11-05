@@ -13,10 +13,7 @@ class HistoryController extends ChangeNotifier {
   List<ActivityItem> _activities = const [];
   AppError? _error;
 
-  HistoryController({
-    required this.salesRepository,
-    required this.storeId,
-  });
+  HistoryController({required this.salesRepository, required this.storeId});
 
   bool get isLoading => _isLoading;
   List<ActivityItem> get activities => _activities;

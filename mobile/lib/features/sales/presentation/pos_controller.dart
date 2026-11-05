@@ -1,4 +1,5 @@
 import 'package:flutter/foundation.dart';
+
 import '../../../core/errors/app_error.dart';
 import '../domain/sales_models.dart';
 import '../domain/sales_repository.dart';
@@ -20,10 +21,7 @@ class PosController extends ChangeNotifier {
   SaleResult? _lastSaleResult;
   AppError? _error;
 
-  PosController({
-    required this.salesRepository,
-    required this.storeId,
-  });
+  PosController({required this.salesRepository, required this.storeId});
 
   bool get isLoadingProducts => _isLoadingProducts;
   List<ProductItem> get products => _products;

@@ -16,10 +16,7 @@ class DebtController extends ChangeNotifier {
   DebtPaymentResult? _lastPaymentResult;
   AppError? _error;
 
-  DebtController({
-    required this.salesRepository,
-    required this.storeId,
-  });
+  DebtController({required this.salesRepository, required this.storeId});
 
   bool get isLoading => _isLoading;
   List<CustomerDebtItem> get debtors => _debtors;

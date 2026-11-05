@@ -8,6 +8,12 @@ import 'features/auth/data/auth_repository_impl.dart';
 import 'features/auth/data/supabase_auth_repository.dart';
 import 'features/auth/domain/auth_repository.dart';
 import 'features/auth/presentation/auth_controller.dart';
+import 'features/inventory/data/inventory_repository_impl.dart';
+import 'features/inventory/data/mock_inventory_repository.dart';
+import 'features/inventory/domain/inventory_repository.dart';
+import 'features/reports/data/mock_report_repository.dart';
+import 'features/reports/data/report_repository_impl.dart';
+import 'features/reports/domain/report_repository.dart';
 import 'features/sales/data/mock_sales_repository.dart';
 import 'features/sales/data/sales_repository_impl.dart';
 import 'features/sales/domain/sales_repository.dart';
@@ -22,6 +28,8 @@ void main() async {
 
   AuthRepository authRepository;
   SalesRepository salesRepository;
+  InventoryRepository inventoryRepository;
+  ReportRepository reportRepository;
 
   if (config.isConfigured) {
     try {
@@ -40,13 +48,19 @@ void main() async {
         supabaseClient: client,
         apiClient: clientApi,
       );
+      inventoryRepository = InventoryRepositoryImpl(supabaseClient: client);
+      reportRepository = ReportRepositoryImpl(supabaseClient: client);
     } catch (_) {
       authRepository = AuthRepositoryImpl();
       salesRepository = MockSalesRepository();
+      inventoryRepository = MockInventoryRepository();
+      reportRepository = MockReportRepository();
     }
   } else {
     authRepository = AuthRepositoryImpl();
     salesRepository = MockSalesRepository();
+    inventoryRepository = MockInventoryRepository();
+    reportRepository = MockReportRepository();
   }
 
   final apiClient = ApiClient(
@@ -75,6 +89,8 @@ void main() async {
       authRepository: authRepository,
       storeRepository: storeRepository,
       salesRepository: salesRepository,
+      inventoryRepository: inventoryRepository,
+      reportRepository: reportRepository,
       authController: authController,
       storeController: storeController,
     ),

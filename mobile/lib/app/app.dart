@@ -4,6 +4,8 @@ import '../core/config/app_config.dart';
 import '../core/network/api_client.dart';
 import '../features/auth/domain/auth_repository.dart';
 import '../features/auth/presentation/auth_controller.dart';
+import '../features/inventory/domain/inventory_repository.dart';
+import '../features/reports/domain/report_repository.dart';
 import '../features/sales/domain/sales_repository.dart';
 import '../features/stores/domain/store_repository.dart';
 import '../features/stores/presentation/store_controller.dart';
@@ -17,6 +19,8 @@ class TapHoaBinApp extends StatelessWidget {
   final AuthRepository authRepository;
   final StoreRepository storeRepository;
   final SalesRepository? salesRepository;
+  final InventoryRepository? inventoryRepository;
+  final ReportRepository? reportRepository;
   final AuthController authController;
   final StoreController storeController;
 
@@ -29,6 +33,8 @@ class TapHoaBinApp extends StatelessWidget {
     required this.authController,
     required this.storeController,
     this.salesRepository,
+    this.inventoryRepository,
+    this.reportRepository,
   });
 
   @override
@@ -42,6 +48,8 @@ class TapHoaBinApp extends StatelessWidget {
         storeController: storeController,
         authRepository: authRepository,
         salesRepository: salesRepository,
+        inventoryRepository: inventoryRepository,
+        reportRepository: reportRepository,
       ),
     );
   }
