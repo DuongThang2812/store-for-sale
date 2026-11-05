@@ -1,4 +1,4 @@
-import { useEffect, useState, useRef } from 'react';
+import { useEffect, useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { Store, AlertTriangle, ArrowRight, RefreshCw } from 'lucide-react';
 import { authService } from '../services/authService.js';
@@ -12,13 +12,7 @@ export function AuthCallbackPage() {
     const navigate = useNavigate();
     const [status, setStatus] = useState('loading');
     const [errorMessage, setErrorMessage] = useState('');
-    const processedRef = useRef(false);
-
     useEffect(() => {
-        // Prevent double execution in React Strict Mode
-        if (processedRef.current) return;
-        processedRef.current = true;
-
         let active = true;
 
         async function handleCallback() {
@@ -55,12 +49,14 @@ export function AuthCallbackPage() {
                 // automatically exchanges PKCE code for session in _initialize().
                 // authService.getSession() awaits that initialize promise.
                 let session = await authService.getSession();
+                if (!active) return;
 
                 // If code is present in URL but session not ready yet, retry briefly
                 if (!session && code) {
                     for (let attempt = 0; attempt < 5; attempt++) {
                         await new Promise(resolve => setTimeout(resolve, 350));
                         session = await authService.getSession();
+                        if (!active) return;
                         if (session) break;
                     }
                 }
@@ -74,6 +70,7 @@ export function AuthCallbackPage() {
 
                 // 3. Confirm verified server-side identity
                 const user = await authService.getUser();
+                if (!active) return;
                 if (!user || user.id !== session.user.id) {
                     throw new Error('Không thể xác thực danh tính người dùng. Vui lòng đăng nhập lại.');
                 }
