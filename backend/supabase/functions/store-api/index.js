@@ -148,6 +148,53 @@ export function createStoreApiHandler({
         }, 200);
       }
 
+      if (request.method === 'POST' && (pathname === '/stores' || pathname === '/' || pathname === '')) {
+        const db = await getDbClient();
+
+        // Ensure user account is active
+        const { data: profile, error: profileErr } = await db
+          .from('profiles')
+          .select('id,account_status')
+          .eq('id', userId)
+          .maybeSingle();
+
+        if (profileErr) return errorResponse('CONNECTION_FAILED', 503);
+        if (profile && profile.account_status !== 'active') return errorResponse('FORBIDDEN', 403);
+
+        let body = {};
+        try {
+          body = await request.json();
+        } catch (_) {
+          return errorResponse('VALIDATION_FAILED', 400);
+        }
+
+        const name = (body.name || '').trim();
+        const businessType = body.businessType || 'grocery';
+
+        if (!name || name.length > 120) {
+          return errorResponse('VALIDATION_FAILED', 400);
+        }
+
+        if (!['grocery', 'fruit_shop'].includes(businessType)) {
+          return errorResponse('VALIDATION_FAILED', 400);
+        }
+
+        const { data: storeId, error: createErr } = await db.rpc('create_store', {
+          p_name: name,
+          p_business_type: businessType,
+        });
+
+        if (createErr) {
+          return errorResponse('INTERNAL_ERROR', 500);
+        }
+
+        return jsonResponse({
+          success: true,
+          data: { storeId },
+          requestId: correlationId,
+        }, 201);
+      }
+
       return errorResponse('NOT_FOUND', 404);
     } catch (err) {
       if (err instanceof ApplicationError) {

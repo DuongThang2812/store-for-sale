@@ -6,6 +6,19 @@ abstract class AuthRepository {
   /// Luồng sự kiện thay đổi trạng thái đăng nhập
   Stream<AuthUser?> get authStateChanges;
 
+  /// Đăng nhập bằng Email và Mật khẩu
+  Future<AuthUser?> signInWithEmail(String email, String password);
+
+  /// Đăng ký tài khoản mới bằng Email và Mật khẩu
+  Future<AuthUser?> signUpWithEmail(
+    String email,
+    String password, {
+    String? displayName,
+  });
+
+  /// Đăng nhập bằng Google OAuth (hỗ trợ Deep Link callback trên Android)
+  Future<void> signInWithGoogle();
+
   /// Lấy thông tin phiên người dùng hiện tại
   Future<AuthUser?> getCurrentUser();
 

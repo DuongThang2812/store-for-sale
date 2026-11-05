@@ -17,6 +17,14 @@ class MockStoreRepository implements StoreRepository {
   }
 
   @override
+  Future<String> createStore({
+    required String name,
+    required String businessType,
+  }) async {
+    return 'new-store-id-999';
+  }
+
+  @override
   Future<StoreDto?> getActiveStore() async => activeStore;
 
   @override
@@ -113,6 +121,23 @@ void main() {
       await controller.clearStore();
       expect(controller.selectedStore, isNull);
       expect(repo.activeStore, isNull);
+    });
+
+    test('createStore creates new store, reloads and selects it', () async {
+      final repo = MockStoreRepository();
+      var storeList = <StoreDto>[];
+      repo.getStoresHandler = () => storeList;
+
+      final controller = StoreController(storeRepository: repo);
+
+      final created = await controller.createStore(
+        name: 'Tiệm Tạp Hóa Mới',
+        businessType: 'grocery',
+      );
+
+      expect(created, isNotNull);
+      expect(created?.id, equals('new-store-id-999'));
+      expect(controller.selectedStore?.id, equals('new-store-id-999'));
     });
   });
 }

@@ -3,10 +3,7 @@ import 'dart:async';
 import '../domain/auth_repository.dart';
 import '../domain/auth_state.dart';
 
-/// Triển khai AuthRepository cho môi trường di động.
-///
-/// Trong Phần 2, đóng vai trò quản lý phiên trong bộ nhớ và chuẩn bị kết nối
-/// Supabase Auth ở Phần 3. Cho phép gán phiên để kiểm thử các luồng điều hướng.
+/// Triển khai AuthRepository in-memory cho môi trường test và dev offline.
 class AuthRepositoryImpl implements AuthRepository {
   final _controller = StreamController<AuthUser?>.broadcast();
   AuthUser? _currentUser;
@@ -15,6 +12,45 @@ class AuthRepositoryImpl implements AuthRepository {
 
   @override
   Stream<AuthUser?> get authStateChanges => _controller.stream;
+
+  @override
+  Future<AuthUser?> signInWithEmail(String email, String password) async {
+    final user = AuthUser(
+      id: 'mock-user-${email.hashCode}',
+      email: email,
+      displayName: email.split('@').first,
+      accessToken: 'mock-token-${DateTime.now().millisecondsSinceEpoch}',
+    );
+    setSession(user);
+    return user;
+  }
+
+  @override
+  Future<AuthUser?> signUpWithEmail(
+    String email,
+    String password, {
+    String? displayName,
+  }) async {
+    final user = AuthUser(
+      id: 'mock-user-${email.hashCode}',
+      email: email,
+      displayName: displayName ?? email.split('@').first,
+      accessToken: 'mock-token-${DateTime.now().millisecondsSinceEpoch}',
+    );
+    setSession(user);
+    return user;
+  }
+
+  @override
+  Future<void> signInWithGoogle() async {
+    final user = AuthUser(
+      id: 'google-user-001',
+      email: 'google.user@example.com',
+      displayName: 'Google User',
+      accessToken: 'google-mock-token-${DateTime.now().millisecondsSinceEpoch}',
+    );
+    setSession(user);
+  }
 
   @override
   Future<AuthUser?> getCurrentUser() async {

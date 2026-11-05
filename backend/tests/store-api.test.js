@@ -298,3 +298,47 @@ test('Edge Function Store API: handles OPTIONS CORS preflight', async () => {
     assert.equal(res.status, 204);
     assert.equal(res.headers.get('access-control-allow-origin'), 'https://tap-hoa-bin.pages.dev');
 });
+
+test('Edge Function Store API: creates store via POST /stores', async () => {
+    const mockDb = {
+        from: (table) => ({
+            select: () => ({
+                eq: () => ({
+                    maybeSingle: async () => ({
+                        data: { id: user1.id, account_status: 'active' },
+                        error: null,
+                    }),
+                }),
+            }),
+        }),
+        rpc: async (fn, params) => {
+            assert.equal(fn, 'create_store');
+            assert.equal(params.p_name, 'Tiệm Mới');
+            assert.equal(params.p_business_type, 'fruit_shop');
+            return { data: '55555555-5555-5555-5555-555555555555', error: null };
+        },
+    };
+
+    const correlationId = 'c4000000-0000-4000-8000-000000000004';
+    const handler = createStoreApiHandler({
+        authClientProvider: () => createMockDeps().identity.client(),
+        dbClientProvider: () => mockDb,
+    });
+
+    const req = new Request('https://edge.supabase.co/functions/v1/store-api/stores', {
+        method: 'POST',
+        headers: {
+            authorization: 'Bearer token-user1',
+            'x-correlation-id': correlationId,
+            'content-type': 'application/json',
+        },
+        body: JSON.stringify({ name: 'Tiệm Mới', businessType: 'fruit_shop' }),
+    });
+
+    const res = await handler(req);
+    assert.equal(res.status, 201);
+    const body = await res.json();
+    assert.equal(body.success, true);
+    assert.equal(body.data.storeId, '55555555-5555-5555-5555-555555555555');
+    assert.equal(body.requestId, correlationId);
+});

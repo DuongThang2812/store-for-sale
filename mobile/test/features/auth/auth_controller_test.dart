@@ -24,6 +24,39 @@ class FakeAuthRepository implements AuthRepository {
   Future<String?> getAccessToken() async => user?.accessToken;
 
   @override
+  Future<AuthUser?> signInWithEmail(String email, String password) async {
+    user = AuthUser(id: 'u-email', email: email, accessToken: 'token-email');
+    _controller.add(user);
+    return user;
+  }
+
+  @override
+  Future<AuthUser?> signUpWithEmail(
+    String email,
+    String password, {
+    String? displayName,
+  }) async {
+    user = AuthUser(
+      id: 'u-signup',
+      email: email,
+      displayName: displayName,
+      accessToken: 'token-signup',
+    );
+    _controller.add(user);
+    return user;
+  }
+
+  @override
+  Future<void> signInWithGoogle() async {
+    user = const AuthUser(
+      id: 'u-google',
+      email: 'google@bin.vn',
+      accessToken: 'token-google',
+    );
+    _controller.add(user);
+  }
+
+  @override
   Future<void> signOut() async {
     user = null;
     _controller.add(null);
@@ -49,6 +82,31 @@ class FakeStoreRepository implements StoreRepository {
 
   @override
   Future<List<StoreDto>> getStores() async => stores;
+
+  @override
+  Future<String> createStore({
+    required String name,
+    required String businessType,
+  }) async {
+    final newId = 'store-${stores.length + 1}';
+    final newStore = StoreDto(
+      id: newId,
+      name: name,
+      slug: name.toLowerCase(),
+      role: 'owner',
+      storeType: businessType,
+      currency: 'VND',
+      timezone: 'Asia/Ho_Chi_Minh',
+      permissions: const StorePermissions(
+        canSell: true,
+        canManageInventory: true,
+        canViewReports: true,
+        canManageStaff: true,
+      ),
+    );
+    stores = [...stores, newStore];
+    return newId;
+  }
 
   @override
   Future<StoreDto?> getActiveStore() async => activeStore;
@@ -252,5 +310,62 @@ void main() {
         expect(controller.status, equals(AuthStatus.signedInNeedsStore));
       },
     );
+
+    test(
+      'signInWithEmail transitions to signedInNeedsStore if no store',
+      () async {
+        final authRepo = FakeAuthRepository();
+        final storeRepo = FakeStoreRepository();
+        final controller = AuthController(
+          authRepository: authRepo,
+          storeRepository: storeRepo,
+          config: testConfig,
+        );
+
+        await controller.signInWithEmail('nv@bin.vn', 'password123');
+
+        expect(controller.status, equals(AuthStatus.signedInNeedsStore));
+        expect(controller.user?.email, equals('nv@bin.vn'));
+        expect(controller.error, isNull);
+      },
+    );
+
+    test(
+      'signUpWithEmail sets user and transitions to signedInNeedsStore',
+      () async {
+        final authRepo = FakeAuthRepository();
+        final storeRepo = FakeStoreRepository();
+        final controller = AuthController(
+          authRepository: authRepo,
+          storeRepository: storeRepo,
+          config: testConfig,
+        );
+
+        await controller.signUpWithEmail(
+          'new@bin.vn',
+          'password123',
+          displayName: 'Chủ Tiệm Mới',
+        );
+
+        expect(controller.status, equals(AuthStatus.signedInNeedsStore));
+        expect(controller.user?.email, equals('new@bin.vn'));
+        expect(controller.user?.displayName, equals('Chủ Tiệm Mới'));
+      },
+    );
+
+    test('signInWithGoogle updates user session', () async {
+      final authRepo = FakeAuthRepository();
+      final storeRepo = FakeStoreRepository();
+      final controller = AuthController(
+        authRepository: authRepo,
+        storeRepository: storeRepo,
+        config: testConfig,
+      );
+
+      await controller.signInWithGoogle();
+
+      expect(controller.user?.email, equals('google@bin.vn'));
+      expect(controller.status, equals(AuthStatus.signedInNeedsStore));
+    });
   });
 }

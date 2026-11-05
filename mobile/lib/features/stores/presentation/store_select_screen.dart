@@ -7,6 +7,7 @@ import '../../../core/widgets/app_loading_view.dart';
 import '../../auth/presentation/auth_controller.dart';
 import '../domain/store_models.dart';
 import 'store_controller.dart';
+import 'store_setup_screen.dart';
 
 /// Màn hình Chọn/Thiết lập cửa hàng.
 ///
@@ -48,6 +49,20 @@ class _StoreSelectScreenState extends State<StoreSelectScreen> {
         title: const Text('Chọn cửa hàng làm việc'),
         actions: [
           IconButton(
+            icon: const Icon(Icons.add_business_rounded),
+            tooltip: 'Tạo cửa hàng mới',
+            onPressed: () {
+              Navigator.of(context).push(
+                MaterialPageRoute(
+                  builder: (_) => StoreSetupScreen(
+                    authController: widget.authController,
+                    storeController: widget.storeController,
+                  ),
+                ),
+              );
+            },
+          ),
+          IconButton(
             icon: const Icon(Icons.logout_rounded),
             tooltip: 'Đăng xuất',
             onPressed: () => widget.authController.signOut(),
@@ -78,11 +93,20 @@ class _StoreSelectScreenState extends State<StoreSelectScreen> {
               return AppEmptyView(
                 title: 'Chưa có cửa hàng nào',
                 message:
-                    'Tài khoản (${user?.email ?? "chưa xác định"}) chưa được gán vào cửa hàng nào.\n'
-                    'Vui lòng truy cập web để tạo cửa hàng mới hoặc liên hệ chủ cửa hàng để được thêm quyền.',
+                    'Tài khoản (${user?.email ?? "chưa xác định"}) chưa thuộc cửa hàng nào.\n'
+                    'Bạn có thể tạo cửa hàng mới ngay bây giờ để bắt đầu bán hàng.',
                 icon: Icons.store_outlined,
-                actionLabel: 'Tải lại danh sách',
-                onAction: () => ctrl.loadStores(),
+                actionLabel: 'Tạo cửa hàng mới',
+                onAction: () {
+                  Navigator.of(context).push(
+                    MaterialPageRoute(
+                      builder: (_) => StoreSetupScreen(
+                        authController: widget.authController,
+                        storeController: widget.storeController,
+                      ),
+                    ),
+                  );
+                },
               );
             }
 

@@ -50,6 +50,17 @@ class SimpleAuthRepo implements AuthRepository {
   @override
   Future<String?> getAccessToken() async => null;
   @override
+  Future<AuthUser?> signInWithEmail(String email, String password) async =>
+      null;
+  @override
+  Future<AuthUser?> signUpWithEmail(
+    String email,
+    String password, {
+    String? displayName,
+  }) async => null;
+  @override
+  Future<void> signInWithGoogle() async {}
+  @override
   Future<void> signOut() async {}
   @override
   void dispose() {}
@@ -58,6 +69,11 @@ class SimpleAuthRepo implements AuthRepository {
 class SimpleStoreRepo implements StoreRepository {
   @override
   Future<List<StoreDto>> getStores() async => [];
+  @override
+  Future<String> createStore({
+    required String name,
+    required String businessType,
+  }) async => 'new-store-1';
   @override
   Future<StoreDto?> getActiveStore() async => null;
   @override

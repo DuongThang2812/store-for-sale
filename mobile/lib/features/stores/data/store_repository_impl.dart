@@ -35,6 +35,39 @@ class StoreRepositoryImpl implements StoreRepository {
   }
 
   @override
+  Future<String> createStore({
+    required String name,
+    required String businessType,
+  }) async {
+    final response = await apiClient.post<Map<String, dynamic>>(
+      '/stores',
+      body: {'name': name.trim(), 'businessType': businessType},
+      parser: (dynamic dataJson) {
+        if (dataJson is Map<String, dynamic>) return dataJson;
+        return <String, dynamic>{};
+      },
+    );
+
+    if (!response.success || response.data == null) {
+      throw response.error ??
+          const AppError(
+            code: 'INTERNAL_ERROR',
+            message: 'Không thể tạo cửa hàng mới.',
+          );
+    }
+
+    final storeId = response.data!['storeId'] as String?;
+    if (storeId == null || storeId.isEmpty) {
+      throw const AppError(
+        code: 'INTERNAL_ERROR',
+        message: 'Máy chủ không trả về mã cửa hàng hợp lệ.',
+      );
+    }
+
+    return storeId;
+  }
+
+  @override
   Future<StoreDto?> getActiveStore() async {
     return _activeStore;
   }

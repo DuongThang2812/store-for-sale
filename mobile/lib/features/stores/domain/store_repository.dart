@@ -6,6 +6,12 @@ abstract class StoreRepository {
   /// Lấy danh sách cửa hàng của người dùng hiện tại từ API/Edge Function
   Future<List<StoreDto>> getStores();
 
+  /// Tạo cửa hàng mới qua Backend / RPC create_store
+  Future<String> createStore({
+    required String name,
+    required String businessType,
+  });
+
   /// Lấy cửa hàng đang được kích hoạt trong phiên làm việc
   Future<StoreDto?> getActiveStore();
 

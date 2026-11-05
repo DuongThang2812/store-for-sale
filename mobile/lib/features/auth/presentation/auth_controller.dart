@@ -77,6 +77,77 @@ class AuthController extends ChangeNotifier {
     notifyListeners();
   }
 
+  /// Đăng nhập bằng Email và Mật khẩu
+  Future<void> signInWithEmail(String email, String password) async {
+    _status = AuthStatus.checking;
+    _error = null;
+    notifyListeners();
+
+    try {
+      final u = await authRepository.signInWithEmail(email, password);
+      _user = u;
+      final activeStore = await storeRepository.getActiveStore();
+      if (activeStore != null) {
+        _status = AuthStatus.ready;
+      } else {
+        _status = AuthStatus.signedInNeedsStore;
+      }
+    } catch (e) {
+      _status = AuthStatus.signedOut;
+      _error = AppError.fromException(e);
+    }
+
+    notifyListeners();
+  }
+
+  /// Đăng ký tài khoản mới bằng Email và Mật khẩu
+  Future<void> signUpWithEmail(
+    String email,
+    String password, {
+    String? displayName,
+  }) async {
+    _status = AuthStatus.checking;
+    _error = null;
+    notifyListeners();
+
+    try {
+      final u = await authRepository.signUpWithEmail(
+        email,
+        password,
+        displayName: displayName,
+      );
+      _user = u;
+      _status = AuthStatus.signedInNeedsStore;
+    } catch (e) {
+      _status = AuthStatus.signedOut;
+      _error = AppError.fromException(e);
+    }
+
+    notifyListeners();
+  }
+
+  /// Khởi chạy luồng đăng nhập Google OAuth
+  Future<void> signInWithGoogle() async {
+    _error = null;
+    try {
+      await authRepository.signInWithGoogle();
+      final current = await authRepository.getCurrentUser();
+      if (current != null) {
+        _user = current;
+        final activeStore = await storeRepository.getActiveStore();
+        if (activeStore != null) {
+          _status = AuthStatus.ready;
+        } else {
+          _status = AuthStatus.signedInNeedsStore;
+        }
+        notifyListeners();
+      }
+    } catch (e) {
+      _error = AppError.fromException(e);
+      notifyListeners();
+    }
+  }
+
   /// Lắng nghe thay đổi phiên từ Repository
   Future<void> _handleAuthChange(AuthUser? newUser) async {
     final previousUser = _user;

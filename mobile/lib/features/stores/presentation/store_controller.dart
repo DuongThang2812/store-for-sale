@@ -52,6 +52,55 @@ class StoreController extends ChangeNotifier {
     notifyListeners();
   }
 
+  /// Tạo cửa hàng mới qua Backend / RPC
+  Future<StoreDto?> createStore({
+    required String name,
+    required String businessType,
+  }) async {
+    _isLoading = true;
+    _error = null;
+    notifyListeners();
+
+    try {
+      final newId = await storeRepository.createStore(
+        name: name,
+        businessType: businessType,
+      );
+      await loadStores();
+
+      final created = _stores.firstWhere(
+        (s) => s.id == newId,
+        orElse: () => StoreDto(
+          id: newId,
+          name: name,
+          slug: name.toLowerCase().replaceAll(RegExp(r'\s+'), '-'),
+          role: 'owner',
+          storeType: businessType,
+          currency: 'VND',
+          timezone: 'Asia/Ho_Chi_Minh',
+          permissions: const StorePermissions(
+            canSell: true,
+            canManageInventory: true,
+            canViewReports: true,
+            canManageStaff: true,
+          ),
+        ),
+      );
+
+      await selectStore(created);
+      return created;
+    } on AppError catch (e) {
+      _error = e;
+      return null;
+    } catch (e) {
+      _error = AppError.fromException(e);
+      return null;
+    } finally {
+      _isLoading = false;
+      notifyListeners();
+    }
+  }
+
   /// Xóa cửa hàng đang chọn
   Future<void> clearStore() async {
     await storeRepository.clearActiveStore();

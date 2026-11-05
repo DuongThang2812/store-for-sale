@@ -45,7 +45,10 @@ class AppRouter extends StatelessWidget {
             return const SplashScreen();
 
           case AuthStatus.signedOut:
-            return LoginScreen(authRepository: authRepository);
+            return LoginScreen(
+              authRepository: authRepository,
+              authController: authController,
+            );
 
           case AuthStatus.signedInNeedsStore:
             return StoreSelectScreen(
