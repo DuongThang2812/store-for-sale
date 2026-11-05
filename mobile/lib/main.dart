@@ -8,6 +8,9 @@ import 'features/auth/data/auth_repository_impl.dart';
 import 'features/auth/data/supabase_auth_repository.dart';
 import 'features/auth/domain/auth_repository.dart';
 import 'features/auth/presentation/auth_controller.dart';
+import 'features/sales/data/mock_sales_repository.dart';
+import 'features/sales/data/sales_repository_impl.dart';
+import 'features/sales/domain/sales_repository.dart';
 import 'features/stores/data/store_repository_impl.dart';
 import 'features/stores/presentation/store_controller.dart';
 
@@ -18,6 +21,7 @@ void main() async {
   final config = AppConfig.fromEnvironment();
 
   AuthRepository authRepository;
+  SalesRepository salesRepository;
 
   if (config.isConfigured) {
     try {
@@ -26,14 +30,23 @@ void main() async {
         // ignore: deprecated_member_use
         anonKey: config.supabaseAnonKey,
       );
-      authRepository = SupabaseAuthRepository(
-        supabaseClient: Supabase.instance.client,
+      final client = Supabase.instance.client;
+      authRepository = SupabaseAuthRepository(supabaseClient: client);
+      final clientApi = ApiClient(
+        config: config,
+        tokenProvider: authRepository.getAccessToken,
+      );
+      salesRepository = SalesRepositoryImpl(
+        supabaseClient: client,
+        apiClient: clientApi,
       );
     } catch (_) {
       authRepository = AuthRepositoryImpl();
+      salesRepository = MockSalesRepository();
     }
   } else {
     authRepository = AuthRepositoryImpl();
+    salesRepository = MockSalesRepository();
   }
 
   final apiClient = ApiClient(
@@ -61,6 +74,7 @@ void main() async {
       apiClient: apiClient,
       authRepository: authRepository,
       storeRepository: storeRepository,
+      salesRepository: salesRepository,
       authController: authController,
       storeController: storeController,
     ),

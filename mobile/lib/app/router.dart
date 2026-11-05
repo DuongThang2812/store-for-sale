@@ -8,6 +8,7 @@ import '../features/auth/presentation/auth_controller.dart';
 import '../features/auth/presentation/login_screen.dart';
 import '../features/auth/presentation/splash_screen.dart';
 import '../features/home/presentation/home_screen.dart';
+import '../features/sales/domain/sales_repository.dart';
 import '../features/stores/presentation/store_controller.dart';
 import '../features/stores/presentation/store_select_screen.dart';
 
@@ -24,12 +25,14 @@ class AppRouter extends StatelessWidget {
   final AuthController authController;
   final StoreController storeController;
   final AuthRepository authRepository;
+  final SalesRepository? salesRepository;
 
   const AppRouter({
     super.key,
     required this.authController,
     required this.storeController,
     required this.authRepository,
+    this.salesRepository,
   });
 
   @override
@@ -60,6 +63,7 @@ class AppRouter extends StatelessWidget {
             return HomeScreen(
               authController: authController,
               storeController: storeController,
+              salesRepository: salesRepository,
             );
 
           case AuthStatus.error:

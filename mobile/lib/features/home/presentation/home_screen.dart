@@ -2,31 +2,61 @@ import 'package:flutter/material.dart';
 
 import '../../../core/widgets/app_button.dart';
 import '../../auth/presentation/auth_controller.dart';
+import '../../debt/presentation/debt_controller.dart';
+import '../../debt/presentation/debt_screen.dart';
+import '../../history/presentation/history_controller.dart';
+import '../../history/presentation/history_screen.dart';
+import '../../sales/data/mock_sales_repository.dart';
+import '../../sales/domain/sales_repository.dart';
+import '../../sales/presentation/pos_controller.dart';
+import '../../sales/presentation/pos_screen.dart';
 import '../../stores/presentation/store_controller.dart';
 
-/// Màn hình Trang chủ (Khung nền tảng Phần 2).
+/// Màn hình Trang chủ Tạp hóa BIN.
 ///
-/// Hiển thị tên cửa hàng thật đã được chọn và thông tin phiên làm việc.
-/// TUYỆT ĐỐI KHÔNG hiển thị số liệu doanh thu/tồn kho/công nợ giả để tránh sai lệch dữ liệu.
+/// Quản lý trung tâm điều hướng các phân hệ nghiệp vụ:
+/// - POS Bán hàng (Phần 4)
+/// - Sổ nợ & Thu nợ khách hàng (Phần 4)
+/// - Nhật ký giao dịch (Phần 4)
+/// - Nhập hàng, Kiểm kho & Báo cáo doanh thu (Phần 5)
 class HomeScreen extends StatelessWidget {
   final AuthController authController;
   final StoreController storeController;
+  final SalesRepository salesRepository;
 
-  const HomeScreen({
+  HomeScreen({
     super.key,
     required this.authController,
     required this.storeController,
-  });
+    SalesRepository? salesRepository,
+  }) : salesRepository = salesRepository ?? MockSalesRepository();
 
   @override
   Widget build(BuildContext context) {
     final store = storeController.selectedStore;
     final user = authController.user;
+    final storeId = store?.id ?? 'default-store';
 
     return Scaffold(
       appBar: AppBar(
         title: Text(store?.name ?? 'Tạp hóa BIN'),
         actions: [
+          IconButton(
+            icon: const Icon(Icons.history_rounded),
+            tooltip: 'Nhật ký giao dịch',
+            onPressed: () {
+              Navigator.of(context).push(
+                MaterialPageRoute(
+                  builder: (_) => HistoryScreen(
+                    historyController: HistoryController(
+                      salesRepository: salesRepository,
+                      storeId: storeId,
+                    ),
+                  ),
+                ),
+              );
+            },
+          ),
           IconButton(
             icon: const Icon(Icons.swap_horiz_rounded),
             tooltip: 'Đổi cửa hàng',
@@ -125,40 +155,6 @@ class HomeScreen extends StatelessWidget {
 
               const SizedBox(height: 20),
 
-              // Thông báo trạng thái phát triển
-              Container(
-                padding: const EdgeInsets.all(14),
-                decoration: BoxDecoration(
-                  color: const Color(0xFFEFF6FF),
-                  borderRadius: BorderRadius.circular(10),
-                  border: Border.all(color: const Color(0xFFBFDBFE)),
-                ),
-                child: const Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Icon(
-                      Icons.developer_board_rounded,
-                      color: Color(0xFF2563EB),
-                      size: 20,
-                    ),
-                    SizedBox(width: 10),
-                    Expanded(
-                      child: Text(
-                        'Phần 2: Khung nền tảng đã sẵn sàng kết nối API chung.\n'
-                        'Nghiệp vụ Bán hàng, Trừ kho và Quản lý nợ sẽ được nối Backend ở các phần sau.',
-                        style: TextStyle(
-                          fontSize: 13,
-                          color: Color(0xFF1E40AF),
-                          height: 1.4,
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-
-              const SizedBox(height: 24),
-
               const Text(
                 'Chức năng nghiệp vụ',
                 style: TextStyle(
@@ -169,37 +165,113 @@ class HomeScreen extends StatelessWidget {
               ),
               const SizedBox(height: 12),
 
-              // Các khối chức năng chuẩn bị kết nối ở Phần 3 & 4
-              _buildFeatureTile(
-                context,
+              // Bán hàng (POS)
+              _buildFeatureCard(
                 title: 'Bán hàng (POS)',
-                subtitle: 'Tạo đơn, tính tiền, in hóa đơn (Phần 4)',
+                subtitle: 'Tìm hàng, quét mã, giỏ hàng, tiền mặt / ghi nợ',
                 icon: Icons.point_of_sale_rounded,
                 iconColor: const Color(0xFF059669),
+                statusBadge: 'Sẵn sàng',
+                badgeColor: const Color(0xFF059669),
+                onTap: () {
+                  Navigator.of(context).push(
+                    MaterialPageRoute(
+                      builder: (_) => PosScreen(
+                        posController: PosController(
+                          salesRepository: salesRepository,
+                          storeId: storeId,
+                        ),
+                      ),
+                    ),
+                  );
+                },
               ),
               const SizedBox(height: 10),
-              _buildFeatureTile(
-                context,
-                title: 'Kiểm kho & Nhập hàng',
-                subtitle: 'Quản lý số lượng và đơn vị quy đổi (Phần 4)',
-                icon: Icons.inventory_2_outlined,
-                iconColor: const Color(0xFFD97706),
-              ),
-              const SizedBox(height: 10),
-              _buildFeatureTile(
-                context,
+
+              // Sổ nợ khách hàng
+              _buildFeatureCard(
                 title: 'Sổ nợ khách hàng',
-                subtitle: 'Ghi nợ và thu nợ từng phần (Phần 4)',
+                subtitle: 'Theo dõi dư nợ và thu nợ từng phần atomic',
                 icon: Icons.book_outlined,
                 iconColor: const Color(0xFFDC2626),
+                statusBadge: 'Sẵn sàng',
+                badgeColor: const Color(0xFFDC2626),
+                onTap: () {
+                  Navigator.of(context).push(
+                    MaterialPageRoute(
+                      builder: (_) => DebtScreen(
+                        debtController: DebtController(
+                          salesRepository: salesRepository,
+                          storeId: storeId,
+                        ),
+                      ),
+                    ),
+                  );
+                },
               ),
               const SizedBox(height: 10),
-              _buildFeatureTile(
-                context,
-                title: 'Báo cáo doanh thu',
-                subtitle: 'Xem doanh số theo ngày/tháng (Phần 5)',
-                icon: Icons.bar_chart_rounded,
+
+              // Nhật ký hoạt động
+              _buildFeatureCard(
+                title: 'Nhật ký giao dịch',
+                subtitle: 'Dòng thời gian các đơn bán hàng và thu tiền nợ',
+                icon: Icons.receipt_long_rounded,
                 iconColor: const Color(0xFF2563EB),
+                statusBadge: 'Sẵn sàng',
+                badgeColor: const Color(0xFF2563EB),
+                onTap: () {
+                  Navigator.of(context).push(
+                    MaterialPageRoute(
+                      builder: (_) => HistoryScreen(
+                        historyController: HistoryController(
+                          salesRepository: salesRepository,
+                          storeId: storeId,
+                        ),
+                      ),
+                    ),
+                  );
+                },
+              ),
+              const SizedBox(height: 10),
+
+              // Kiểm kho & Nhập hàng (Phần 5)
+              _buildFeatureCard(
+                title: 'Kiểm kho & Nhập hàng',
+                subtitle: 'Hao hụt, kiểm kê, đơn vị quy đổi (Phần 5)',
+                icon: Icons.inventory_2_outlined,
+                iconColor: const Color(0xFFD97706),
+                statusBadge: 'Phần 5',
+                badgeColor: const Color(0xFF64748B),
+                onTap: () {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                      content: Text(
+                        'Chức năng kiểm kho & nhập hàng nằm ở Phần 5.',
+                      ),
+                      duration: Duration(seconds: 1),
+                    ),
+                  );
+                },
+              ),
+              const SizedBox(height: 10),
+
+              // Báo cáo doanh thu (Phần 5)
+              _buildFeatureCard(
+                title: 'Báo cáo doanh thu & Lãi lỗ',
+                subtitle:
+                    'Doanh thu, giá vốn, lợi nhuận server-computed (Phần 5)',
+                icon: Icons.bar_chart_rounded,
+                iconColor: const Color(0xFF7C3AED),
+                statusBadge: 'Phần 5',
+                badgeColor: const Color(0xFF64748B),
+                onTap: () {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                      content: Text('Chức năng báo cáo quản trị nằm ở Phần 5.'),
+                      duration: Duration(seconds: 1),
+                    ),
+                  );
+                },
               ),
 
               const SizedBox(height: 28),
@@ -220,12 +292,14 @@ class HomeScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildFeatureTile(
-    BuildContext context, {
+  Widget _buildFeatureCard({
     required String title,
     required String subtitle,
     required IconData icon,
     required Color iconColor,
+    required String statusBadge,
+    required Color badgeColor,
+    required VoidCallback onTap,
   }) {
     return Card(
       elevation: 0,
@@ -253,28 +327,19 @@ class HomeScreen extends StatelessWidget {
         trailing: Container(
           padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
           decoration: BoxDecoration(
-            color: const Color(0xFFF1F5F9),
+            color: badgeColor.withValues(alpha: 0.1),
             borderRadius: BorderRadius.circular(6),
           ),
-          child: const Text(
-            'Phần sau',
+          child: Text(
+            statusBadge,
             style: TextStyle(
               fontSize: 11,
               fontWeight: FontWeight.w600,
-              color: Color(0xFF64748B),
+              color: badgeColor,
             ),
           ),
         ),
-        onTap: () {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text(
-                '$title sẽ được kết nối Backend API ở Phần 3 và 4.',
-              ),
-              duration: const Duration(seconds: 2),
-            ),
-          );
-        },
+        onTap: onTap,
       ),
     );
   }

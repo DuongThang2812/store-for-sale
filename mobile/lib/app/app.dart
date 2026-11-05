@@ -4,6 +4,7 @@ import '../core/config/app_config.dart';
 import '../core/network/api_client.dart';
 import '../features/auth/domain/auth_repository.dart';
 import '../features/auth/presentation/auth_controller.dart';
+import '../features/sales/domain/sales_repository.dart';
 import '../features/stores/domain/store_repository.dart';
 import '../features/stores/presentation/store_controller.dart';
 import 'router.dart';
@@ -15,6 +16,7 @@ class TapHoaBinApp extends StatelessWidget {
   final ApiClient apiClient;
   final AuthRepository authRepository;
   final StoreRepository storeRepository;
+  final SalesRepository? salesRepository;
   final AuthController authController;
   final StoreController storeController;
 
@@ -26,6 +28,7 @@ class TapHoaBinApp extends StatelessWidget {
     required this.storeRepository,
     required this.authController,
     required this.storeController,
+    this.salesRepository,
   });
 
   @override
@@ -38,6 +41,7 @@ class TapHoaBinApp extends StatelessWidget {
         authController: authController,
         storeController: storeController,
         authRepository: authRepository,
+        salesRepository: salesRepository,
       ),
     );
   }
