@@ -22,6 +22,18 @@ export function createAuthService(clientProvider = getSupabaseClient) {
         async signIn(input) {
             return unwrap(auth().signInWithPassword(credentials(input)));
         },
+        async signInWithGoogle(options = {}) {
+            const origin = typeof window !== 'undefined' && window.location?.origin ? window.location.origin : '';
+            const redirectTo = options.redirectTo || `${origin}/auth/callback`;
+            const { redirectTo: _ignored, ...extraOptions } = options;
+            return unwrap(auth().signInWithOAuth({
+                provider: 'google',
+                options: {
+                    redirectTo,
+                    ...extraOptions,
+                },
+            }));
+        },
         async getSession() {
             // For UI/session lifecycle only. Authorization is enforced by RLS/RPC.
             return (await unwrap(auth().getSession())).session;
@@ -56,3 +68,4 @@ export function createAuthService(clientProvider = getSupabaseClient) {
 }
 
 export const authService = createAuthService();
+export const signInWithGoogle = (options) => authService.signInWithGoogle(options);

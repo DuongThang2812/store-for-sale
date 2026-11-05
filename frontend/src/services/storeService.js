@@ -16,12 +16,25 @@ export function createStoreService(clientProvider = getSupabaseClient) {
     const service = {
         async getProfile(confirmedUser = null) {
             const user = confirmedUser ?? await requireUser();
-            const row = await unwrap(clientProvider().from('profiles').select('id,display_name,account_status')
+            let row = await unwrap(clientProvider().from('profiles').select('id,display_name,account_status')
                 .eq('id', user.id).maybeSingle());
-            if (!row || row.account_status !== 'active') {
+            if (!row) {
+                // Short wait to handle Postgres trigger race condition on first OAuth signup
+                await new Promise(r => setTimeout(r, 350));
+                row = await unwrap(clientProvider().from('profiles').select('id,display_name,account_status')
+                    .eq('id', user.id).maybeSingle());
+            }
+            if (row && row.account_status !== 'active') {
                 throw new Error('Tài khoản đã bị tạm khóa. Vui lòng liên hệ quản trị viên.');
             }
-            return { id: user.id, name: row?.display_name || user.user_metadata?.name || user.email?.split('@')[0] || 'Chủ tiệm' };
+            return {
+                id: user.id,
+                name: row?.display_name
+                    || user.user_metadata?.full_name
+                    || user.user_metadata?.name
+                    || user.email?.split('@')[0]
+                    || 'Chủ tiệm',
+            };
         },
         async listStores(confirmedUser = null) {
             const user = confirmedUser ?? await requireUser();
