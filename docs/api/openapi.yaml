@@ -1,0 +1,370 @@
+openapi: 3.0.3
+info:
+  title: Tạp Hóa BIN - Shared Core API
+  description: >
+    API dùng chung cho React Web (Cloudflare Pages) và Mobile App (Flutter).
+    Toàn bộ nghiệp vụ tính tiền, quản lý tồn kho và công nợ được xử lý tập trung
+    trên Backend/PostgreSQL RPC. Client chỉ gửi intent và nhận DTO chuẩn hóa.
+  version: 1.0.0
+  contact:
+    name: Kỹ thuật Tạp hóa BIN
+    url: https://tap-hoa-bin.pages.dev
+
+servers:
+  - url: https://skakrjcahinmzcwaowxc.supabase.co/functions/v1/store-api
+    description: Production Supabase Edge Functions (Zero-cost serverless runtime)
+  - url: http://127.0.0.1:8080/api/v1
+    description: Local Development / Node Gateway
+
+security:
+  - BearerAuth: []
+
+paths:
+  /stores:
+    get:
+      summary: Lấy danh sách cửa hàng mà người dùng là thành viên
+      description: >
+        [ĐÃ TRIỂN KHAI VÀ KIỂM THỬ TRONG PHẦN 1]
+        Xác thực Supabase access token từ header Authorization: Bearer <token>.
+        Kiểm tra trạng thái tài khoản active trong profiles và trả về danh sách
+        cửa hàng cùng quyền hạn cụ thể (StorePermissions). Nếu người dùng mới
+        chưa có cửa hàng, trả về mảng rỗng [] để client điều hướng tạo cửa hàng.
+      operationId: getStores
+      tags:
+        - Stores
+      parameters:
+        - in: header
+          name: x-correlation-id
+          schema:
+            type: string
+            format: uuid
+          required: false
+          description: Mã định danh yêu cầu truy vết xuyên suốt hệ thống
+      responses:
+        '200':
+          description: Danh sách cửa hàng hợp lệ
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StoreListResponse'
+        '401':
+          description: Chưa đăng nhập hoặc token đã hết hạn
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorEnvelope'
+              examples:
+                unauthorized:
+                  value:
+                    success: false
+                    error:
+                      code: UNAUTHORIZED
+                      message: Phiên đăng nhập không hợp lệ hoặc đã hết hạn.
+                      details: null
+                    requestId: c1000000-0000-4000-8000-000000000001
+        '403':
+          description: Tài khoản bị vô hiệu hóa
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorEnvelope'
+        '500':
+          description: Lỗi máy chủ nội bộ (không để lộ chi tiết kỹ thuật)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorEnvelope'
+
+  /sales/checkout:
+    post:
+      summary: Thực hiện giao dịch bán hàng (Bản nháp kiến trúc Phần 2 - Intent only)
+      description: >
+        [DỰ KIẾN PHẦN 2] Client gửi ý định mua hàng (mã sản phẩm, đơn vị, số lượng,
+        tiền khách đưa). Backend tính toán thành tiền, cập nhật kho, ghi hóa đơn
+        trong một giao dịch nguyên tử. Client KHÔNG tự tính tổng tiền.
+      operationId: checkoutSale
+      tags:
+        - Sales
+      parameters:
+        - in: header
+          name: Idempotency-Key
+          required: true
+          schema:
+            type: string
+            format: uuid
+          description: Khóa chống trùng lặp giao dịch khi rớt mạng hoặc người dùng bấm nhiều lần
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CheckoutIntentRequest'
+      responses:
+        '200':
+          description: Bán hàng thành công, trả về hóa đơn đã tạo
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SaleResponseEnvelope'
+        '400':
+          description: Dữ liệu không hợp lệ hoặc không đủ tồn kho
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorEnvelope'
+
+  /products:
+    get:
+      summary: Lấy danh mục hàng hóa theo cửa hàng
+      description: >
+        [DỰ KIẾN PHẦN 2] Danh sách sản phẩm bao gồm các đơn vị quy đổi (thùng/lốc/gói/kg/lạng),
+        giá bán hiện hành do server quản lý.
+      operationId: getProducts
+      tags:
+        - Catalog
+      parameters:
+        - in: query
+          name: storeId
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - in: query
+          name: page
+          schema:
+            type: integer
+            default: 1
+        - in: query
+          name: limit
+          schema:
+            type: integer
+            default: 20
+      responses:
+        '200':
+          description: Danh sách sản phẩm thành công
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProductListResponse'
+
+components:
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: Supabase Access Token được cấp sau khi đăng nhập thành công
+
+  schemas:
+    StorePermissions:
+      type: object
+      required:
+        - canSell
+        - canManageInventory
+        - canViewReports
+        - canManageStaff
+      properties:
+        canSell:
+          type: boolean
+          description: Quyền thực hiện bán hàng
+        canManageInventory:
+          type: boolean
+          description: Quyền nhập hàng, kiểm kho, điều chỉnh số lượng
+        canViewReports:
+          type: boolean
+          description: Quyền xem báo cáo doanh thu, lợi nhuận
+        canManageStaff:
+          type: boolean
+          description: Quyền thêm bớt nhân viên và phân quyền
+
+    StoreDto:
+      type: object
+      required:
+        - id
+        - name
+        - slug
+        - role
+        - storeType
+        - currency
+        - timezone
+        - permissions
+      properties:
+        id:
+          type: string
+          format: uuid
+          description: Khóa chính cửa hàng
+        name:
+          type: string
+          description: Tên hiển thị của cửa hàng
+        slug:
+          type: string
+          description: Mã định danh rút gọn duy nhất
+        role:
+          type: string
+          enum: [owner, staff, manager]
+          description: Vai trò của người dùng hiện tại trong cửa hàng
+        storeType:
+          type: string
+          enum: [groceries, fruits, clothing, general]
+          description: Ngành hàng bán lẻ
+        currency:
+          type: string
+          default: VND
+        timezone:
+          type: string
+          default: Asia/Ho_Chi_Minh
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+        permissions:
+          $ref: '#/components/schemas/StorePermissions'
+
+    StoreListResponse:
+      type: object
+      required:
+        - success
+        - data
+      properties:
+        success:
+          type: boolean
+          example: true
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/StoreDto'
+        requestId:
+          type: string
+          format: uuid
+
+    ErrorDetail:
+      type: object
+      required:
+        - code
+        - message
+      properties:
+        code:
+          type: string
+          example: SESSION_EXPIRED
+        message:
+          type: string
+          example: Phiên đăng nhập không hợp lệ hoặc đã hết hạn.
+        details:
+          type: object
+          nullable: true
+
+    ErrorEnvelope:
+      type: object
+      required:
+        - success
+        - error
+      properties:
+        success:
+          type: boolean
+          example: false
+        error:
+          $ref: '#/components/schemas/ErrorDetail'
+        requestId:
+          type: string
+          format: uuid
+
+    CheckoutItemIntent:
+      type: object
+      required:
+        - productId
+        - unitKey
+        - quantity
+      properties:
+        productId:
+          type: string
+          format: uuid
+        unitKey:
+          type: string
+          example: packet
+        quantity:
+          type: integer
+          minimum: 1
+          example: 2
+
+    CheckoutIntentRequest:
+      type: object
+      required:
+        - storeId
+        - items
+        - paymentMethod
+      properties:
+        storeId:
+          type: string
+          format: uuid
+        customerId:
+          type: string
+          format: uuid
+          nullable: true
+        paymentMethod:
+          type: string
+          enum: [cash, transfer, debt]
+        amountTendered:
+          type: integer
+          description: Số tiền khách đưa (VND nguyên dương). Nếu ghi nợ có thể bằng 0.
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/CheckoutItemIntent'
+
+    SaleResponseEnvelope:
+      type: object
+      required:
+        - success
+        - data
+      properties:
+        success:
+          type: boolean
+          example: true
+        data:
+          type: object
+          properties:
+            invoiceId:
+              type: string
+              format: uuid
+            invoiceCode:
+              type: string
+              example: HD-20261105-001
+            totalAmount:
+              type: integer
+              description: Tổng tiền do server tính toán (VND)
+            changeAmount:
+              type: integer
+              description: Tiền thừa thối lại cho khách (VND)
+            createdAt:
+              type: string
+              format: date-time
+        requestId:
+          type: string
+          format: uuid
+
+    ProductListResponse:
+      type: object
+      required:
+        - success
+        - data
+      properties:
+        success:
+          type: boolean
+        data:
+          type: array
+          items:
+            type: object
+        pagination:
+          type: object
+          properties:
+            page:
+              type: integer
+            limit:
+              type: integer
+            totalRecords:
+              type: integer
+        requestId:
+          type: string
+          format: uuid
