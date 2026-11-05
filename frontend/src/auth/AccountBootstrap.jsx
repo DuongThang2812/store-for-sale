@@ -9,6 +9,31 @@ import { useCloudShopStore } from '../stores/useCloudShopStore.js';
 
 export function AccountBootstrap({ children }) {
     useEffect(() => {
+        if (typeof window !== 'undefined') {
+            const queryParams = new URLSearchParams(window.location.search);
+            const hash = window.location.hash.startsWith('#')
+                ? window.location.hash.slice(1)
+                : window.location.hash;
+            const hashParams = new URLSearchParams(hash);
+
+            const errorCode = queryParams.get('error_code') || hashParams.get('error_code');
+            const errorParam = queryParams.get('error') || hashParams.get('error');
+            const errorDesc = queryParams.get('error_description') || hashParams.get('error_description');
+
+            if (errorCode === 'otp_expired' || errorParam === 'access_denied' || (errorDesc && errorDesc.toLowerCase().includes('expired'))) {
+                if (window.location.pathname !== '/login' && window.location.pathname !== '/reset-password') {
+                    window.location.replace('/login?mode=forgot' + (window.location.hash || ''));
+                    return;
+                }
+            }
+
+            const type = queryParams.get('type') || hashParams.get('type');
+            if (type === 'recovery' && window.location.pathname !== '/reset-password') {
+                window.location.replace('/reset-password' + (window.location.hash || ''));
+                return;
+            }
+        }
+
         if (!getSupabaseConfigurationStatus().configured) {
             accountSession.signedOut();
             return;

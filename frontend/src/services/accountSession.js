@@ -60,10 +60,16 @@ export function createAccountSessionController({ auth = authService, stores = st
     const handleAuthEvent = (event, session) => {
         if (event === 'INITIAL_SESSION') return;
         if (event === 'SIGNED_OUT' || !session?.user?.id) { signedOut(); return; }
+        if (event === 'PASSWORD_RECOVERY') {
+            if (typeof window !== 'undefined' && window.location?.pathname && window.location.pathname !== '/reset-password') {
+                window.location.replace('/reset-password');
+            }
+            return;
+        }
         const state = account.getState();
         if ((event === 'SIGNED_IN' || event === 'TOKEN_REFRESHED') && state.authLoading) return;
         if ((event === 'SIGNED_IN' || event === 'TOKEN_REFRESHED') && state.ready && state.user?.id === session.user.id) return;
-        if (['SIGNED_IN', 'TOKEN_REFRESHED', 'USER_UPDATED', 'PASSWORD_RECOVERY'].includes(event)) {
+        if (['SIGNED_IN', 'TOKEN_REFRESHED', 'USER_UPDATED'].includes(event)) {
             queueMicrotask(() => { void refresh(); });
         }
     };

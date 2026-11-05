@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { ArrowRight, Eye, EyeOff, Leaf, Store, CheckCircle2, ShieldCheck } from 'lucide-react';
 import { AnimatePresence, motion } from 'motion/react';
@@ -24,23 +24,70 @@ function GoogleIcon() {
     );
 }
 
+function getInitialRecoveryError() {
+    if (typeof window === 'undefined') return '';
+    const queryParams = new URLSearchParams(window.location.search);
+    const hash = window.location.hash.startsWith('#')
+        ? window.location.hash.slice(1)
+        : window.location.hash;
+    const hashParams = new URLSearchParams(hash);
+    const errorCode = queryParams.get('error_code') || hashParams.get('error_code');
+    const errorParam = queryParams.get('error') || hashParams.get('error');
+    const errorDesc = queryParams.get('error_description') || hashParams.get('error_description');
+
+    if (errorCode === 'otp_expired' || errorParam === 'access_denied' || (errorDesc && errorDesc.toLowerCase().includes('expired'))) {
+        return 'Liên kết đặt lại mật khẩu đã hết hạn hoặc không còn hiệu lực. Vui lòng nhập email bên dưới để nhận liên kết mới.';
+    }
+    return '';
+}
+
 export function LoginPage({ initialMode = 'login' }) {
     useDocumentTitle();
     const navigate = useNavigate();
     const [params] = useSearchParams();
     const afterLogin = params.get('next') === 'admin' ? '/admin' : '/';
     const queryMode = params.get('mode');
-    const [mode, setMode] = useState(queryMode === 'register' || initialMode === 'register' ? 'register' : 'login');
+    const initialRecoveryError = getInitialRecoveryError();
+    const initial = initialRecoveryError || queryMode === 'forgot'
+        ? 'forgot'
+        : queryMode === 'register' || initialMode === 'register'
+            ? 'register'
+            : 'login';
+    const [mode, setMode] = useState(initial);
     const [show, setShow] = useState(false);
     const [name, setName] = useState('');
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [repeat, setRepeat] = useState('');
-    const [message, setMessage] = useState('');
+    const [message, setMessage] = useState(initialRecoveryError);
     const [busy, setBusy] = useState(false);
     const [googleBusy, setGoogleBusy] = useState(false);
     const [googleError, setGoogleError] = useState('');
     const configuration = getSupabaseConfigurationStatus();
+
+    useEffect(() => {
+        if (typeof window === 'undefined') return;
+        const queryParams = new URLSearchParams(window.location.search);
+        const hash = window.location.hash.startsWith('#')
+            ? window.location.hash.slice(1)
+            : window.location.hash;
+        const hashParams = new URLSearchParams(hash);
+
+        // 1. Detect if recovery token landed on /login (e.g. link without redirect_to)
+        const type = queryParams.get('type') || hashParams.get('type');
+        if (type === 'recovery') {
+            navigate('/reset-password' + (window.location.hash || ''), { replace: true });
+            return;
+        }
+
+        // 2. Clean hash if expired error was present in hash
+        const errorCode = queryParams.get('error_code') || hashParams.get('error_code');
+        const errorParam = queryParams.get('error') || hashParams.get('error');
+        const errorDesc = queryParams.get('error_description') || hashParams.get('error_description');
+        if ((errorCode === 'otp_expired' || errorParam === 'access_denied' || (errorDesc && errorDesc.toLowerCase().includes('expired'))) && window.location.hash) {
+            window.history.replaceState(null, '', window.location.pathname + window.location.search);
+        }
+    }, [navigate]);
 
     function switchMode(next) {
         setMode(next);
@@ -90,7 +137,22 @@ export function LoginPage({ initialMode = 'login' }) {
                 if (!useAccountStore.getState().user) throw new Error('Account context unavailable');
                 navigate(afterLogin, { replace: true });
             }
-        } catch (error) { setMessage(mode === 'forgot' ? 'Nếu email tồn tại trong hệ thống, hướng dẫn đặt lại mật khẩu sẽ được gửi.' : accountErrorMessage(error, mode === 'register' ? 'signup' : 'login')); }
+        } catch (error) {
+            if (mode === 'forgot') {
+                const status = error?.status || error?.statusCode;
+                const msg = (error?.message || '').toLowerCase();
+                const code = error?.code || '';
+                if (status === 429 || code === 'over_email_send_rate_limit' || msg.includes('rate') || msg.includes('once every') || msg.includes('too many')) {
+                    setMessage('Bạn đã yêu cầu gửi email quá nhiều lần. Vì lý do an toàn, vui lòng chờ 1–2 phút rồi thử lại.');
+                } else if (msg.includes('network') || msg.includes('fetch') || msg.includes('timeout')) {
+                    setMessage('Không thể kết nối đến máy chủ xác thực. Vui lòng kiểm tra kết nối mạng và thử lại.');
+                } else {
+                    setMessage(accountErrorMessage(error, 'reset'));
+                }
+            } else {
+                setMessage(accountErrorMessage(error, mode === 'register' ? 'signup' : 'login'));
+            }
+        }
         finally { setPassword(''); setRepeat(''); setBusy(false); }
     }
 

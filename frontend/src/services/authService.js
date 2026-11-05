@@ -38,6 +38,11 @@ export function createAuthService(clientProvider = getSupabaseClient) {
             // For UI/session lifecycle only. Authorization is enforced by RLS/RPC.
             return (await unwrap(auth().getSession())).session;
         },
+        async exchangeCodeForSession(code) {
+            const { data, error } = await auth().exchangeCodeForSession(code);
+            if (error) throw error;
+            return data.session;
+        },
         async getUser() {
             const { data, error } = await auth().getUser();
             if (error?.name === 'AuthSessionMissingError') return null;
@@ -54,7 +59,10 @@ export function createAuthService(clientProvider = getSupabaseClient) {
         async requestPasswordReset(email, redirectTo) {
             const normalized = requiredText(email, 'Email').toLowerCase();
             if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(normalized)) throw new Error('Email không hợp lệ.');
-            await unwrap(auth().resetPasswordForEmail(normalized, { redirectTo }));
+            const origin = typeof window !== 'undefined' && window.location?.origin ? window.location.origin : '';
+            const targetRedirectTo = redirectTo || (origin ? `${origin}/reset-password` : undefined);
+            const options = targetRedirectTo ? { redirectTo: targetRedirectTo } : undefined;
+            await unwrap(auth().resetPasswordForEmail(normalized, options));
         },
         async updatePassword(password) {
             await unwrap(auth().updateUser({ password: validateNewPassword(password) }));
